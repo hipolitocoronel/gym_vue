@@ -10,12 +10,16 @@
         "start:backend": "cd backend && (./pocketbase serve || pocketbase.exe serve)"
     },
     "dependencies": {
+        "@primevue/forms": "^4.2.5",
         "@primevue/themes": "^4.2.4",
         "chart.js": "3.3.2",
+        "pinia": "^2.3.0",
+        "pocketbase": "^0.23.0",
         "primeicons": "^7.0.0",
         "primevue": "^4.2.4",
         "vue": "^3.4.34",
-        "vue-router": "^4.4.0"
+        "vue-router": "^4.4.0",
+        "zod": "^3.24.1"
     },
     "devDependencies": {
         "@primevue/auto-import-resolver": "^4.2.4",
