@@ -1,6 +1,7 @@
 <script setup>
 import { useLayout } from '@/layout/composables/layout';
 import router from '@/router';
+import pb from '@/service/pocketbase';
 import { useIndexStore } from '@/storage';
 import { onMounted, ref } from 'vue';
 
@@ -25,6 +26,7 @@ const toggle = (event) => {
 
 const logout = () => {
     store.setUserLogged(null);
+    pb.authStore.clear();
     router.push({ name: 'login' });
 };
 </script>
