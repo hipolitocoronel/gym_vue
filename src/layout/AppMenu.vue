@@ -5,8 +5,27 @@ import AppMenuItem from './AppMenuItem.vue';
 
 const model = ref([
     {
-        label: 'Home',
-        items: [{ label: 'Dashboard', icon: 'pi pi-fw pi-home', to: '/' }]
+        label: 'Acciones',
+        items: [
+            { label: 'Dashboard', icon: 'pi pi-fw pi-home', to: '/' },
+            { label: 'Membresías', icon: 'pi pi-fw pi-dollar', to: '/membresias' },
+            { label: 'Alumnos', icon: 'pi pi-fw pi-user', to: '/alumnos' },
+            { label: 'Reportes', icon: 'pi pi-fw pi-chart-bar', to: '/reportes' },
+            {
+                label: 'Configuración',
+                icon: 'pi pi-fw pi-cog',
+                items: [
+                    {
+                        label: 'General',
+                        to: '/configuracion'
+                    },
+                    {
+                        label: 'Usuarios',
+                        to: '/usuarios'
+                    }
+                ]
+            }
+        ]
     }
 ]);
 </script>

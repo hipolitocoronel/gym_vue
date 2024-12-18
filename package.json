@@ -7,7 +7,7 @@
         "preview": "vite preview",
         "lint": "eslint --fix . --ext .vue,.js,.jsx,.cjs,.mjs --fix --ignore-path .gitignore",
         "start": "concurrently \"npm run dev\" \"npm run start:backend\"",
-        "start:backend": "cd backend && ./pocketbase serve && pocketbase.exe serve"
+        "start:backend": "cd backend && (./pocketbase serve || pocketbase.exe serve)"
     },
     "dependencies": {
         "@primevue/themes": "^4.2.4",
