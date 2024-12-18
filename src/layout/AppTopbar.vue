@@ -2,12 +2,12 @@
 import { useLayout } from '@/layout/composables/layout';
 import router from '@/router';
 import { useIndexStore } from '@/storage';
-import { onMounted } from 'vue';
-import AppConfigurator from './AppConfigurator.vue';
+import { onMounted, ref } from 'vue';
 
 const store = useIndexStore();
+const op = ref();
 
-const { toggleMenu, toggleDarkMode, isDarkTheme } = useLayout();
+const { toggleDarkMode, isDarkTheme } = useLayout();
 
 onMounted(() => {
     // si no está habilitado dark mode se habilita
@@ -18,6 +18,15 @@ onMounted(() => {
         router.push({ name: 'login' });
     }
 });
+
+const toggle = (event) => {
+    op.value.toggle(event);
+};
+
+const logout = () => {
+    store.setUserLogged(null);
+    router.push({ name: 'login' });
+};
 </script>
 
 <template>
@@ -42,54 +51,35 @@ onMounted(() => {
                 <button type="button" class="layout-topbar-action" @click="toggleDarkMode">
                     <i :class="['pi', { 'pi-moon': isDarkTheme, 'pi-sun': !isDarkTheme }]"></i>
                 </button>
-                <div class="relative">
-                    <button
-                        v-styleclass="{
-                            selector: '@next',
-                            enterFromClass: 'hidden',
-                            enterActiveClass: 'animate-scalein',
-                            leaveToClass: 'hidden',
-                            leaveActiveClass: 'animate-fadeout',
-                            hideOnOutsideClick: true
-                        }"
-                        type="button"
-                        class="layout-topbar-action layout-topbar-action-highlight"
-                    >
-                        <i class="pi pi-palette"></i>
-                    </button>
-                    <AppConfigurator />
-                </div>
             </div>
 
-            <button
-                class="layout-topbar-menu-button layout-topbar-action"
-                v-styleclass="{
-                    selector: '@next',
-                    enterFromClass: 'hidden',
-                    enterActiveClass: 'animate-scalein',
-                    leaveToClass: 'hidden',
-                    leaveActiveClass: 'animate-fadeout',
-                    hideOnOutsideClick: true
-                }"
-            >
-                <i class="pi pi-ellipsis-v"></i>
-            </button>
+            <div>
+                <Avatar :label="store.getUserLogged?.name?.substring(0, 1)" class="mr-2" />
+                <Button
+                    type="button"
+                    @click="toggle"
+                    size="small"
+                    variant="text"
+                    severity="contrast"
+                >
+                    <span class="text-base">
+                        {{ store.getUserLogged?.name }}
+                    </span>
+                    <i class="ml-1 pi pi-fw pi-chevron-down"></i>
+                </Button>
 
-            <div class="hidden layout-topbar-menu lg:block">
-                <div class="layout-topbar-menu-content">
-                    <button type="button" class="layout-topbar-action">
-                        <i class="pi pi-calendar"></i>
-                        <span>Calendar</span>
-                    </button>
-                    <button type="button" class="layout-topbar-action">
-                        <i class="pi pi-inbox"></i>
-                        <span>Messages</span>
-                    </button>
-                    <button type="button" class="layout-topbar-action">
-                        <i class="pi pi-user"></i>
-                        <span>Profile</span>
-                    </button>
-                </div>
+                <Popover ref="op">
+                    <div class="flex flex-col gap-4 w-[18rem]">
+                        <div>
+                            <span class="block mb-2 font-medium" @click="toggle"> Acciones </span>
+
+                            <Button fluid severity="secondary" @click="logout()">
+                                <i class="mr-2 pi pi-sign-out"></i>
+                                Cerrar sesión
+                            </Button>
+                        </div>
+                    </div>
+                </Popover>
             </div>
         </div>
     </div>
