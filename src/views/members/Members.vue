@@ -21,12 +21,14 @@
       :loading="loading"
       :members="members"
       @delete-member="deleteMember"
+      @edit-member="editMember"
     />
     <Toast />
     <OneMember
+      :memberData="memberData"
       :visible="showModal"
-      @closeModal="showModal = false"
-      @newChanges="fetchMembers"
+      @closeModal="closeModal"
+      @newChanges="updateTable"
     />
     <ConfirmDialog></ConfirmDialog>
   </div>
@@ -48,6 +50,7 @@ const filters = ref({
 });
 const showModal = ref(false);
 const members = ref([]);
+const memberData = ref([]);
 const loading = ref(false);
 const fetchMembers = async () => {
   try {
@@ -60,6 +63,24 @@ const fetchMembers = async () => {
   } finally {
     loading.value = false;
   }
+};
+const closeModal = () => {
+  showModal.value = false;
+  memberData.value = [];
+};
+/*Obtiene la fila a editar y abre el modal */
+const editMember = (member) => {
+  memberData.value = member;
+  showModal.value = true;
+};
+const updateTable = (isEditMode) => {
+  fetchMembers();
+  toast.add({
+    severity: "success",
+    summary: "Confirmado",
+    detail: `Miembro ${isEditMode ? "Editado" : "Agregado"}`,
+    life: 3000,
+  });
 };
 const deleteMember = (member) => {
   confirm.require({
@@ -90,8 +111,8 @@ const confirmDeleteMember = async (memberID) => {
       life: 3000,
     });
     members.value = members.value.filter((member) => member.id !== memberID);
-  } catch (ex) {
-    console.log(ex);
+  } catch (error) {
+    console.log(error);
   }
 };
 onMounted(fetchMembers);
