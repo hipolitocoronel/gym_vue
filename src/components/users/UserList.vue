@@ -8,7 +8,7 @@ const users = ref([]);
 const first = ref(0); // corresponde al current page
 const loading = ref(false);
 const totalRecords = ref(0);
-const rowsPerPage = ref(10); // tamaño de la tabla
+const rowsPerPage = ref(2); // tamaño de la tabla
 
 onMounted(() => getUsuarios({ first: first.value, rows: rowsPerPage.value }));
 
@@ -18,8 +18,10 @@ const getUsuarios = async (event) => {
         first.value = event.first;
         rowsPerPage.value = event.rows;
 
+        const currentPage = Math.floor(first.value / rowsPerPage.value) + 1; // Convierte índice base-0 a base-1
+
         loading.value = true;
-        const result = await pb.collection('users').getList(first.value + 1, rowsPerPage.value);
+        const result = await pb.collection('users').getList(currentPage, rowsPerPage.value);
         totalRecords.value = result.totalItems;
         users.value = result.items;
     } catch (error) {
