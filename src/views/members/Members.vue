@@ -36,7 +36,7 @@ import Button from "primevue/button";
 import MemberList from "@/components/Members/MemberList.vue";
 import OneMember from "@/components/Members/OneMember.vue";
 import { onMounted, ref } from "vue";
-import memberService from "@/service/MemberService.js";
+import pb from "@/service/pocketbase.js";
 import { FilterMatchMode } from "@primevue/core/api";
 import { useConfirm } from "primevue/useconfirm";
 import { useToast } from "primevue/usetoast";
@@ -52,9 +52,11 @@ const loading = ref(false);
 const fetchMembers = async () => {
   try {
     loading.value = true;
-    members.value = await memberService.getMembers();
-  } catch (ex) {
-    console.log(ex);
+    members.value = await pb.collection("miembros").getFullList({
+      sort: "apellido",
+    });
+  } catch (error) {
+    console.log(error);
   } finally {
     loading.value = false;
   }
@@ -80,7 +82,7 @@ const deleteMember = (member) => {
 };
 const confirmDeleteMember = async (memberID) => {
   try {
-    await memberService.deleteMember(memberID);
+    await pb.collection("miembros").delete(memberID);
     toast.add({
       severity: "success",
       summary: "Confirmado",

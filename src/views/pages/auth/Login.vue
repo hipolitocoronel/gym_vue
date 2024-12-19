@@ -159,18 +159,108 @@ const onFormSubmit = async (e) => {
                     </Form>
                 </div>
             </div>
+            <span class="font-medium text-muted-color">Ingrese para continuar</span>
+          </div>
+
+          <Button class="w-full mb-6" severity="contrast" variant="outlined">
+            <img
+              src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/c1/Google_%22G%22_logo.svg/768px-Google_%22G%22_logo.svg.png"
+              alt=""
+              width="24px"
+            />
+            <span class="ml-1"> Continuar con Google </span>
+          </Button>
+
+          <Form v-slot="$form" :initialValues :resolver @submit="onFormSubmit">
+            <label
+              for="email"
+              class="block mb-2 text-lg font-medium text-surface-900 dark:text-surface-0"
+            >
+              Correo
+            </label>
+            <div class="mb-8">
+              <InputText
+                name="email"
+                id="email"
+                type="text"
+                placeholder="Correo electrónico"
+                class="w-full md:w-[30rem] mb-2"
+                v-model="email"
+              />
+
+              <Message
+                v-if="$form.email?.invalid"
+                severity="error"
+                size="small"
+                variant="simple"
+              >
+                {{ $form.email.error.message }}
+              </Message>
+            </div>
+
+            <label
+              for="password"
+              class="block mb-2 text-lg font-medium text-surface-900 dark:text-surface-0"
+            >
+              Contraseña
+            </label>
+
+            <div class="mb-4">
+              <Password
+                name="password"
+                id="password"
+                v-model="password"
+                placeholder="Contraseña"
+                :toggleMask="true"
+                class="mb-2"
+                fluid
+                :feedback="false"
+              >
+              </Password>
+
+              <Message
+                v-if="$form.password?.invalid"
+                severity="error"
+                size="small"
+                variant="simple"
+              >
+                {{ $form.password.error.message }}
+              </Message>
+            </div>
+
+            <div class="flex items-center justify-between gap-8 mt-2 mb-8">
+              <div class="flex items-center">
+                <Checkbox
+                  v-model="checked"
+                  id="rememberme1"
+                  binary
+                  class="mr-2"
+                ></Checkbox>
+                <label for="rememberme1">Recordar</label>
+              </div>
+              <span
+                class="ml-2 font-medium text-right no-underline cursor-pointer text-primary"
+                >Olvidaste tu contraseña?</span
+              >
+            </div>
+            <Button class="w-full mt-2 font-bold" type="submit">
+              <b class="text-lg tracking-wide">Iniciar sesión</b>
+            </Button>
+          </Form>
         </div>
+      </div>
     </div>
+  </div>
 </template>
 
 <style scoped>
 .pi-eye {
-    transform: scale(1.6);
-    margin-right: 1rem;
+  transform: scale(1.6);
+  margin-right: 1rem;
 }
 
 .pi-eye-slash {
-    transform: scale(1.6);
-    margin-right: 1rem;
+  transform: scale(1.6);
+  margin-right: 1rem;
 }
 </style>
