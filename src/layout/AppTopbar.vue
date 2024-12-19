@@ -1,22 +1,38 @@
 <script setup>
 import { useLayout } from '@/layout/composables/layout';
-import router from '@/router';
 import pb from '@/service/pocketbase';
 import { useIndexStore } from '@/storage';
 import { onMounted, ref } from 'vue';
+import { useRouter } from 'vue-router';
 
 const store = useIndexStore();
+const loading = ref(false);
 const op = ref();
+const router = useRouter();
 
 const { toggleDarkMode, isDarkTheme } = useLayout();
 
-onMounted(() => {
+onMounted(async () => {
     // si no está habilitado dark mode se habilita
     !isDarkTheme.value && toggleDarkMode();
 
     // si el usuario no ingresó, redireccionar a login
-    if (!store.getUserLogged) {
+    if (!pb.authStore.isValid) {
         router.push({ name: 'login' });
+    } else if (!store.userLogged) {
+        try {
+            loading.value = true;
+
+            const user = await pb.collection('users').getOne(pb.authStore.record.id);
+
+            // guardando informacion de usuario
+            store.setUserLogged(user);
+        } catch (error) {
+            router.push({ name: 'login' });
+            console.log(error);
+        } finally {
+            loading.value = false;
+        }
     }
 });
 
@@ -25,7 +41,6 @@ const toggle = (event) => {
 };
 
 const logout = () => {
-    store.setUserLogged(null);
     pb.authStore.clear();
     router.push({ name: 'login' });
 };
@@ -55,7 +70,7 @@ const logout = () => {
                 </button>
             </div>
 
-            <div>
+            <div v-if="!loading">
                 <Avatar :label="store.getUserLogged?.name?.substring(0, 1)" class="mr-2" />
                 <Button
                     type="button"
@@ -83,6 +98,8 @@ const logout = () => {
                     </div>
                 </Popover>
             </div>
+
+            <ProgressSpinner style="width: 27px; height: 27px" v-else strokeWidth="4" />
         </div>
     </div>
 </template>

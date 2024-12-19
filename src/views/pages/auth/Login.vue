@@ -1,14 +1,18 @@
 <script setup>
 import FloatingConfigurator from '@/components/FloatingConfigurator.vue';
-import router from '@/router';
 import pb from '@/service/pocketbase.js';
 import { useIndexStore } from '@/storage/index.js';
 import { Form } from '@primevue/forms';
 import { zodResolver } from '@primevue/forms/resolvers/zod';
+import { useToast } from 'primevue/usetoast';
 import { ref } from 'vue';
+import { useRouter } from 'vue-router';
 import { z } from 'zod';
 
 const store = useIndexStore();
+const loading = ref(false);
+const toast = useToast();
+const router = useRouter();
 
 const checked = ref(false);
 
@@ -27,6 +31,7 @@ const resolver = zodResolver(
 const onFormSubmit = async (e) => {
     if (e.valid) {
         try {
+            loading.value = true;
             const authData = await pb
                 .collection('users')
                 .authWithPassword(e.values.email, e.values.password);
@@ -37,8 +42,16 @@ const onFormSubmit = async (e) => {
             // redireccion
             router.push({ name: 'dashboard' });
         } catch (error) {
+            toast.add({
+                severity: 'error',
+                summary: 'Operación fallida',
+                detail: 'Intentelo nuevamente',
+                life: 3000
+            });
+
             console.error(error);
-            alert(error);
+        } finally {
+            loading.value = false;
         }
     }
 };
@@ -139,7 +152,7 @@ const onFormSubmit = async (e) => {
                         </div>
 
                         <div class="flex items-center justify-between gap-8 mt-2 mb-8">
-                            <div class="flex items-center">
+                            <div class="flex items-center" style="visibility: hidden">
                                 <Checkbox
                                     v-model="checked"
                                     id="rememberme1"
@@ -150,12 +163,16 @@ const onFormSubmit = async (e) => {
                             </div>
                             <span
                                 class="ml-2 font-medium text-right no-underline cursor-pointer text-primary"
-                                >Olvidaste tu contraseña?</span
                             >
+                                Olvidaste tu contraseña?
+                            </span>
                         </div>
-                        <Button class="w-full mt-2 font-bold" type="submit">
-                            <b class="text-lg tracking-wide">Iniciar sesión</b>
-                        </Button>
+                        <Button
+                            class="w-full mt-2 font-bold"
+                            type="submit"
+                            :loading="loading"
+                            label="Iniciar sesión"
+                        />
                     </Form>
                 </div>
             </div>

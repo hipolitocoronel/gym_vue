@@ -1,7 +1,7 @@
 <template>
     <div class="card">
         <h1 class="text-3xl font-bold">Miembros</h1>
-        <div class="mb-3 mt-5 flex justify-between">
+        <div class="flex justify-between mt-5 mb-3">
             <IconField>
                 <InputIcon>
                     <i class="pi pi-search" />
@@ -26,7 +26,7 @@
             @delete-member="deleteMember"
             @edit-member="editMember"
         />
-        <Toast />
+
         <OneMember
             :memberData
             :visible="showModal"
@@ -37,15 +37,15 @@
     </div>
 </template>
 <script setup>
-import Button from 'primevue/button';
 import MemberList from '@/components/Members/MemberList.vue';
 import OneMember from '@/components/Members/OneMember.vue';
-import { onMounted, ref } from 'vue';
 import pb from '@/service/pocketbase.js';
 import { FilterMatchMode } from '@primevue/core/api';
+import Button from 'primevue/button';
+import ConfirmDialog from 'primevue/confirmdialog';
 import { useConfirm } from 'primevue/useconfirm';
 import { useToast } from 'primevue/usetoast';
-import ConfirmDialog from 'primevue/confirmdialog';
+import { onMounted, ref } from 'vue';
 const confirm = useConfirm();
 const toast = useToast();
 const filters = ref({
