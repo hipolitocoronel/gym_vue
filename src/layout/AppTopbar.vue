@@ -1,10 +1,23 @@
 <script setup>
 import { useLayout } from '@/layout/composables/layout';
+import router from '@/router';
+import { useIndexStore } from '@/storage';
+import { onMounted } from 'vue';
 import AppConfigurator from './AppConfigurator.vue';
+
+const store = useIndexStore();
 
 const { toggleMenu, toggleDarkMode, isDarkTheme } = useLayout();
 
-toggleDarkMode();
+onMounted(() => {
+    // si no está habilitado dark mode se habilita
+    !isDarkTheme.value && toggleDarkMode();
+
+    // si el usuario no ingresó, redireccionar a login
+    if (!store.getUserLogged) {
+        router.push({ name: 'login' });
+    }
+});
 </script>
 
 <template>
@@ -14,7 +27,11 @@ toggleDarkMode();
                 <i class="pi pi-bars"></i>
             </button> -->
             <router-link to="/" class="layout-topbar-logo">
-                <img src="https://cdn.logojoy.com/wp-content/uploads/20210517162426/barbell-symbol.png" alt="" width="25px" />
+                <img
+                    src="https://cdn.logojoy.com/wp-content/uploads/20210517162426/barbell-symbol.png"
+                    alt=""
+                    width="26px"
+                />
 
                 <span><b>GYM</b></span>
             </router-link>
@@ -27,7 +44,14 @@ toggleDarkMode();
                 </button>
                 <div class="relative">
                     <button
-                        v-styleclass="{ selector: '@next', enterFromClass: 'hidden', enterActiveClass: 'animate-scalein', leaveToClass: 'hidden', leaveActiveClass: 'animate-fadeout', hideOnOutsideClick: true }"
+                        v-styleclass="{
+                            selector: '@next',
+                            enterFromClass: 'hidden',
+                            enterActiveClass: 'animate-scalein',
+                            leaveToClass: 'hidden',
+                            leaveActiveClass: 'animate-fadeout',
+                            hideOnOutsideClick: true
+                        }"
                         type="button"
                         class="layout-topbar-action layout-topbar-action-highlight"
                     >
@@ -39,7 +63,14 @@ toggleDarkMode();
 
             <button
                 class="layout-topbar-menu-button layout-topbar-action"
-                v-styleclass="{ selector: '@next', enterFromClass: 'hidden', enterActiveClass: 'animate-scalein', leaveToClass: 'hidden', leaveActiveClass: 'animate-fadeout', hideOnOutsideClick: true }"
+                v-styleclass="{
+                    selector: '@next',
+                    enterFromClass: 'hidden',
+                    enterActiveClass: 'animate-scalein',
+                    leaveToClass: 'hidden',
+                    leaveActiveClass: 'animate-fadeout',
+                    hideOnOutsideClick: true
+                }"
             >
                 <i class="pi pi-ellipsis-v"></i>
             </button>

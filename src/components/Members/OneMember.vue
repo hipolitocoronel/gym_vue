@@ -6,60 +6,94 @@
     header="Agregar Miembro"
     :style="{ width: '28rem' }"
   >
-    <form @submit.prevent="onFormSubmit" class="flex justify-center flex-col gap-4 mt-3">
+    <Form
+      v-slot="$form"
+      :initialValues
+      :resolver
+      @submit="onFormSubmit"
+      class="flex justify-center flex-col gap-4"
+    >
+      <div class="flex flex-col gap-1">
+        <FloatLabel variant="in">
+          <InputText id="nombre" name="nombre" fluid autocomplete="off" />
+          <label for="nombre">Nombre</label>
+        </FloatLabel>
+        <Message
+          v-if="$form.nombre?.invalid"
+          severity="error"
+          size="small"
+          variant="simple"
+          >{{ $form.nombre.error.message }}</Message
+        >
+      </div>
+      <div class="flex flex-col gap-1">
+        <FloatLabel variant="in">
+          <InputText id="apellido" name="apellido" fluid autocomplete="off" />
+          <label for="apellido">Apellido</label>
+        </FloatLabel>
+        <Message
+          v-if="$form.apellido?.invalid"
+          severity="error"
+          size="small"
+          variant="simple"
+          >{{ $form.apellido.error.message }}</Message
+        >
+      </div>
       <FloatLabel variant="in">
-        <InputText id="name" fluid v-model="formData.nombre" autocomplete="off" />
-        <label for="name">Nombre</label>
+        <InputText id="direccion" name="direccion" fluid autocomplete="off" />
+        <label for="direccion">Dirección</label>
       </FloatLabel>
-      <FloatLabel variant="in">
-        <InputText id="lastname" fluid v-model="formData.apellido" autocomplete="off" />
-        <label for="lastname">Apellido</label>
-      </FloatLabel>
-      <FloatLabel variant="in">
-        <InputText id="address" fluid v-model="formData.direccion" autocomplete="off" />
-        <label for="address">Dirección</label>
-      </FloatLabel>
-      <FloatLabel variant="in">
-        <InputText
-          id="phone"
-          v-model="formData.telefono"
-          type="number"
-          fluid
-          autocomplete="off"
-        />
-        <label for="phone">Teléfono</label>
-      </FloatLabel>
-      <FloatLabel variant="in">
-        <InputText
-          id="dni"
-          fluid
-          v-model="formData.dni"
-          type="number"
-          autocomplete="off"
-        />
-        <label for="dni">DNI</label>
-      </FloatLabel>
-      <div class="flex flex-wrap gap-4">
+      <div class="flex flex-col gap-1">
+        <FloatLabel variant="in">
+          <InputText id="telefono" name="telefono" fluid autocomplete="off" />
+          <label for="telefono">Teléfono</label>
+        </FloatLabel>
+        <Message
+          v-if="$form.telefono?.invalid"
+          severity="error"
+          size="small"
+          variant="simple"
+          >{{ $form.telefono.error.message }}</Message
+        >
+      </div>
+      <div class="flex flex-col gap-1">
+        <FloatLabel variant="in">
+          <InputText id="dni" name="dni" fluid autocomplete="off" />
+          <label for="dni">DNI</label>
+        </FloatLabel>
+        <Message
+          v-if="$form.dni?.invalid"
+          severity="error"
+          size="small"
+          variant="simple"
+          >{{ $form.dni.error.message }}</Message
+        >
+      </div>
+      <div class="flex gap-4">
         <div class="flex items-center gap-2">
           <RadioButton
-            v-model="formData.sexo"
             inputId="hombre"
-            name="hombre"
+            name="sexo"
+            :invalid="$form.sexo?.invalid"
             value="Hombre"
           />
-          <label for="hombre">Hombre</label>
+          <label for="hombre" :class="{ 'text-red-400': $form.sexo?.invalid }"
+            >Hombre</label
+          >
         </div>
         <div class="flex items-center gap-2">
           <RadioButton
-            v-model="formData.sexo"
             inputId="mujer"
-            name="mujer"
+            name="sexo"
+            :invalid="$form.sexo?.invalid"
             value="Mujer"
           />
-          <label for="mujer">Mujer</label>
+          <label for="mujer" :class="{ 'text-red-400': $form.sexo?.invalid }"
+            >Mujer</label
+          >
         </div>
       </div>
-      <div class="flex justify-end gap-2 mt-2">
+      <div class="flex justify-end gap-2 mt-1">
         <Button
           type="button"
           label="Cancelar"
@@ -68,7 +102,7 @@
         ></Button>
         <Button label="Agregar" :loading="loading" type="submit"></Button>
       </div>
-    </form>
+    </Form>
   </Dialog>
 </template>
 <script setup>
@@ -77,7 +111,11 @@ import InputText from "primevue/inputtext";
 import FloatLabel from "primevue/floatlabel";
 import Button from "primevue/button";
 import Dialog from "primevue/dialog";
-import memberService from "@/service/MemberService.js";
+import Message from "primevue/message";
+import { Form } from "@primevue/forms";
+import pb from "@/service/pocketbase.js";
+import { zodResolver } from "@primevue/forms/resolvers/zod";
+import { z } from "zod";
 import { ref, defineProps, defineEmits } from "vue";
 const showModal = ref(false);
 const emit = defineEmits(["closeModal", "newChanges"]);
@@ -88,12 +126,22 @@ const loading = ref(false);
 const initialValues = {
   nombre: "",
   apellido: "",
-  telefono: null,
+  telefono: "",
   direccion: "",
-  dni: null,
-  sexo: null,
+  dni: "",
+  sexo: "",
   membresia: true,
 };
+const resolver = zodResolver(
+  z.object({
+    nombre: z.string().min(1, { message: "El nombre es obligatorio." }),
+    apellido: z.string().min(1, { message: "El apellido es obligatorio." }),
+    telefono: z.string().min(1, { message: "El teléfono es obligatorio." }),
+    direccion: z.string().optional(),
+    dni: z.string().min(1, { message: "El dni es obligatorio." }),
+    sexo: z.string().min(1, { message: "El sexo es obligatorio." }),
+  })
+);
 const formData = ref({ ...initialValues });
 const resetForm = () => {
   formData.value = { ...initialValues };
@@ -102,16 +150,15 @@ const closeModal = () => {
   resetForm();
   emit("closeModal");
 };
-const onFormSubmit = async () => {
-  try {
-    loading.value = true;
-    await memberService.createMember(formData.value);
-    emit("newChanges");
-    closeModal();
-  } catch (ex) {
-    console.log(ex);
-  } finally {
-    loading.value = false;
+const onFormSubmit = async (e) => {
+  if (e.valid) {
+    try {
+      await pb.collection("miembros").create(e.values);
+      emit("newChanges");
+      closeModal();
+    } catch (error) {
+      console.log(error);
+    }
   }
 };
 </script>
