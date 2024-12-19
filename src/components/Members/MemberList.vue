@@ -34,6 +34,7 @@
             variant="text"
             rounded
             size="large"
+            @click="$emit('editMember', data)"
           />
           <Button
             icon="pi pi-trash"

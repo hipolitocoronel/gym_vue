@@ -3,7 +3,7 @@
     v-model:visible="props.visible"
     modal
     @update:visible="closeModal"
-    header="Agregar Miembro"
+    :header="isEditMode ? 'Editar Miembro' : 'Agregar Miembro'"
     :style="{ width: '28rem' }"
   >
     <Form
@@ -14,6 +14,7 @@
       class="flex justify-center flex-col gap-4"
     >
       <div class="flex flex-col gap-1">
+        <InputText v-if="isEditMode" id="id" name="id" class="hidden" />
         <FloatLabel variant="in">
           <InputText id="nombre" name="nombre" fluid autocomplete="off" />
           <label for="nombre">Nombre</label>
@@ -45,7 +46,13 @@
       </FloatLabel>
       <div class="flex flex-col gap-1">
         <FloatLabel variant="in">
-          <InputText id="telefono" name="telefono" fluid autocomplete="off" />
+          <InputText
+            id="telefono"
+            type="number"
+            name="telefono"
+            fluid
+            autocomplete="off"
+          />
           <label for="telefono">Teléfono</label>
         </FloatLabel>
         <Message
@@ -58,7 +65,7 @@
       </div>
       <div class="flex flex-col gap-1">
         <FloatLabel variant="in">
-          <InputText id="dni" name="dni" fluid autocomplete="off" />
+          <InputText id="dni" name="dni" type="number" fluid autocomplete="off" />
           <label for="dni">DNI</label>
         </FloatLabel>
         <Message
@@ -69,30 +76,22 @@
           >{{ $form.dni.error.message }}</Message
         >
       </div>
-      <div class="flex gap-4">
+      <RadioButtonGroup :invalid="$form.sexo?.invalid" name="sexo" class="flex gap-4">
         <div class="flex items-center gap-2">
-          <RadioButton
-            inputId="hombre"
-            name="sexo"
-            :invalid="$form.sexo?.invalid"
-            value="Hombre"
-          />
+          <RadioButton inputId="hombre" value="Hombre" />
           <label for="hombre" :class="{ 'text-red-400': $form.sexo?.invalid }"
             >Hombre</label
           >
         </div>
+
         <div class="flex items-center gap-2">
-          <RadioButton
-            inputId="mujer"
-            name="sexo"
-            :invalid="$form.sexo?.invalid"
-            value="Mujer"
-          />
+          <RadioButton inputId="mujer" value="Mujer" />
           <label for="mujer" :class="{ 'text-red-400': $form.sexo?.invalid }"
             >Mujer</label
           >
         </div>
-      </div>
+      </RadioButtonGroup>
+
       <div class="flex justify-end gap-2 mt-1">
         <Button
           type="button"
@@ -100,7 +99,11 @@
           severity="secondary"
           @click="closeModal"
         ></Button>
-        <Button label="Agregar" :loading="loading" type="submit"></Button>
+        <Button
+          :label="isEditMode ? 'Editar' : 'Agregar'"
+          :loading="loading"
+          type="submit"
+        ></Button>
       </div>
     </Form>
   </Dialog>
@@ -116,49 +119,88 @@ import { Form } from "@primevue/forms";
 import pb from "@/service/pocketbase.js";
 import { zodResolver } from "@primevue/forms/resolvers/zod";
 import { z } from "zod";
-import { ref, defineProps, defineEmits } from "vue";
+import { ref, defineProps, defineEmits, watch, computed } from "vue";
 const showModal = ref(false);
 const emit = defineEmits(["closeModal", "newChanges"]);
 const props = defineProps({
   visible: Boolean,
+  memberData: {
+    type: Object,
+  },
 });
 const loading = ref(false);
-const initialValues = {
-  nombre: "",
+const initialValues = ref({
+  nombre: "dffdfdf",
   apellido: "",
   telefono: "",
   direccion: "",
   dni: "",
   sexo: "",
-  membresia: true,
-};
+});
 const resolver = zodResolver(
   z.object({
     nombre: z.string().min(1, { message: "El nombre es obligatorio." }),
     apellido: z.string().min(1, { message: "El apellido es obligatorio." }),
-    telefono: z.string().min(1, { message: "El teléfono es obligatorio." }),
+    telefono: z.coerce.number().min(1, { message: "El teléfono es obligatorio." }),
     direccion: z.string().optional(),
-    dni: z.string().min(1, { message: "El dni es obligatorio." }),
+    id: z.string().optional(),
+    dni: z.coerce.number().min(1, { message: "El dni es obligatorio." }),
     sexo: z.string().min(1, { message: "El sexo es obligatorio." }),
   })
 );
-const formData = ref({ ...initialValues });
-const resetForm = () => {
-  formData.value = { ...initialValues };
-};
+
+watch(
+  () => props.memberData,
+  (newValue, oldValue) => {
+    if (newValue.length != 0) {
+      initialValues.value = { ...newValue };
+    } else {
+      initialValues.value = {
+        nombre: "",
+        apellido: "",
+        telefono: "",
+        direccion: "",
+        dni: "",
+        sexo: "",
+      };
+    }
+  },
+  { immediate: true }
+);
 const closeModal = () => {
-  resetForm();
   emit("closeModal");
 };
-const onFormSubmit = async (e) => {
+const onFormSubmit = (e) => {
   if (e.valid) {
-    try {
-      await pb.collection("miembros").create(e.values);
-      emit("newChanges");
-      closeModal();
-    } catch (error) {
-      console.log(error);
-    }
+    isEditMode.value ? editMember(e.values) : addMember(e.values);
+  }
+};
+
+const isEditMode = computed(() => {
+  return props.memberData.length != 0 ? true : false;
+});
+const addMember = async (newMember) => {
+  try {
+    loading.value = true;
+    await pb.collection("miembros").create(newMember);
+    emit("newChanges", false);
+    closeModal();
+  } catch (error) {
+    console.log(error);
+  } finally {
+    loading.value = false;
+  }
+};
+const editMember = async (updatedMember) => {
+  try {
+    loading.value = true;
+    await pb.collection("miembros").update(updatedMember.id, updatedMember);
+    emit("newChanges", true);
+    closeModal();
+  } catch (error) {
+    console.log(error);
+  } finally {
+    loading.value = false;
   }
 };
 </script>
