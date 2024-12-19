@@ -6,10 +6,13 @@
                 <InputIcon>
                     <i class="pi pi-search" />
                 </InputIcon>
-                <InputText v-model="filters['global'].value" placeholder="Buscar..." />
+                <InputText
+                    v-model="filters['global'].value"
+                    placeholder="Buscar..."
+                    class="min-w-[350px]"
+                />
             </IconField>
             <Button
-                rounded
                 severity="contrast"
                 @click="showModal = true"
                 label="Agregar Miembro"

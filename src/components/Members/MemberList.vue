@@ -5,8 +5,6 @@
         :value="props.members"
         paginator
         :rows="10"
-        dataKey="id"
-        filterDisplay="row"
         :loading="props.loading"
         :globalFilterFields="['name', 'lastname']"
     >

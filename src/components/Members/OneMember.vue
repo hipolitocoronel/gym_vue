@@ -125,9 +125,7 @@ const showModal = ref(false);
 const emit = defineEmits(['closeModal', 'newChanges']);
 const props = defineProps({
     visible: Boolean,
-    memberData: {
-        type: Object
-    }
+    memberData: Object
 });
 const errorDni = ref(false);
 const loading = ref(false);
