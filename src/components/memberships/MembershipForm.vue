@@ -24,8 +24,16 @@
                     autocomplete="off"
                 />
 
-                <Message v-if="$form.nombre?.invalid" severity="error" size="small" variant="simple"
-                    >{{ $form.nombre.error.message }}
+                <Message
+                    v-if="$form.nombre?.invalid || errorName"
+                    severity="error"
+                    size="small"
+                    variant="simple"
+                    >{{
+                        errorName
+                            ? 'Ya existe una membresia con este nombre'
+                            : $form.nombre.error.message
+                    }}
                 </Message>
             </div>
             <div class="flex flex-col gap-1">
@@ -47,7 +55,7 @@
             <div class="flex flex-col gap-1">
                 <label for="descripcion">Descripción</label>
                 <Textarea
-                    placeholder="Ej. Acceso a maquinas y mancuernas"
+                    placeholder="Ej: Acceso a maquinas y mancuernas"
                     style="resize: none"
                     id="descripcion"
                     name="descripcion"
