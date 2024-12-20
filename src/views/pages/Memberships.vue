@@ -1,6 +1,6 @@
 <template>
     <div class="card">
-        <h1 class="text-3xl font-bold">Miembros</h1>
+        <h1 class="text-3xl font-bold">Membresías</h1>
         <div class="flex justify-between mt-5 mb-3">
             <IconField>
                 <InputIcon>
@@ -8,7 +8,7 @@
                 </InputIcon>
                 <InputText
                     placeholder="Buscar por nombre..."
-                    @input="searchMembers"
+                    @input="searchMemberships"
                     v-model="searchInput"
                     class="min-w-[350px]"
                 />
@@ -16,13 +16,17 @@
             <Button
                 severity="contrast"
                 @click="showModal = true"
-                label="Agregar Miembro"
-                icon="pi pi-user-plus"
+                label="Agregar Membresía"
+                icon="pi pi-plus"
             />
         </div>
-        <MemberList ref="memberList" @delete-member="deleteMember" @edit-member="editMember" />
-        <MemberForm
-            :memberData
+        <MembershipList
+            ref="membershipList"
+            @delete-membership="deleteMembership"
+            @edit-membership="editMembership"
+        />
+        <MembershipForm
+            :membershipData
             :visible="showModal"
             @closeModal="closeModal"
             @newChanges="updateTable"
@@ -31,8 +35,8 @@
     </div>
 </template>
 <script setup>
-import MemberList from '@/components/members/MemberList.vue';
-import MemberForm from '@/components/members/MemberForm.vue';
+import MembershipList from '@/components/memberships/MembershipList.vue';
+import MembershipForm from '@/components/memberships/MembershipForm.vue';
 import pb from '@/service/pocketbase.js';
 import Button from 'primevue/button';
 import ConfirmDialog from 'primevue/confirmdialog';
@@ -43,37 +47,37 @@ import { useDebounceFn } from '@vueuse/core';
 const confirm = useConfirm();
 const toast = useToast();
 const showModal = ref(false);
-const memberData = ref([]);
-const memberList = ref(null);
+const membershipData = ref([]);
 const searchInput = ref('');
+const membershipList = ref(null);
 const closeModal = () => {
     showModal.value = false;
-    memberData.value = [];
+    membershipData.value = [];
 };
 //Obtiene la fila a editar y abre el modal
-const editMember = (member) => {
-    memberData.value = member;
+const editMembership = (membership) => {
+    membershipData.value = membership;
     showModal.value = true;
 };
-//Actualizar la tabla despues de agregar o editar un miembrp
+//Actualizar la tabla despues de agregar o editar una membresia
 const updateTable = (isEditMode) => {
     searchInput.value = '';
-    memberList.value.getMembers({ first: 0, rows: 10 });
+    membershipList.value.getMemberships({ first: 0, rows: 10 });
     toast.add({
         severity: 'success',
         summary: 'Confirmado',
-        detail: `Miembro ${isEditMode ? 'Editado' : 'Agregado'}`,
+        detail: `Membresía ${isEditMode ? 'Editada' : 'Agregada'}`,
         life: 3000
     });
 };
-const searchMembers = useDebounceFn(() => {
-    memberList.value.getMembers({ first: 0, rows: 10, search: searchInput.value });
+const searchMemberships = useDebounceFn(() => {
+    membershipList.value.getMemberships({ first: 0, rows: 10, search: searchInput.value });
 }, 600);
 
-//Modal de eliminacion de miembro
-const deleteMember = (member) => {
+//Modal de eliminacion de membresia
+const deleteMembership = (membership) => {
     confirm.require({
-        message: `Seguro que quieres eliminar a ${member.nombre} ?`,
+        message: `Seguro que quieres eliminar la membresía ${membership.nombre} ?`,
         header: 'Confirmar Eliminación',
         icon: 'pi pi-info-circle',
         rejectProps: {
@@ -86,19 +90,20 @@ const deleteMember = (member) => {
             severity: 'danger'
         },
         accept: () => {
-            confirmDeleteMember(member.id);
+            confirmDeleteMembership(membership.id);
         }
     });
 };
-//Elimnar miembro de la base de datos
-const confirmDeleteMember = async (memberID) => {
+//Elimnar membresia de la base de datos
+const confirmDeleteMembership = async (memberID) => {
     try {
-        await pb.collection('miembros').delete(memberID);
-        memberList.value.getMembers({ first: 0, rows: 10 });
+        await pb.collection('membresias').delete(memberID);
+        membershipList.value.getMemberships({ first: 0, rows: 10 });
+
         toast.add({
             severity: 'success',
             summary: 'Confirmado',
-            detail: 'Miembro eliminado',
+            detail: 'Membresia eliminada',
             life: 3000
         });
     } catch (error) {

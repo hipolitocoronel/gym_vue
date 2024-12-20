@@ -47,46 +47,49 @@
                     >{{ $form.direccion.error.message }}
                 </Message>
             </div>
-            <div class="flex gap-4 grow">
-                <div class="flex flex-col gap-1 grow">
-                    <label for="dni">DNI</label>
-                    <InputText
-                        id="dni"
-                        name="dni"
-                        type="number"
-                        placeholder="Ingrese el DNI"
-                        fluid
-                        autocomplete="off"
-                    />
+            <Fluid>
+                <div class="grid grid-cols-2 gap-4 grow">
+                    <div class="flex flex-col gap-1">
+                        <label for="dni">DNI</label>
+                        <InputNumber
+                            id="dni"
+                            name="dni"
+                            type="number"
+                            placeholder="Ingrese el DNI"
+                            fluid
+                            autocomplete="off"
+                        />
 
-                    <Message
-                        v-if="$form.dni?.invalid || errorDni"
-                        severity="error"
-                        size="small"
-                        variant="simple"
-                        >{{ errorDni ? 'DNI ya registrado' : $form.dni.error.message }}</Message
-                    >
-                </div>
-                <div class="flex flex-col gap-1 grow">
-                    <label for="phone">Telefono</label>
-                    <InputText
-                        id="phone"
-                        name="telefono"
-                        placeholder="Ingrese el teléfono"
-                        fluid
-                        type="number"
-                        autocomplete="off"
-                    />
+                        <Message
+                            v-if="$form.dni?.invalid || errorDni"
+                            severity="error"
+                            size="small"
+                            variant="simple"
+                            >{{ errorDni ? 'DNI ya registrado' : $form.dni.error.message }}</Message
+                        >
+                    </div>
+                    <div class="flex flex-col gap-1">
+                        <label for="phone">Telefono</label>
+                        <InputNumber
+                            id="phone"
+                            name="telefono"
+                            placeholder="Ingrese el teléfono"
+                            fluid
+                            :useGrouping="false"
+                            type="number"
+                            autocomplete="off"
+                        />
 
-                    <Message
-                        v-if="$form.telefono?.invalid"
-                        severity="error"
-                        size="small"
-                        variant="simple"
-                        >{{ $form.telefono.error.message }}
-                    </Message>
+                        <Message
+                            v-if="$form.telefono?.invalid"
+                            severity="error"
+                            size="small"
+                            variant="simple"
+                            >{{ $form.telefono.error.message }}
+                        </Message>
+                    </div>
                 </div>
-            </div>
+            </Fluid>
             <div class="flex flex-col gap-1">
                 <label for="sexo">Sexo</label>
                 <RadioButtonGroup
@@ -152,9 +155,9 @@ const errorDni = ref(false);
 const loading = ref(false);
 const initialValues = ref({
     nombre: '',
-    telefono: '',
+    telefono: null,
     direccion: '',
-    dni: '',
+    dni: null,
     sexo: ''
 });
 const resolver = zodResolver(
@@ -189,9 +192,9 @@ watch(
         } else {
             initialValues.value = {
                 nombre: '',
-                telefono: '',
+                telefono: null,
                 direccion: '',
-                dni: '',
+                dni: null,
                 sexo: ''
             };
         }
@@ -207,7 +210,6 @@ const onFormSubmit = async (e) => {
         try {
             const memberData = e.values;
             loading.value = true;
-            errorDni.value = false;
             isEditMode.value
                 ? await pb.collection('miembros').update(memberData.id, memberData)
                 : await pb.collection('miembros').create(memberData);
