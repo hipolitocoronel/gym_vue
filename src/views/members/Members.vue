@@ -6,31 +6,33 @@
                 <InputIcon>
                     <i class="pi pi-search" />
                 </InputIcon>
-                <InputText
-                    v-model="filters['global'].value"
-                    placeholder="Buscar..."
-                    class="min-w-[350px]"
-                />
+                <InputText placeholder="Buscar..." class="min-w-[350px]" />
             </IconField>
-            <Button
-                severity="contrast"
-                @click="showModal = true"
-                label="Agregar Miembro"
-                icon="pi pi-user-plus"
-            />
+            <div class="flex gap-2">
+                <Button
+                    severity="contrast"
+                    @click="showModal = true"
+                    label="Agregar Miembro"
+                    icon="pi pi-user-plus"
+                />
+                <Button
+                    severity="contrast"
+                    @click="showModal2 = true"
+                    label="Agregar Miembro 2"
+                    icon="pi pi-user-plus"
+                />
+            </div>
         </div>
-        <MemberList
-            :filters
-            :loading
-            :members
-            @delete-member="deleteMember"
-            @edit-member="editMember"
-        />
-
+        <MemberList ref="memberList" @delete-member="deleteMember" @edit-member="editMember" />
         <OneMember
             :memberData
             :visible="showModal"
             @closeModal="closeModal"
+            @newChanges="updateTable"
+        /><OneMember2
+            :memberData
+            :visible="showModal2"
+            @closeModal="showModal2 = false"
             @newChanges="updateTable"
         />
         <ConfirmDialog></ConfirmDialog>
@@ -39,45 +41,31 @@
 <script setup>
 import MemberList from '@/components/Members/MemberList.vue';
 import OneMember from '@/components/Members/OneMember.vue';
+import OneMember2 from '@/components/Members/OneMember2.vue';
 import pb from '@/service/pocketbase.js';
-import { FilterMatchMode } from '@primevue/core/api';
 import Button from 'primevue/button';
 import ConfirmDialog from 'primevue/confirmdialog';
 import { useConfirm } from 'primevue/useconfirm';
 import { useToast } from 'primevue/usetoast';
-import { onMounted, ref } from 'vue';
+import { ref } from 'vue';
 const confirm = useConfirm();
 const toast = useToast();
-const filters = ref({
-    global: { value: null, matchMode: FilterMatchMode.CONTAINS }
-});
 const showModal = ref(false);
-const members = ref([]);
+const showModal2 = ref(false);
 const memberData = ref([]);
-const loading = ref(false);
-const fetchMembers = async () => {
-    try {
-        loading.value = true;
-        members.value = await pb.collection('miembros').getFullList({
-            sort: 'apellido'
-        });
-    } catch (error) {
-        console.log(error);
-    } finally {
-        loading.value = false;
-    }
-};
+const memberList = ref(null);
 const closeModal = () => {
     showModal.value = false;
     memberData.value = [];
 };
-/*Obtiene la fila a editar y abre el modal */
+//Obtiene la fila a editar y abre el modal
 const editMember = (member) => {
     memberData.value = member;
     showModal.value = true;
 };
+//Actualizar la tabla despues de agregar o editar un miembrp
 const updateTable = (isEditMode) => {
-    fetchMembers();
+    memberList.value.getMembers({ first: 0, rows: 10 });
     toast.add({
         severity: 'success',
         summary: 'Confirmado',
@@ -85,6 +73,7 @@ const updateTable = (isEditMode) => {
         life: 3000
     });
 };
+//Modal de eliminacion de miembro
 const deleteMember = (member) => {
     confirm.require({
         message: `Seguro que quieres eliminar a ${member.apellido}, ${member.nombre} ?`,
@@ -104,6 +93,7 @@ const deleteMember = (member) => {
         }
     });
 };
+//Elimnar miembro de la base de datos
 const confirmDeleteMember = async (memberID) => {
     try {
         await pb.collection('miembros').delete(memberID);
@@ -113,10 +103,9 @@ const confirmDeleteMember = async (memberID) => {
             detail: 'Miembro eliminado',
             life: 3000
         });
-        members.value = members.value.filter((member) => member.id !== memberID);
+        memberList.value.getMembers({ first: 0, rows: 10 });
     } catch (error) {
         console.log(error);
     }
 };
-onMounted(fetchMembers);
 </script>

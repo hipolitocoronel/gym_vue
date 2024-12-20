@@ -4,123 +4,151 @@
         modal
         @update:visible="closeModal"
         :header="isEditMode ? 'Editar Miembro' : 'Agregar Miembro'"
-        :style="{ width: '28rem' }"
+        :style="{ width: '38rem' }"
     >
-        <Form
-            v-slot="$form"
-            :initialValues
-            :resolver
-            @submit="onFormSubmit"
-            class="flex justify-center flex-col gap-4"
-        >
-            <div class="flex flex-col gap-1">
+        <div ref="formContainer">
+            <Form
+                v-slot="$form"
+                :initialValues
+                :resolver
+                v-auto-animate
+                @submit="onFormSubmit"
+                class="flex justify-center flex-col gap-4"
+            >
                 <InputText v-if="isEditMode" id="id" name="id" class="hidden" />
-                <FloatLabel variant="in">
-                    <InputText id="nombre" name="nombre" fluid autocomplete="off" />
-                    <label for="nombre">Nombre</label>
-                </FloatLabel>
-                <Message
-                    v-if="$form.nombre?.invalid"
-                    severity="error"
-                    size="small"
-                    variant="simple"
-                    >{{ $form.nombre.error.message }}</Message
-                >
-            </div>
-            <div class="flex flex-col gap-1">
-                <FloatLabel variant="in">
-                    <InputText id="apellido" name="apellido" fluid autocomplete="off" />
-                    <label for="apellido">Apellido</label>
-                </FloatLabel>
-                <Message
-                    v-if="$form.apellido?.invalid"
-                    severity="error"
-                    size="small"
-                    variant="simple"
-                    >{{ $form.apellido.error.message }}</Message
-                >
-            </div>
-            <FloatLabel variant="in">
-                <InputText id="direccion" name="direccion" fluid autocomplete="off" />
-                <label for="direccion">Dirección</label>
-            </FloatLabel>
-            <div class="flex flex-col gap-1">
-                <FloatLabel variant="in">
+                <div class="flex flex-col gap-1">
+                    <label for="name">Nombre</label>
                     <InputText
-                        id="telefono"
-                        type="number"
-                        name="telefono"
+                        id="name"
+                        name="nombre"
+                        placeholder="Ej: Juan Perez"
                         fluid
                         autocomplete="off"
                     />
-                    <label for="telefono">Teléfono</label>
-                </FloatLabel>
-                <Message
-                    v-if="$form.telefono?.invalid"
-                    severity="error"
-                    size="small"
-                    variant="simple"
-                    >{{ $form.telefono.error.message }}</Message
-                >
-            </div>
-            <div class="flex flex-col gap-1">
-                <FloatLabel variant="in">
-                    <InputText id="dni" name="dni" type="number" fluid autocomplete="off" />
-                    <label for="dni">DNI</label>
-                </FloatLabel>
-                <Message
-                    v-if="$form.dni?.invalid || errorDni"
-                    severity="error"
-                    size="small"
-                    variant="simple"
-                    >{{ errorDni ? 'DNI ya registrado' : $form.dni.error.message }}</Message
-                >
-            </div>
-            <RadioButtonGroup :invalid="$form.sexo?.invalid" name="sexo" class="flex gap-4">
-                <div class="flex items-center gap-2">
-                    <RadioButton inputId="hombre" value="Hombre" />
-                    <label for="hombre" :class="{ 'text-red-400': $form.sexo?.invalid }"
-                        >Hombre</label
-                    >
+
+                    <Message
+                        v-if="$form.nombre?.invalid"
+                        severity="error"
+                        size="small"
+                        variant="simple"
+                        >{{ $form.nombre.error.message }}
+                    </Message>
                 </div>
 
-                <div class="flex items-center gap-2">
-                    <RadioButton inputId="mujer" value="Mujer" />
-                    <label for="mujer" :class="{ 'text-red-400': $form.sexo?.invalid }"
-                        >Mujer</label
+                <div class="flex flex-col gap-1">
+                    <label for="direction">Dirección</label>
+                    <InputText
+                        id="direction"
+                        name="direccion"
+                        placeholder="Ej: Independencia 127"
+                        fluid
+                        autocomplete="off"
+                    />
+
+                    <Message
+                        v-if="$form.direccion?.invalid"
+                        severity="error"
+                        size="small"
+                        variant="simple"
+                        >{{ $form.direccion.error.message }}
+                    </Message>
+                </div>
+                <div class="flex gap-4 grow">
+                    <div class="flex flex-col gap-1 grow">
+                        <label for="phone">Telefono</label>
+                        <InputText
+                            id="phone"
+                            name="telefono"
+                            placeholder="Ingrese el teléfono"
+                            fluid
+                            type="number"
+                            autocomplete="off"
+                        />
+
+                        <Message
+                            v-if="$form.telefono?.invalid"
+                            severity="error"
+                            size="small"
+                            variant="simple"
+                            >{{ $form.telefono.error.message }}
+                        </Message>
+                    </div>
+                    <div class="flex flex-col gap-1 grow">
+                        <label for="dni">DNI</label>
+                        <InputText
+                            id="dni"
+                            name="dni"
+                            type="number"
+                            placeholder="Ingrese el DNI"
+                            fluid
+                            autocomplete="off"
+                        />
+
+                        <Message
+                            v-if="$form.dni?.invalid || errorDni"
+                            severity="error"
+                            size="small"
+                            variant="simple"
+                            >{{ errorDni ? 'DNI ya registrado' : $form.dni.error.message }}</Message
+                        >
+                    </div>
+                </div>
+                <div class="flex flex-col gap-1">
+                    <label for="sexo">Sexo</label>
+                    <RadioButtonGroup
+                        :invalid="$form.sexo?.invalid"
+                        name="sexo"
+                        id="sexo"
+                        class="flex gap-4"
+                    >
+                        <div class="flex items-center gap-2">
+                            <RadioButton inputId="hombre" value="Hombre" />
+                            <label for="hombre" :class="{ 'text-red-400': $form.sexo?.invalid }"
+                                >Hombre</label
+                            >
+                        </div>
+
+                        <div class="flex items-center gap-2">
+                            <RadioButton inputId="mujer" value="Mujer" />
+                            <label for="mujer" :class="{ 'text-red-400': $form.sexo?.invalid }"
+                                >Mujer</label
+                            >
+                        </div>
+                    </RadioButtonGroup>
+                    <Message
+                        v-if="$form.sexo?.invalid"
+                        severity="error"
+                        size="small"
+                        variant="simple"
+                        >{{ $form.sexo.error.message }}</Message
                     >
                 </div>
-            </RadioButtonGroup>
-
-            <div class="flex justify-end gap-2 mt-1">
-                <Button
-                    type="button"
-                    label="Cancelar"
-                    severity="secondary"
-                    @click="closeModal"
-                ></Button>
-                <Button
-                    :label="isEditMode ? 'Editar' : 'Agregar'"
-                    :loading="loading"
-                    type="submit"
-                ></Button>
-            </div>
-        </Form>
+                <div class="flex justify-end gap-2 mt-1">
+                    <Button
+                        type="button"
+                        label="Cancelar"
+                        severity="secondary"
+                        :disabled="loading"
+                        @click="closeModal"
+                    ></Button>
+                    <Button
+                        :label="isEditMode ? 'Editar' : 'Agregar'"
+                        :loading="loading"
+                        type="submit"
+                    ></Button>
+                </div>
+            </Form>
+        </div>
     </Dialog>
 </template>
 <script setup>
-import RadioButton from 'primevue/radiobutton';
-import InputText from 'primevue/inputtext';
-import FloatLabel from 'primevue/floatlabel';
-import Button from 'primevue/button';
-import Dialog from 'primevue/dialog';
-import Message from 'primevue/message';
 import { Form } from '@primevue/forms';
 import pb from '@/service/pocketbase.js';
 import { zodResolver } from '@primevue/forms/resolvers/zod';
-import { isUniqueItem } from '@/utils/validations.js';
 import { z } from 'zod';
 import { ref, defineProps, defineEmits, watch, computed } from 'vue';
+
+const formContainer = ref(null);
 const showModal = ref(false);
 const emit = defineEmits(['closeModal', 'newChanges']);
 const props = defineProps({
@@ -131,7 +159,6 @@ const errorDni = ref(false);
 const loading = ref(false);
 const initialValues = ref({
     nombre: '',
-    apellido: '',
     telefono: '',
     direccion: '',
     dni: '',
@@ -144,22 +171,17 @@ const resolver = zodResolver(
             .nonempty({ message: 'El nombre es obligatorio.' })
             .min(5, { message: 'Debe tener al menos 5 caracteres' })
             .max(50, { message: 'No debe exceder 50 caracteres' }),
-        apellido: z
-            .string()
-            .nonempty({ message: 'El apellido es obligatorio.' })
-            .min(5, { message: 'Debe tener al menos 5 caracteres' })
-            .max(30, { message: 'No debe exceder 30 caracteres' }),
         telefono: z.coerce
-            .number()
+            .number('El telefono debe ser un número')
             .min(1, { message: 'El teléfono es obligatorio.' })
             .max(999999999999, { message: 'No debe exceder 12 caracteres' }),
         direccion: z.string().optional(),
         id: z.string().optional(),
         dni: z.coerce
-            .number()
+            .number('El dni debe ser un número')
             .min(1, { message: 'El dni es obligatorio.' })
             .max(99999999, { message: 'No debe exceder 8 caracteres' }),
-        sexo: z.string().nonempty()
+        sexo: z.string().nonempty({ message: 'El sexo es obligatorio.' })
     })
 );
 
@@ -174,7 +196,6 @@ watch(
         } else {
             initialValues.value = {
                 nombre: '',
-                apellido: '',
                 telefono: '',
                 direccion: '',
                 dni: '',
@@ -185,27 +206,26 @@ watch(
     { immediate: true }
 );
 const closeModal = () => {
+    errorDni.value = false;
     emit('closeModal');
 };
 const onFormSubmit = async (e) => {
     if (e.valid) {
-        const isUniqueDni = await isUniqueItem('miembros', 'dni', e.values.dni);
-        if (isUniqueDni || e.values.dni == initialValues.value.dni) {
-            try {
-                loading.value = true;
-                isEditMode.value
-                    ? await pb.collection('miembros').update(e.values.id, e.values)
-                    : await pb.collection('miembros').create(e.values);
-                emit('newChanges', isEditMode.value);
-                closeModal();
-                errorDni.value = false;
-            } catch (error) {
-                console.log(error);
-            } finally {
-                loading.value = false;
-            }
-        } else {
-            errorDni.value = true;
+        try {
+            const memberData = e.values;
+            loading.value = true;
+            errorDni.value = false;
+            isEditMode.value
+                ? await pb.collection('miembros').update(memberData.id, memberData)
+                : await pb.collection('miembros').create(memberData);
+            closeModal();
+            emit('newChanges', isEditMode.value);
+        } catch (error) {
+            error.response?.data?.dni?.code === 'validation_not_unique'
+                ? (errorDni.value = true)
+                : console.log(error);
+        } finally {
+            loading.value = false;
         }
     }
 };

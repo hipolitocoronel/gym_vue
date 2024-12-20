@@ -10,6 +10,7 @@
         "start:backend": "cd backend && (./pocketbase serve || pocketbase.exe serve)"
     },
     "dependencies": {
+        "@formkit/auto-animate": "^0.8.2",
         "@primevue/forms": "^4.2.5",
         "@primevue/themes": "^4.2.4",
         "chart.js": "3.3.2",

@@ -1,21 +1,22 @@
 <template>
     <DataTable
-        removableSort
-        v-model:filters="props.filters"
-        :value="props.members"
+        :value="members"
         paginator
-        :rows="10"
-        :loading="props.loading"
-        :globalFilterFields="['name', 'lastname']"
+        :rows="rowsPerPage"
+        :lazy="true"
+        :totalRecords="totalRecords"
+        :first="first"
+        :loading="loading"
+        @page="getMembers"
+        paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
+        :rowsPerPageOptions="[10, 30, 50]"
+        currentPageReportTemplate="Mostrando {last} de {totalRecords} miembros"
     >
-        <template #empty> No se encontraron miembros. </template>
-        <template #loading> Cargando Miembros. Por Favor Espere. </template>
-        <Column field="apellido" sortable header="Apellido"> </Column>
-        <Column field="nombre" sortable header="Nombre"> </Column>
-        <Column field="telefono" sortable header="Telefono"> </Column>
-        <Column field="sexo" sortable header="Sexo"> </Column>
-        <Column field="dni" sortable header="Dni"> </Column>
-        <Column field="membresia" sortable header="Membresia">
+        <Column field="nombre" header="Nombre" style="min-width: 10rem"> </Column>
+        <Column field="telefono" header="Telefono"> </Column>
+        <Column field="sexo" header="Sexo"> </Column>
+        <Column field="dni" header="Dni"> </Column>
+        <Column field="membresia" header="Membresia">
             <template #body="{ data }">
                 <Tag
                     :value="data.membresia ? 'Activa' : 'Vencida'"
@@ -25,11 +26,11 @@
         </Column>
         <Column header="Acciones">
             <template #body="{ data }">
-                <div class="flex gap-1">
+                <div class="flex gap-2">
                     <Button
                         icon="pi pi-pencil"
-                        severity="success"
-                        variant="text"
+                        severity="secondary"
+                        variant="outlined"
                         rounded
                         size="large"
                         @click="$emit('editMember', data)"
@@ -38,7 +39,7 @@
                         icon="pi pi-trash"
                         @click="$emit('deleteMember', data)"
                         severity="danger"
-                        variant="text"
+                        variant="outlined"
                         rounded
                         size="large"
                     />
@@ -48,10 +49,40 @@
     </DataTable>
 </template>
 <script setup>
-import { ref, defineProps } from 'vue';
-const props = defineProps({
-    filters: Object,
-    members: Object,
-    loading: Boolean
-});
+import { ref, defineProps, onMounted, defineExpose } from 'vue';
+import { useToast } from 'primevue/usetoast';
+import pb from '@/service/pocketbase.js';
+const members = ref([]);
+const first = ref(0);
+const loading = ref(false);
+const totalRecords = ref(0);
+const rowsPerPage = ref(10); // tamaño de la tabla
+const toast = useToast();
+onMounted(() => getMembers({ first: first.value, rows: rowsPerPage.value }));
+
+const getMembers = async (event) => {
+    try {
+        // Parámetros de la consulta
+        first.value = event.first;
+        rowsPerPage.value = event.rows;
+        loading.value = true;
+        const currentPage = Math.floor(first.value / rowsPerPage.value) + 1;
+        const result = await pb
+            .collection('miembros')
+            .getList(currentPage, rowsPerPage.value, { sort: 'nombre' });
+        totalRecords.value = result.totalItems;
+        members.value = result.items;
+    } catch (error) {
+        console.log(error);
+        toast.add({
+            severity: 'error',
+            summary: 'Operación fallida',
+            detail: 'No se pudo obtener los miembros',
+            life: 3000
+        });
+    } finally {
+        loading.value = false;
+    }
+};
+defineExpose({ getMembers });
 </script>
