@@ -68,9 +68,8 @@ const updateTable = (isEditMode) => {
 };
 const searchMembers = useDebounceFn(() => {
     memberList.value.getMembers({ first: 0, rows: 10, search: searchInput.value });
-}, 700);
+}, 600);
 
-window.addEventListener('resize', searchMembers);
 //Modal de eliminacion de miembro
 const deleteMember = (member) => {
     confirm.require({
