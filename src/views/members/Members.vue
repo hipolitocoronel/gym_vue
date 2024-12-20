@@ -43,9 +43,9 @@ import { useDebounceFn } from '@vueuse/core';
 const confirm = useConfirm();
 const toast = useToast();
 const showModal = ref(false);
-const showModal2 = ref(false);
 const memberData = ref([]);
 const memberList = ref(null);
+const searchInput = ref('');
 const closeModal = () => {
     showModal.value = false;
     memberData.value = [];
@@ -66,8 +66,7 @@ const updateTable = (isEditMode) => {
         life: 3000
     });
 };
-const searchInput = ref('');
-const searchMembers = useDebounceFn((e) => {
+const searchMembers = useDebounceFn(() => {
     memberList.value.getMembers({ first: 0, rows: 10, search: searchInput.value });
 }, 700);
 
