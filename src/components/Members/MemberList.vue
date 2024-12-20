@@ -12,7 +12,7 @@
         :rowsPerPageOptions="[10, 30, 50]"
         currentPageReportTemplate="Mostrando {last} de {totalRecords} miembros"
     >
-        <Column field="nombre" header="Nombre" style="min-width: 10rem"> </Column>
+        <Column field="nombre" header="Nombre"> </Column>
         <Column field="telefono" header="Telefono"> </Column>
         <Column field="sexo" header="Sexo"> </Column>
         <Column field="dni" header="Dni"> </Column>
@@ -24,7 +24,7 @@
                 />
             </template>
         </Column>
-        <Column header="Acciones">
+        <Column header="Acciones" class="lg:max-w-20">
             <template #body="{ data }">
                 <div class="flex gap-2">
                     <Button
@@ -32,6 +32,7 @@
                         severity="secondary"
                         variant="outlined"
                         rounded
+                        v-tooltip.top="'Editar Miembro'"
                         size="large"
                         @click="$emit('editMember', data)"
                     />
@@ -41,6 +42,7 @@
                         severity="danger"
                         variant="outlined"
                         rounded
+                        v-tooltip.top="'Eliminar Miembro'"
                         size="large"
                     />
                 </div>
@@ -69,6 +71,7 @@ const getMembers = async (event) => {
         const search = event.search;
         const filter = search ? `nombre ~ '${search}'` : '';
         const currentPage = Math.floor(first.value / rowsPerPage.value) + 1;
+        console.log(Math.ceil(first.value / rowsPerPage.value));
         const result = await pb.collection('miembros').getList(currentPage, rowsPerPage.value, {
             sort: 'nombre',
             filter: filter
