@@ -66,20 +66,24 @@ const getMembers = async (event) => {
         first.value = event.first;
         rowsPerPage.value = event.rows;
         loading.value = true;
+        const search = event.search;
+        const filter = search ? `nombre ~ '${search}'` : '';
         const currentPage = Math.floor(first.value / rowsPerPage.value) + 1;
-        const result = await pb
-            .collection('miembros')
-            .getList(currentPage, rowsPerPage.value, { sort: 'nombre' });
+        const result = await pb.collection('miembros').getList(currentPage, rowsPerPage.value, {
+            sort: 'nombre',
+            filter: filter
+        });
         totalRecords.value = result.totalItems;
         members.value = result.items;
     } catch (error) {
-        console.log(error);
-        toast.add({
-            severity: 'error',
-            summary: 'Operación fallida',
-            detail: 'No se pudo obtener los miembros',
-            life: 3000
-        });
+        if (!error.message.includes('The request was autocancelled')) {
+            toast.add({
+                severity: 'error',
+                summary: 'Operación fallida',
+                detail: 'No se pudo obtener los miembros',
+                life: 3000
+            });
+        }
     } finally {
         loading.value = false;
     }

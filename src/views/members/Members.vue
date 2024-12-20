@@ -6,33 +6,25 @@
                 <InputIcon>
                     <i class="pi pi-search" />
                 </InputIcon>
-                <InputText placeholder="Buscar..." class="min-w-[350px]" />
+                <InputText
+                    placeholder="Buscar..."
+                    @input="searchMembers"
+                    v-model="searchInput"
+                    class="min-w-[350px]"
+                />
             </IconField>
-            <div class="flex gap-2">
-                <Button
-                    severity="contrast"
-                    @click="showModal = true"
-                    label="Agregar Miembro"
-                    icon="pi pi-user-plus"
-                />
-                <Button
-                    severity="contrast"
-                    @click="showModal2 = true"
-                    label="Agregar Miembro 2"
-                    icon="pi pi-user-plus"
-                />
-            </div>
+            <Button
+                severity="contrast"
+                @click="showModal = true"
+                label="Agregar Miembro"
+                icon="pi pi-user-plus"
+            />
         </div>
         <MemberList ref="memberList" @delete-member="deleteMember" @edit-member="editMember" />
         <OneMember
             :memberData
             :visible="showModal"
             @closeModal="closeModal"
-            @newChanges="updateTable"
-        /><OneMember2
-            :memberData
-            :visible="showModal2"
-            @closeModal="showModal2 = false"
             @newChanges="updateTable"
         />
         <ConfirmDialog></ConfirmDialog>
@@ -41,13 +33,13 @@
 <script setup>
 import MemberList from '@/components/Members/MemberList.vue';
 import OneMember from '@/components/Members/OneMember.vue';
-import OneMember2 from '@/components/Members/OneMember2.vue';
 import pb from '@/service/pocketbase.js';
 import Button from 'primevue/button';
 import ConfirmDialog from 'primevue/confirmdialog';
 import { useConfirm } from 'primevue/useconfirm';
 import { useToast } from 'primevue/usetoast';
 import { ref } from 'vue';
+import { useDebounceFn } from '@vueuse/core';
 const confirm = useConfirm();
 const toast = useToast();
 const showModal = ref(false);
@@ -65,6 +57,7 @@ const editMember = (member) => {
 };
 //Actualizar la tabla despues de agregar o editar un miembrp
 const updateTable = (isEditMode) => {
+    searchInput.value = '';
     memberList.value.getMembers({ first: 0, rows: 10 });
     toast.add({
         severity: 'success',
@@ -73,6 +66,12 @@ const updateTable = (isEditMode) => {
         life: 3000
     });
 };
+const searchInput = ref('');
+const searchMembers = useDebounceFn((e) => {
+    memberList.value.getMembers({ first: 0, rows: 10, search: searchInput.value });
+}, 700);
+
+window.addEventListener('resize', searchMembers);
 //Modal de eliminacion de miembro
 const deleteMember = (member) => {
     confirm.require({

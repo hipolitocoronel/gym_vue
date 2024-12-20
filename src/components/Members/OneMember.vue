@@ -49,25 +49,6 @@
             </div>
             <div class="flex gap-4 grow">
                 <div class="flex flex-col gap-1 grow">
-                    <label for="phone">Telefono</label>
-                    <InputText
-                        id="phone"
-                        name="telefono"
-                        placeholder="Ingrese el teléfono"
-                        fluid
-                        type="number"
-                        autocomplete="off"
-                    />
-
-                    <Message
-                        v-if="$form.telefono?.invalid"
-                        severity="error"
-                        size="small"
-                        variant="simple"
-                        >{{ $form.telefono.error.message }}
-                    </Message>
-                </div>
-                <div class="flex flex-col gap-1 grow">
                     <label for="dni">DNI</label>
                     <InputText
                         id="dni"
@@ -85,6 +66,25 @@
                         variant="simple"
                         >{{ errorDni ? 'DNI ya registrado' : $form.dni.error.message }}</Message
                     >
+                </div>
+                <div class="flex flex-col gap-1 grow">
+                    <label for="phone">Telefono</label>
+                    <InputText
+                        id="phone"
+                        name="telefono"
+                        placeholder="Ingrese el teléfono"
+                        fluid
+                        type="number"
+                        autocomplete="off"
+                    />
+
+                    <Message
+                        v-if="$form.telefono?.invalid"
+                        severity="error"
+                        size="small"
+                        variant="simple"
+                        >{{ $form.telefono.error.message }}
+                    </Message>
                 </div>
             </div>
             <div class="flex flex-col gap-1">
@@ -139,9 +139,9 @@ import { Form } from '@primevue/forms';
 import pb from '@/service/pocketbase.js';
 import { zodResolver } from '@primevue/forms/resolvers/zod';
 import { z } from 'zod';
+import { useToast } from 'primevue/usetoast';
 import { ref, defineProps, defineEmits, watch, computed } from 'vue';
-
-const formContainer = ref(null);
+const toast = useToast();
 const showModal = ref(false);
 const emit = defineEmits(['closeModal', 'newChanges']);
 const props = defineProps({
@@ -183,7 +183,7 @@ const isEditMode = computed(() => {
 });
 watch(
     () => props.memberData,
-    (newValue, oldValue) => {
+    (newValue) => {
         if (isEditMode.value) {
             initialValues.value = { ...newValue };
         } else {
@@ -214,9 +214,16 @@ const onFormSubmit = async (e) => {
             closeModal();
             emit('newChanges', isEditMode.value);
         } catch (error) {
-            error.response?.data?.dni?.code === 'validation_not_unique'
-                ? (errorDni.value = true)
-                : console.log(error);
+            if (error.response?.data?.dni?.code === 'validation_not_unique') {
+                errorDni.value = true;
+            } else {
+                toast.add({
+                    severity: 'error',
+                    summary: 'Operación fallida',
+                    detail: 'Intentelo nuevamente',
+                    life: 3000
+                });
+            }
         } finally {
             loading.value = false;
         }
