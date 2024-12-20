@@ -6,139 +6,132 @@
         :header="isEditMode ? 'Editar Miembro' : 'Agregar Miembro'"
         :style="{ width: '38rem' }"
     >
-        <div ref="formContainer">
-            <Form
-                v-slot="$form"
-                :initialValues
-                :resolver
-                v-auto-animate
-                @submit="onFormSubmit"
-                class="flex justify-center flex-col gap-4"
-            >
-                <InputText v-if="isEditMode" id="id" name="id" class="hidden" />
-                <div class="flex flex-col gap-1">
-                    <label for="name">Nombre</label>
+        <Form
+            v-slot="$form"
+            :initialValues
+            :resolver
+            @submit="onFormSubmit"
+            class="flex justify-center flex-col gap-4"
+        >
+            <InputText v-if="isEditMode" id="id" name="id" class="hidden" />
+            <div class="flex flex-col gap-1">
+                <label for="name">Nombre</label>
+                <InputText
+                    id="name"
+                    name="nombre"
+                    placeholder="Ej: Juan Perez"
+                    fluid
+                    autocomplete="off"
+                />
+
+                <Message v-if="$form.nombre?.invalid" severity="error" size="small" variant="simple"
+                    >{{ $form.nombre.error.message }}
+                </Message>
+            </div>
+
+            <div class="flex flex-col gap-1">
+                <label for="direction">Dirección</label>
+                <InputText
+                    id="direction"
+                    name="direccion"
+                    placeholder="Ej: Independencia 127"
+                    fluid
+                    autocomplete="off"
+                />
+
+                <Message
+                    v-if="$form.direccion?.invalid"
+                    severity="error"
+                    size="small"
+                    variant="simple"
+                    >{{ $form.direccion.error.message }}
+                </Message>
+            </div>
+            <div class="flex gap-4 grow">
+                <div class="flex flex-col gap-1 grow">
+                    <label for="phone">Telefono</label>
                     <InputText
-                        id="name"
-                        name="nombre"
-                        placeholder="Ej: Juan Perez"
+                        id="phone"
+                        name="telefono"
+                        placeholder="Ingrese el teléfono"
+                        fluid
+                        type="number"
+                        autocomplete="off"
+                    />
+
+                    <Message
+                        v-if="$form.telefono?.invalid"
+                        severity="error"
+                        size="small"
+                        variant="simple"
+                        >{{ $form.telefono.error.message }}
+                    </Message>
+                </div>
+                <div class="flex flex-col gap-1 grow">
+                    <label for="dni">DNI</label>
+                    <InputText
+                        id="dni"
+                        name="dni"
+                        type="number"
+                        placeholder="Ingrese el DNI"
                         fluid
                         autocomplete="off"
                     />
 
                     <Message
-                        v-if="$form.nombre?.invalid"
+                        v-if="$form.dni?.invalid || errorDni"
                         severity="error"
                         size="small"
                         variant="simple"
-                        >{{ $form.nombre.error.message }}
-                    </Message>
+                        >{{ errorDni ? 'DNI ya registrado' : $form.dni.error.message }}</Message
+                    >
                 </div>
-
-                <div class="flex flex-col gap-1">
-                    <label for="direction">Dirección</label>
-                    <InputText
-                        id="direction"
-                        name="direccion"
-                        placeholder="Ej: Independencia 127"
-                        fluid
-                        autocomplete="off"
-                    />
-
-                    <Message
-                        v-if="$form.direccion?.invalid"
-                        severity="error"
-                        size="small"
-                        variant="simple"
-                        >{{ $form.direccion.error.message }}
-                    </Message>
-                </div>
-                <div class="flex gap-4 grow">
-                    <div class="flex flex-col gap-1 grow">
-                        <label for="phone">Telefono</label>
-                        <InputText
-                            id="phone"
-                            name="telefono"
-                            placeholder="Ingrese el teléfono"
-                            fluid
-                            type="number"
-                            autocomplete="off"
-                        />
-
-                        <Message
-                            v-if="$form.telefono?.invalid"
-                            severity="error"
-                            size="small"
-                            variant="simple"
-                            >{{ $form.telefono.error.message }}
-                        </Message>
-                    </div>
-                    <div class="flex flex-col gap-1 grow">
-                        <label for="dni">DNI</label>
-                        <InputText
-                            id="dni"
-                            name="dni"
-                            type="number"
-                            placeholder="Ingrese el DNI"
-                            fluid
-                            autocomplete="off"
-                        />
-
-                        <Message
-                            v-if="$form.dni?.invalid || errorDni"
-                            severity="error"
-                            size="small"
-                            variant="simple"
-                            >{{ errorDni ? 'DNI ya registrado' : $form.dni.error.message }}</Message
+            </div>
+            <div class="flex flex-col gap-1">
+                <label for="sexo">Sexo</label>
+                <RadioButtonGroup
+                    :invalid="$form.sexo?.invalid"
+                    name="sexo"
+                    id="sexo"
+                    class="flex gap-4"
+                >
+                    <div class="flex items-center gap-2">
+                        <RadioButton inputId="hombre" value="Hombre" />
+                        <label for="hombre" :class="{ 'text-red-400': $form.sexo?.invalid }"
+                            >Hombre</label
                         >
                     </div>
-                </div>
-                <div class="flex flex-col gap-1">
-                    <label for="sexo">Sexo</label>
-                    <RadioButtonGroup
-                        :invalid="$form.sexo?.invalid"
-                        name="sexo"
-                        id="sexo"
-                        class="flex gap-4"
-                    >
-                        <div class="flex items-center gap-2">
-                            <RadioButton inputId="hombre" value="Hombre" />
-                            <label for="hombre" :class="{ 'text-red-400': $form.sexo?.invalid }"
-                                >Hombre</label
-                            >
-                        </div>
 
-                        <div class="flex items-center gap-2">
-                            <RadioButton inputId="mujer" value="Mujer" />
-                            <label for="mujer" :class="{ 'text-red-400': $form.sexo?.invalid }"
-                                >Mujer</label
-                            >
-                        </div>
-                    </RadioButtonGroup>
-                    <Message
-                        v-if="$form.sexo?.invalid"
-                        severity="error"
-                        size="small"
-                        variant="simple"
-                        >{{ $form.sexo.error.message }}</Message
-                    >
-                </div>
-                <div class="flex justify-end gap-2 mt-1">
-                    <Button
-                        type="button"
-                        label="Cancelar"
-                        severity="secondary"
-                        :disabled="loading"
-                        @click="closeModal"
-                    ></Button>
-                    <Button
-                        :label="isEditMode ? 'Editar' : 'Agregar'"
-                        :loading="loading"
-                        type="submit"
-                    ></Button>
-                </div>
-            </Form>
-        </div>
+                    <div class="flex items-center gap-2">
+                        <RadioButton inputId="mujer" value="Mujer" />
+                        <label for="mujer" :class="{ 'text-red-400': $form.sexo?.invalid }"
+                            >Mujer</label
+                        >
+                    </div>
+                </RadioButtonGroup>
+                <Message
+                    v-if="$form.sexo?.invalid"
+                    severity="error"
+                    size="small"
+                    variant="simple"
+                    >{{ $form.sexo.error.message }}</Message
+                >
+            </div>
+            <div class="flex justify-end gap-2 mt-1">
+                <Button
+                    type="button"
+                    label="Cancelar"
+                    severity="secondary"
+                    :disabled="loading"
+                    @click="closeModal"
+                ></Button>
+                <Button
+                    :label="isEditMode ? 'Editar' : 'Agregar'"
+                    :loading="loading"
+                    type="submit"
+                ></Button>
+            </div>
+        </Form>
     </Dialog>
 </template>
 <script setup>
