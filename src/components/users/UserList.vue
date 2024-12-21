@@ -4,11 +4,12 @@ import { useToast } from 'primevue/usetoast';
 import { onMounted, ref } from 'vue';
 const toast = useToast();
 
+const { querySearch } = defineProps(['querySearch']);
 const users = ref([]);
 const first = ref(0); // corresponde al current page
 const loading = ref(false);
 const totalRecords = ref(0);
-const rowsPerPage = ref(2); // tamaño de la tabla
+const rowsPerPage = ref(10); // tamaño de la tabla
 
 onMounted(() => getUsuarios({ first: first.value, rows: rowsPerPage.value }));
 
@@ -21,7 +22,10 @@ const getUsuarios = async (event) => {
         const currentPage = Math.floor(first.value / rowsPerPage.value) + 1; // Convierte índice base-0 a base-1
 
         loading.value = true;
-        const result = await pb.collection('users').getList(currentPage, rowsPerPage.value);
+        const result = await pb.collection('users').getList(currentPage, rowsPerPage.value, {
+            sort: '-created',
+            filter: `name~'${querySearch}'`
+        });
         totalRecords.value = result.totalItems;
         users.value = result.items;
     } catch (error) {

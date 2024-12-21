@@ -4,6 +4,7 @@ import UserList from '@/components/users/UserList.vue';
 import { ref } from 'vue';
 
 const showModal = ref(false);
+const querySearch = ref('hipo');
 </script>
 
 <template>
@@ -14,7 +15,7 @@ const showModal = ref(false);
                 <InputIcon>
                     <i class="pi pi-search" />
                 </InputIcon>
-                <InputText placeholder="Buscar..." class="min-w-[350px]" />
+                <InputText placeholder="Buscar..." class="min-w-[350px]" v-model="querySearch" />
             </IconField>
 
             <Button severity="contrast" @click="showModal = true">
@@ -23,7 +24,7 @@ const showModal = ref(false);
             </Button>
         </div>
 
-        <UserList />
+        <UserList :query-search="querySearch" />
         <UserForm :visible="showModal" member-data="" @closeModal="showModal = false" />
     </div>
 </template>

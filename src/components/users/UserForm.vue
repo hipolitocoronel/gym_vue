@@ -1,6 +1,5 @@
 <script setup>
 import pb from '@/service/pocketbase.js';
-import { isUniqueItem } from '@/utils/validations.js';
 import { Form } from '@primevue/forms';
 import { zodResolver } from '@primevue/forms/resolvers/zod';
 import { computed, defineEmits, defineProps, ref } from 'vue';
