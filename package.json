@@ -13,6 +13,7 @@
         "@formkit/auto-animate": "^0.8.2",
         "@primevue/forms": "^4.2.5",
         "@primevue/themes": "^4.2.4",
+        "@vueuse/core": "^12.0.0",
         "chart.js": "3.3.2",
         "pinia": "^2.3.0",
         "pocketbase": "^0.23.0",

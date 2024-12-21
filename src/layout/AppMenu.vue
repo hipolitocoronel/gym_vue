@@ -8,7 +8,7 @@ const model = ref([
         label: 'Acciones',
         items: [
             { label: 'Dashboard', icon: 'pi pi-fw pi-home', to: '/' },
-            { label: 'Membresías', icon: 'pi pi-fw pi-dollar', to: '/membresias' },
+            { label: 'Pagos', icon: 'pi pi-fw pi-dollar', to: '/pagos' },
             { label: 'Miembros', icon: 'pi pi-fw pi-user', to: '/miembros' },
             { label: 'Reportes', icon: 'pi pi-fw pi-chart-bar', to: '/reportes' },
             {
@@ -19,6 +19,11 @@ const model = ref([
                         label: 'General',
                         to: '/configuracion'
                     },
+                    {
+                        label: 'Membresias',
+                        to: '/membresias'
+                    },
+
                     {
                         label: 'Usuarios',
                         to: '/usuarios'

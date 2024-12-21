@@ -59,23 +59,18 @@ const closeModal = () => {
 
 const onFormSubmit = async (e) => {
     if (e.valid) {
-        const isUniqueDni = await isUniqueItem('miembros', 'dni', e.values.dni);
-        if (isUniqueDni || e.values.dni == initialValues.value.dni) {
-            try {
-                loading.value = true;
-                isEditMode.value
-                    ? await pb.collection('miembros').update(e.values.id, e.values)
-                    : await pb.collection('miembros').create(e.values);
-                emit('newChanges', isEditMode.value);
-                closeModal();
-                errorDni.value = false;
-            } catch (error) {
-                console.log(error);
-            } finally {
-                loading.value = false;
-            }
-        } else {
-            errorDni.value = true;
+        try {
+            loading.value = true;
+            isEditMode.value
+                ? await pb.collection('miembros').update(e.values.id, e.values)
+                : await pb.collection('miembros').create(e.values);
+            emit('newChanges', isEditMode.value);
+            closeModal();
+            errorDni.value = false;
+        } catch (error) {
+            console.log(error);
+        } finally {
+            loading.value = false;
         }
     }
 };

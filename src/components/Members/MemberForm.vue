@@ -47,42 +47,49 @@
                     >{{ $form.direccion.error.message }}
                 </Message>
             </div>
-            <div class="flex flex-col gap-1 grow">
-                <label for="phone">Telefono</label>
-                <InputText
-                    id="phone"
-                    name="telefono"
-                    placeholder="Ingrese el teléfono"
-                    fluid
-                    autocomplete="off"
-                />
+            <Fluid>
+                <div class="grid grid-cols-2 gap-4 grow">
+                    <div class="flex flex-col gap-1">
+                        <label for="dni">DNI</label>
+                        <InputNumber
+                            id="dni"
+                            name="dni"
+                            type="number"
+                            placeholder="Ingrese el DNI"
+                            fluid
+                            autocomplete="off"
+                        />
 
-                <Message
-                    v-if="$form.telefono?.invalid"
-                    severity="error"
-                    size="small"
-                    variant="simple"
-                    >{{ $form.telefono.error.message }}
-                </Message>
-            </div>
-            <div class="flex flex-col gap-1 grow">
-                <label for="dni">DNI</label>
-                <InputText
-                    id="dni"
-                    name="dni"
-                    placeholder="Ingrese el DNI"
-                    fluid
-                    autocomplete="off"
-                />
+                        <Message
+                            v-if="$form.dni?.invalid || errorDni"
+                            severity="error"
+                            size="small"
+                            variant="simple"
+                            >{{ errorDni ? 'DNI ya registrado' : $form.dni.error.message }}</Message
+                        >
+                    </div>
+                    <div class="flex flex-col gap-1">
+                        <label for="phone">Telefono</label>
+                        <InputNumber
+                            id="phone"
+                            name="telefono"
+                            placeholder="Ingrese el teléfono"
+                            fluid
+                            :useGrouping="false"
+                            type="number"
+                            autocomplete="off"
+                        />
 
-                <Message
-                    v-if="$form.dni?.invalid || errorDni"
-                    severity="error"
-                    size="small"
-                    variant="simple"
-                    >{{ errorDni ? 'DNI ya registrado' : $form.dni.error.message }}</Message
-                >
-            </div>
+                        <Message
+                            v-if="$form.telefono?.invalid"
+                            severity="error"
+                            size="small"
+                            variant="simple"
+                            >{{ $form.telefono.error.message }}
+                        </Message>
+                    </div>
+                </div>
+            </Fluid>
             <div class="flex flex-col gap-1">
                 <label for="sexo">Sexo</label>
                 <RadioButtonGroup
@@ -135,7 +142,9 @@ import { Form } from '@primevue/forms';
 import pb from '@/service/pocketbase.js';
 import { zodResolver } from '@primevue/forms/resolvers/zod';
 import { z } from 'zod';
+import { useToast } from 'primevue/usetoast';
 import { ref, defineProps, defineEmits, watch, computed } from 'vue';
+const toast = useToast();
 const showModal = ref(false);
 const emit = defineEmits(['closeModal', 'newChanges']);
 const props = defineProps({
@@ -146,9 +155,9 @@ const errorDni = ref(false);
 const loading = ref(false);
 const initialValues = ref({
     nombre: '',
-    telefono: '',
+    telefono: null,
     direccion: '',
-    dni: '',
+    dni: null,
     sexo: ''
 });
 const resolver = zodResolver(
@@ -177,15 +186,15 @@ const isEditMode = computed(() => {
 });
 watch(
     () => props.memberData,
-    (newValue, oldValue) => {
+    (newValue) => {
         if (isEditMode.value) {
             initialValues.value = { ...newValue };
         } else {
             initialValues.value = {
                 nombre: '',
-                telefono: '',
+                telefono: null,
                 direccion: '',
-                dni: '',
+                dni: null,
                 sexo: ''
             };
         }
@@ -201,26 +210,25 @@ const onFormSubmit = async (e) => {
         try {
             const memberData = e.values;
             loading.value = true;
-            errorDni.value = false;
             isEditMode.value
                 ? await pb.collection('miembros').update(memberData.id, memberData)
                 : await pb.collection('miembros').create(memberData);
             closeModal();
             emit('newChanges', isEditMode.value);
         } catch (error) {
-            error.response?.data?.dni?.code === 'validation_not_unique'
-                ? (errorDni.value = true)
-                : console.log(error);
+            if (error.response?.data?.dni?.code === 'validation_not_unique') {
+                errorDni.value = true;
+            } else {
+                toast.add({
+                    severity: 'error',
+                    summary: 'Operación fallida',
+                    detail: 'Intentelo nuevamente',
+                    life: 3000
+                });
+            }
         } finally {
             loading.value = false;
         }
     }
 };
 </script>
-<style>
-input[type='number']::-webkit-inner-spin-button,
-input[type='number']::-webkit-outer-spin-button {
-    -webkit-appearance: none;
-    margin: 0;
-}
-</style>
