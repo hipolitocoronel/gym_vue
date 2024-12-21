@@ -31,7 +31,7 @@
                     variant="simple"
                     >{{
                         errorName
-                            ? 'Ya existe una membresia con este nombre'
+                            ? 'Ya existe una membresía con este nombre'
                             : $form.nombre.error.message
                     }}
                 </Message>
@@ -44,6 +44,7 @@
                     mode="currency"
                     currency="USD"
                     locale="en-US"
+                    autocomplete="off"
                     placeholder="Ingrese el precio"
                     fluid
                 />

@@ -10,7 +10,7 @@
         @page="getMemberships"
         paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
         :rowsPerPageOptions="[10, 30, 50]"
-        currentPageReportTemplate="Mostrando {last} de {totalRecords} membresias"
+        currentPageReportTemplate="Mostrando {last} de {totalRecords} membresías"
     >
         <template #empty> Sin registros. </template>
         <Column field="nombre" header="Nombre"> </Column>
