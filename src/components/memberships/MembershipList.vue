@@ -10,7 +10,7 @@
         @page="getMemberships"
         paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
         :rowsPerPageOptions="[10, 30, 50]"
-        currentPageReportTemplate="Mostrando {last} de {totalRecords} membresías"
+        currentPageReportTemplate="Mostrando {last} de {totalRecords} planes"
     >
         <template #empty> Sin registros. </template>
         <Column field="nombre" header="Nombre"> </Column>
@@ -27,7 +27,7 @@
                         severity="secondary"
                         variant="outlined"
                         rounded
-                        v-tooltip.top="'Editar Membresía'"
+                        v-tooltip.top="'Editar Plan'"
                         size="large"
                         @click="$emit('editMembership', data)"
                     />
@@ -37,7 +37,7 @@
                         severity="danger"
                         variant="outlined"
                         rounded
-                        v-tooltip.top="'Eliminar Membresía'"
+                        v-tooltip.top="'Eliminar Plan'"
                         size="large"
                     />
                 </div>
@@ -57,7 +57,11 @@ const rowsPerPage = ref(10); // tamaño de la tabla
 const toast = useToast();
 onMounted(() => getMemberships({ first: first.value, rows: rowsPerPage.value }));
 const formatCurrency = (value) => {
-    return value.toLocaleString('en-US', { style: 'currency', currency: 'USD' });
+    return new Intl.NumberFormat('es-AR', {
+        style: 'currency',
+        currency: 'ARS',
+        minimumFractionDigits: 2
+    }).format(value);
 };
 const getMemberships = async (event) => {
     try {
@@ -68,7 +72,7 @@ const getMemberships = async (event) => {
         const search = event.search;
         const filter = search ? `nombre ~ '${search}'` : '';
         const currentPage = Math.floor(first.value / rowsPerPage.value) + 1;
-        const result = await pb.collection('membresias').getList(currentPage, rowsPerPage.value, {
+        const result = await pb.collection('planes').getList(currentPage, rowsPerPage.value, {
             sort: 'nombre',
             filter: filter
         });
@@ -79,7 +83,7 @@ const getMemberships = async (event) => {
             toast.add({
                 severity: 'error',
                 summary: 'Operación fallida',
-                detail: 'No se pudo obtener las membresias',
+                detail: 'No se pudo obtener los planes',
                 life: 3000
             });
         }

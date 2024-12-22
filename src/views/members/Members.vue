@@ -68,7 +68,7 @@ const updateTable = (isEditMode) => {
 };
 const searchMembers = useDebounceFn(() => {
     memberList.value.getMembers({ first: 0, rows: 10, search: searchInput.value });
-}, 600);
+}, 400);
 
 //Modal de eliminacion de miembro
 const deleteMember = (member) => {
@@ -90,7 +90,7 @@ const deleteMember = (member) => {
         }
     });
 };
-//Elimnar miembro de la base de datos
+//Eliminar miembro de la base de datos
 const confirmDeleteMember = async (memberID) => {
     try {
         await pb.collection('miembros').delete(memberID);

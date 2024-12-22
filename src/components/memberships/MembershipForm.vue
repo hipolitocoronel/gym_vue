@@ -3,8 +3,9 @@
         v-model:visible="props.visible"
         modal
         @update:visible="closeModal"
-        :header="isEditMode ? 'Editar Membresía' : 'Agregar Membresía'"
-        :style="{ width: '30rem' }"
+        :header="isEditMode ? 'Editar Plan' : 'Agregar Plan'"
+        :style="{ width: '32rem' }"
+        v-auto-animate
     >
         <Form
             v-slot="$form"
@@ -30,27 +31,8 @@
                     size="small"
                     variant="simple"
                     >{{
-                        errorName
-                            ? 'Ya existe una membresía con este nombre'
-                            : $form.nombre.error.message
+                        errorName ? 'Ya existe un plan con este nombre' : $form.nombre.error.message
                     }}
-                </Message>
-            </div>
-            <div class="flex flex-col gap-1">
-                <label for="precio">Precio</label>
-                <InputNumber
-                    inputId="precio"
-                    name="precio"
-                    mode="currency"
-                    currency="USD"
-                    locale="en-US"
-                    autocomplete="off"
-                    placeholder="Ingrese el precio"
-                    fluid
-                />
-
-                <Message v-if="$form.precio?.invalid" severity="error" size="small" variant="simple"
-                    >{{ $form.precio.error.message }}
                 </Message>
             </div>
             <div class="flex flex-col gap-1">
@@ -63,6 +45,84 @@
                     rows="5"
                 />
             </div>
+            <!--
+            <div class="flex flex-col gap-1">
+                <label for="precio">Precio</label>
+                <InputNumber
+                    inputId="precio"
+                    name="precio"
+                    mode="currency"
+                    currency="ARS"
+                    locale="es-AR"
+                    autocomplete="off"
+                    placeholder="Ingrese el precio"
+                    fluid
+                />
+
+                <Message v-if="$form.precio?.invalid" severity="error" size="small" variant="simple"
+                    >{{ $form.precio.error.message }}
+                </Message>
+            </div>
+            -->
+            <div class="flex gap-24">
+                <label for="duracion">Duración en Meses</label>
+                <label for="precio">Precio</label>
+            </div>
+            <div v-auto-animate>
+                <div
+                    class="flex gap-4 mb-4"
+                    v-for="(variant, index) in initialValues.plazos"
+                    :key="index"
+                >
+                    <div class="flex flex-col gap-1">
+                        <InputNumber
+                            id="duracion"
+                            name="duracion"
+                            type="number"
+                            placeholder="Ej: 2"
+                            fluid
+                            autocomplete="off"
+                        />
+
+                        <Message
+                            v-if="$form.dni?.invalid"
+                            severity="error"
+                            size="small"
+                            variant="simple"
+                            >{{ $form.dni.error.message }}</Message
+                        >
+                    </div>
+                    <div class="flex flex-col gap-1">
+                        <InputNumber
+                            inputId="precio"
+                            name="precio"
+                            mode="currency"
+                            currency="ARS"
+                            locale="es-AR"
+                            autocomplete="off"
+                            placeholder="Ingrese el precio"
+                            fluid
+                        />
+                        <Message
+                            v-if="$form.telefono?.invalid"
+                            severity="error"
+                            size="small"
+                            variant="simple"
+                            >{{ $form.telefono.error.message }}
+                        </Message>
+                    </div>
+                </div>
+            </div>
+
+            <Button
+                type="button"
+                label="Agregar Otra Duración"
+                severity="secondary"
+                class="-mt-4"
+                icon="pi pi-plus"
+                :disabled="loading"
+                @click="addNewVariant"
+            ></Button>
             <div class="flex justify-end gap-2 mt-1">
                 <Button
                     type="button"
@@ -99,8 +159,11 @@ const loading = ref(false);
 const initialValues = ref({
     nombre: '',
     descripcion: '',
-    precio: null
+    plazos: [{ duracion: null, precio: null }]
 });
+const addNewVariant = () => {
+    initialValues.value.plazos.push({ duracion: null, precio: null });
+};
 const resolver = zodResolver(
     z.object({
         nombre: z
@@ -128,7 +191,7 @@ watch(
             initialValues.value = {
                 nombre: '',
                 descripcion: '',
-                precio: null
+                plazos: [{ duracion: null, precio: null }]
             };
         }
     },
@@ -144,8 +207,8 @@ const onFormSubmit = async (e) => {
             const membershipData = e.values;
             loading.value = true;
             isEditMode.value
-                ? await pb.collection('membresias').update(membershipData.id, membershipData)
-                : await pb.collection('membresias').create(membershipData);
+                ? await pb.collection('planes').update(membershipData.id, membershipData)
+                : await pb.collection('planes').create(membershipData);
             closeModal();
             emit('newChanges', isEditMode.value);
         } catch (error) {
@@ -165,10 +228,3 @@ const onFormSubmit = async (e) => {
     }
 };
 </script>
-<style>
-input[type='number']::-webkit-inner-spin-button,
-input[type='number']::-webkit-outer-spin-button {
-    -webkit-appearance: none;
-    margin: 0;
-}
-</style>

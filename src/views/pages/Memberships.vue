@@ -1,6 +1,6 @@
 <template>
     <div class="card">
-        <h1 class="text-3xl font-bold">Membresías</h1>
+        <h1 class="text-3xl font-bold">Planes</h1>
         <div class="flex justify-between mt-5 mb-3">
             <IconField>
                 <InputIcon>
@@ -14,10 +14,11 @@
                 />
             </IconField>
             <Button
+                to="planes/agregar-plan"
                 severity="contrast"
-                @click="showModal = true"
-                label="Agregar Membresía"
+                label="Agregar Plan"
                 icon="pi pi-plus"
+                as="router-link"
             />
         </div>
         <MembershipList
@@ -59,22 +60,22 @@ const editMembership = (membership) => {
     membershipData.value = membership;
     showModal.value = true;
 };
-//Actualizar la tabla despues de agregar o editar una membresia
+//Actualizar la tabla despues de agregar o editar un plan
 const updateTable = (isEditMode) => {
     searchInput.value = '';
     membershipList.value.getMemberships({ first: 0, rows: 10 });
     toast.add({
         severity: 'success',
         summary: 'Confirmado',
-        detail: `Membresía ${isEditMode ? 'Editada' : 'Agregada'}`,
+        detail: `Plan ${isEditMode ? 'Editado' : 'Agregado'}`,
         life: 3000
     });
 };
 const searchMemberships = useDebounceFn(() => {
     membershipList.value.getMemberships({ first: 0, rows: 10, search: searchInput.value });
-}, 600);
+}, 300);
 
-//Modal de eliminacion de membresia
+//Modal de eliminacion de plan
 const deleteMembership = (membership) => {
     confirm.require({
         message: `Seguro que quieres eliminar la membresía ${membership.nombre} ?`,
@@ -94,16 +95,16 @@ const deleteMembership = (membership) => {
         }
     });
 };
-//Elimnar membresia de la base de datos
+//Eliminar plan de la base de datos
 const confirmDeleteMembership = async (memberID) => {
     try {
-        await pb.collection('membresias').delete(memberID);
+        await pb.collection('planes').delete(memberID);
         membershipList.value.getMemberships({ first: 0, rows: 10 });
 
         toast.add({
             severity: 'success',
             summary: 'Confirmado',
-            detail: 'Membresia eliminada',
+            detail: 'Plan eliminado',
             life: 3000
         });
     } catch (error) {
