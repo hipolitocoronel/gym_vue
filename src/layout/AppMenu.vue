@@ -20,8 +20,8 @@ const model = ref([
                         to: '/configuracion'
                     },
                     {
-                        label: 'Membresias',
-                        to: '/membresias'
+                        label: 'Planes',
+                        to: '/planes'
                     },
 
                     {

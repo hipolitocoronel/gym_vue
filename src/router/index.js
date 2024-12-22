@@ -24,9 +24,19 @@ const router = createRouter({
                     component: () => import('@/views/pages/Users.vue')
                 },
                 {
-                    path: '/membresias',
-                    name: 'membresias',
-                    component: () => import('@/views/pages/Memberships.vue')
+                    path: '/planes',
+                    children: [
+                        {
+                            path: '',
+                            name: 'planes',
+                            component: () => import('@/views/pages/Memberships.vue')
+                        },
+                        {
+                            path: 'agregar-plan',
+                            name: 'agregar-plan',
+                            component: () => import('@/views/pages/MembershipsForm.vue')
+                        }
+                    ]
                 }
             ]
         },

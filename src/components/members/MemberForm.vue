@@ -14,7 +14,7 @@
             class="flex justify-center flex-col gap-4"
         >
             <InputText v-if="isEditMode" id="id" name="id" class="hidden" />
-            <div class="flex flex-col gap-1">
+            <div class="flex flex-col gap-1" v-auto-animate>
                 <label for="name">Nombre</label>
                 <InputText
                     id="name"
@@ -29,7 +29,7 @@
                 </Message>
             </div>
 
-            <div class="flex flex-col gap-1">
+            <div class="flex flex-col gap-1" v-auto-animate>
                 <label for="direction">Dirección</label>
                 <InputText
                     id="direction"
@@ -49,7 +49,7 @@
             </div>
             <Fluid>
                 <div class="grid grid-cols-2 gap-4 grow">
-                    <div class="flex flex-col gap-1">
+                    <div class="flex flex-col gap-1" v-auto-animate>
                         <label for="dni">DNI</label>
                         <InputNumber
                             id="dni"
@@ -68,7 +68,7 @@
                             >{{ errorDni ? 'DNI ya registrado' : $form.dni.error.message }}</Message
                         >
                     </div>
-                    <div class="flex flex-col gap-1">
+                    <div class="flex flex-col gap-1" v-auto-animate>
                         <label for="phone">Telefono</label>
                         <InputNumber
                             id="phone"
@@ -90,7 +90,7 @@
                     </div>
                 </div>
             </Fluid>
-            <div class="flex flex-col gap-1">
+            <div class="flex flex-col gap-1" v-auto-animate>
                 <label for="sexo">Sexo</label>
                 <RadioButtonGroup
                     :invalid="$form.sexo?.invalid"
@@ -228,6 +228,11 @@ const onFormSubmit = async (e) => {
             }
         } finally {
             loading.value = false;
+            if (errorDni.value) {
+                setTimeout(() => {
+                    errorDni.value = false;
+                }, 3000);
+            }
         }
     }
 };
