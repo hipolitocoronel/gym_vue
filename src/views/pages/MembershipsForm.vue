@@ -5,7 +5,6 @@
             <div class="flex gap-8 mt-4">
                 <div class="card grow h-fit">
                     <h2 class="text-xl font-bold">Información General</h2>
-
                     <div class="flex flex-col gap-1 mt-2" v-auto-animate>
                         <label for="name">Nombre</label>
                         <InputText
@@ -39,17 +38,15 @@
                 </div>
                 <div class="card h-fit">
                     <h2 class="text-xl font-bold">Plazos</h2>
-                    <div class="flex gap-[110px] mt-2 mb-1">
+                    <div class="flex gap-[108px] mt-2 mb-1">
                         <label for="duracion">Duración en Meses</label>
                         <label for="precio">Precio</label>
                     </div>
-
                     <div v-auto-animate>
                         <div class="flex gap-3 mb-3" v-for="(plazo, index) in plazos" :key="index">
                             <div class="flex flex-col gap-1 grow" v-auto-animate>
                                 <InputNumber
                                     :id="`duracion-${index}`"
-                                    type="number"
                                     placeholder="Ej: 2"
                                     fluid
                                     autocomplete="off"
