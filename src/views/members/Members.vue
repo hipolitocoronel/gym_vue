@@ -27,19 +27,17 @@
             @closeModal="closeModal"
             @newChanges="updateTable"
         />
-        <ConfirmDialog></ConfirmDialog>
     </div>
 </template>
 <script setup>
-import MemberList from '@/components/members/MemberList.vue';
 import MemberForm from '@/components/members/MemberForm.vue';
+import MemberList from '@/components/members/MemberList.vue';
 import pb from '@/service/pocketbase.js';
+import { useDebounceFn } from '@vueuse/core';
 import Button from 'primevue/button';
-import ConfirmDialog from 'primevue/confirmdialog';
 import { useConfirm } from 'primevue/useconfirm';
 import { useToast } from 'primevue/usetoast';
 import { ref } from 'vue';
-import { useDebounceFn } from '@vueuse/core';
 const confirm = useConfirm();
 const toast = useToast();
 const showModal = ref(false);

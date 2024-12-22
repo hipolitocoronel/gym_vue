@@ -55,6 +55,30 @@ const onFormSubmit = async (e) => {
         }
     }
 };
+
+const googleLogin = async () => {
+    try {
+        loading.value = true;
+        const authData = await pb.collection('users').authWithOAuth2({ provider: 'google' });
+
+        // guardando informacion de usuario
+        store.setUserLogged(authData.record);
+
+        // redireccion
+        router.push({ name: 'dashboard' });
+    } catch (error) {
+        console.error(error);
+
+        toast.add({
+            severity: 'error',
+            summary: 'Operación fallida',
+            detail: 'Intentelo nuevamente',
+            life: 3000
+        });
+    } finally {
+        loading.value = false;
+    }
+};
 </script>
 
 <template>
@@ -85,7 +109,12 @@ const onFormSubmit = async (e) => {
                         <span class="font-medium text-muted-color">Ingrese para continuar</span>
                     </div>
 
-                    <Button class="w-full mb-6" severity="contrast" variant="outlined">
+                    <Button
+                        class="w-full mb-6"
+                        severity="contrast"
+                        variant="outlined"
+                        @click="googleLogin"
+                    >
                         <img
                             src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/c1/Google_%22G%22_logo.svg/768px-Google_%22G%22_logo.svg.png"
                             alt=""
