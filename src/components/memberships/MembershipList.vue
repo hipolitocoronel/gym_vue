@@ -13,13 +13,8 @@
         currentPageReportTemplate="Mostrando {last} de {totalRecords} planes"
     >
         <template #empty> Sin registros. </template>
-        <Column field="nombre" header="Nombre"> </Column>
-        <Column header="Precio">
-            <template #body="{ data }">
-                {{ formatCurrency(data.precio) }}
-            </template>
-        </Column>
-        <Column header="Acciones" class="xl:max-w-10 md:max-w-14">
+        <Column field="nombre" class="w-11/12" header="Nombre"> </Column>
+        <Column header="Acciones">
             <template #body="{ data }">
                 <div class="flex gap-2">
                     <Button
@@ -29,7 +24,8 @@
                         rounded
                         v-tooltip.top="'Editar Plan'"
                         size="large"
-                        @click="$emit('editMembership', data)"
+                        as="router-link"
+                        :to="`/planes/editar-plan/${data.id}`"
                     />
                     <Button
                         icon="pi pi-trash"

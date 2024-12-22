@@ -83,29 +83,25 @@ const deleteMember = (member) => {
             label: 'Eliminar',
             severity: 'danger'
         },
-        accept: () => {
-            confirmDeleteMember(member.id);
+        accept: async () => {
+            try {
+                await pb.collection('miembros').delete(member.id);
+                memberList.value.getMembers({ first: 0, rows: 10 });
+                toast.add({
+                    severity: 'success',
+                    summary: 'Confirmado',
+                    detail: 'Miembro eliminado',
+                    life: 3000
+                });
+            } catch (error) {
+                toast.add({
+                    severity: 'error',
+                    summary: 'Operación fallida',
+                    detail: 'Intentelo nuevamente',
+                    life: 3000
+                });
+            }
         }
     });
-};
-//Eliminar miembro de la base de datos
-const confirmDeleteMember = async (memberID) => {
-    try {
-        await pb.collection('miembros').delete(memberID);
-        memberList.value.getMembers({ first: 0, rows: 10 });
-        toast.add({
-            severity: 'success',
-            summary: 'Confirmado',
-            detail: 'Miembro eliminado',
-            life: 3000
-        });
-    } catch (error) {
-        toast.add({
-            severity: 'error',
-            summary: 'Operación fallida',
-            detail: 'Intentelo nuevamente',
-            life: 3000
-        });
-    }
 };
 </script>

@@ -1,6 +1,7 @@
 <template>
     <div>
-        <h1 class="text-3xl font-bold">Agregar Plan</h1>
+        <h1 class="text-3xl font-bold">{{ isEditMode ? 'Editar Plan' : 'Agregar Plan' }}</h1>
+
         <form @submit="onFormSubmit" v-auto-animate>
             <div class="flex gap-8 mt-4">
                 <div class="card grow h-fit">
@@ -16,12 +17,12 @@
                         />
 
                         <Message
-                            v-if="errors.nombre"
+                            v-if="errors.nombre || errorName"
                             severity="error"
                             size="small"
                             variant="simple"
                         >
-                            {{ errors.nombre }}
+                            {{ errorName ? 'Ya existe un plan con este nombre' : errors.nombre }}
                         </Message>
                     </div>
                     <div class="flex flex-col gap-1 mt-2">
@@ -36,15 +37,13 @@
                         />
                     </div>
                 </div>
-                <div class="card h-fit">
+                <div class="card h-fit w-[54%]">
                     <h2 class="text-xl font-bold">Plazos</h2>
-                    <div class="flex gap-[108px] mt-2 mb-1">
-                        <label for="duracion">Duración en Meses</label>
-                        <label for="precio">Precio</label>
-                    </div>
+
                     <div v-auto-animate>
-                        <div class="flex gap-3 mb-3" v-for="(plazo, index) in plazos" :key="index">
+                        <div class="flex gap-3 mb-4" v-for="(plazo, index) in plazos" :key="index">
                             <div class="flex flex-col gap-1 grow" v-auto-animate>
+                                <label v-if="index === 0" for="duracion">Duración en Meses</label>
                                 <InputNumber
                                     :id="`duracion-${index}`"
                                     placeholder="Ej: 2"
@@ -63,6 +62,7 @@
                                 </Message>
                             </div>
                             <div class="flex flex-col gap-1 grow" v-auto-animate>
+                                <label v-if="index === 0" for="precio">Precio</label>
                                 <InputNumber
                                     :inputId="`precio-${index}`"
                                     mode="currency"
@@ -116,14 +116,20 @@
                 </div>
             </div>
 
-            <div class="flex gap-4 justify-end mt-10">
+            <div class="flex gap-4 justify-end mt-6">
                 <Button
                     as="router-link"
                     to="/planes"
                     label="Cancelar"
                     severity="secondary"
                 ></Button>
-                <Button type="submit" @click="validateForm" label="Guardar Plan"></Button>
+                <Button
+                    type="submit"
+                    @click="validateForm"
+                    :loading
+                    :disabled="errorFetch"
+                    :label="`${isEditMode ? 'Editar' : 'Guardar'} plan`"
+                ></Button>
             </div>
         </form>
     </div>
@@ -131,10 +137,20 @@
 <script setup>
 import { useField, useForm } from 'vee-validate';
 import { toTypedSchema } from '@vee-validate/zod';
-import { ref } from 'vue';
+import { useDebounceFn } from '@vueuse/core';
+import pb from '@/service/pocketbase.js';
+import { useToast } from 'primevue/usetoast';
+import { useRouter } from 'vue-router';
+import { useRoute } from 'vue-router';
+import { ref, computed, watch } from 'vue';
 import { z } from 'zod';
-const isEditMode = ref(false);
+const toast = useToast();
+const route = useRoute();
+const router = useRouter();
 const loading = ref(false);
+const isEditMode = computed(() => {
+    return route.params?.id ? true : false;
+});
 const validationSchema = toTypedSchema(
     z.object({
         nombre: z
@@ -150,10 +166,38 @@ const validationSchema = toTypedSchema(
         )
     })
 );
-
+//Obtiene los datos del plan si esta en modo edicion
+const fetchData = async () => {
+    if (isEditMode.value) {
+        try {
+            const plan = await pb.collection('planes').getOne(route.params.id);
+            const plazosData = await pb
+                .collection('planes_plazos')
+                .getFullList({ filter: `id_plan="${route.params.id}"` });
+            errorFetch.value = false;
+            nombre.value = plan.nombre;
+            descripcion.value = plan.descripcion;
+            plazos.value = plazosData.map((plazo) => ({
+                duracion: plazo.duracion,
+                precio: plazo.precio,
+                id: plazo.id
+            }));
+        } catch (error) {
+            errorFetch.value = true;
+            toast.add({
+                severity: 'error',
+                summary: 'Operación fallida',
+                detail: 'No se pudo obtener el plan',
+                life: 3000
+            });
+        }
+    }
+};
 const { handleSubmit, errors } = useForm({
     validationSchema
 });
+
+watch(() => route.params?.id, fetchData, { immediate: true });
 
 const { value: nombre } = useField('nombre');
 const { value: descripcion } = useField('descripcion');
@@ -161,6 +205,10 @@ const { value: plazos } = useField('plazos', [], {
     initialValue: [{ duracion: null, precio: null }]
 });
 
+//Indica si hubo un error al obtener los datos del plan
+const errorFetch = ref(false);
+//Indica si ya hay un plan con ese nombre
+const errorName = ref(false);
 //Indica si se supero el limite de planes
 const errorPlan = ref(false);
 //Almacena si hay errores en los plazos
@@ -181,13 +229,20 @@ const validateField = (field, index) => {
 };
 //Agrega la nueva duracion
 const addNewVariant = () => {
-    plazos.value.push({ duracion: null, precio: null });
+    if (isEditMode.value) {
+        plazos.value.push({ duracion: null, precio: null, id: undefined });
+    } else {
+        plazos.value.push({ duracion: null, precio: null });
+    }
     if (plazos.value.length === 4) {
         errorPlan.value = true;
     }
 };
 //Quita la duracion
-const removeVariant = (index) => {
+const removeVariant = async (index) => {
+    if (isEditMode.value && plazos.value[index].id !== undefined) {
+        await pb.collection('planes_plazos').delete(plazos.value[index].id);
+    }
     plazos.value.splice(index, 1);
     errorPlazos.value.splice(index, 1);
     if (plazos.value.length < 4) {
@@ -202,7 +257,63 @@ const validateForm = () => {
     });
 };
 //Solo envia el formulario si no hay errores
-const onFormSubmit = handleSubmit((values) => {
-    console.log(values);
+const onFormSubmit = handleSubmit(async (values) => {
+    const planData = {
+        nombre: values.nombre,
+        descripcion: values.descripcion
+    };
+    try {
+        loading.value = true;
+        if (isEditMode.value) {
+            await pb.collection('planes').update(route.params.id, planData);
+            let newPlazos = plazos.value.filter((plazo) => plazo.id === undefined);
+            let oldPlazos = plazos.value.filter((plazo) => plazo.id !== undefined);
+            //actualiza los plazos existentes
+            for (const plazo of oldPlazos) {
+                await pb.collection('planes_plazos').update(plazo.id, {
+                    duracion: plazo.duracion,
+                    precio: plazo.precio
+                });
+            }
+            //agrega los nuevos plazos
+            for (const plazo of newPlazos) {
+                await pb.collection('planes_plazos').create({
+                    duracion: plazo.duracion,
+                    precio: plazo.precio,
+                    id_plan: route.params.id
+                });
+            }
+        } else {
+            const planAdded = await pb.collection('planes').create(planData);
+            for (const plazo of plazos.value) {
+                await pb.collection('planes_plazos').create({
+                    duracion: plazo.duracion,
+                    precio: plazo.precio,
+                    id_plan: planAdded.id
+                });
+            }
+        }
+        toast.add({
+            severity: 'success',
+            summary: 'Confirmado',
+            detail: `Plan ${isEditMode.value ? 'Editado' : 'Agregado'}`,
+            life: 3000
+        });
+        errorName.value = false;
+        router.push('/planes');
+    } catch (error) {
+        if (error.response?.data?.nombre?.code === 'validation_not_unique') {
+            errorName.value = true;
+        } else {
+            toast.add({
+                severity: 'error',
+                summary: 'Operación fallida',
+                detail: 'Intentelo nuevamente',
+                life: 3000
+            });
+        }
+    } finally {
+        loading.value = false;
+    }
 });
 </script>
