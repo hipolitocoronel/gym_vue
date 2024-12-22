@@ -43,7 +43,9 @@
                     <div v-auto-animate>
                         <div class="flex gap-3 mb-4" v-for="(plazo, index) in plazos" :key="index">
                             <div class="flex flex-col gap-1 grow" v-auto-animate>
-                                <label v-if="index === 0" for="duracion">Duración en Meses</label>
+                                <label v-if="index === 0" class="mt-2" for="duracion"
+                                    >Duración en Meses</label
+                                >
                                 <InputNumber
                                     :id="`duracion-${index}`"
                                     placeholder="Ej: 2"
@@ -62,7 +64,7 @@
                                 </Message>
                             </div>
                             <div class="flex flex-col gap-1 grow" v-auto-animate>
-                                <label v-if="index === 0" for="precio">Precio</label>
+                                <label v-if="index === 0" class="mt-2" for="precio">Precio</label>
                                 <InputNumber
                                     :inputId="`precio-${index}`"
                                     mode="currency"
