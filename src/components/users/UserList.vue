@@ -4,27 +4,27 @@ import { useToast } from 'primevue/usetoast';
 import { onMounted, ref } from 'vue';
 const toast = useToast();
 
-const { querySearch } = defineProps(['querySearch']);
+const emit = defineEmits(['editUser', 'deleteUser']);
 const users = ref([]);
 const first = ref(0); // corresponde al current page
 const loading = ref(false);
 const totalRecords = ref(0);
 const rowsPerPage = ref(10); // tamaño de la tabla
 
-onMounted(() => getUsuarios({ first: first.value, rows: rowsPerPage.value }));
+onMounted(() => getUsers({ first: first.value, rows: rowsPerPage.value }));
 
-const getUsuarios = async (event) => {
+const getUsers = async (event) => {
     try {
         // Parámetros de la consulta
         first.value = event.first;
-        rowsPerPage.value = event.rows;
+        rowsPerPage.value = event.rows ?? rowsPerPage.value;
 
         const currentPage = Math.floor(first.value / rowsPerPage.value) + 1; // Convierte índice base-0 a base-1
 
         loading.value = true;
         const result = await pb.collection('users').getList(currentPage, rowsPerPage.value, {
             sort: '-created',
-            filter: `name~'${querySearch}'`
+            filter: `name~'${event.query ?? ''}' || email~'${event.query ?? ''}' || phone~'${event.query ?? ''}'`
         });
         totalRecords.value = result.totalItems;
         users.value = result.items;
@@ -40,6 +40,8 @@ const getUsuarios = async (event) => {
         loading.value = false;
     }
 };
+
+defineExpose({ getUsers });
 </script>
 
 <template>
@@ -51,7 +53,7 @@ const getUsuarios = async (event) => {
         :totalRecords="totalRecords"
         :first="first"
         :loading="loading"
-        @page="getUsuarios"
+        @page="getUsers"
         paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
         :rowsPerPageOptions="[10, 30, 50]"
         currentPageReportTemplate="Mostrando {last} de {totalRecords} cuentas"
@@ -69,17 +71,19 @@ const getUsuarios = async (event) => {
                 <div class="flex gap-2">
                     <Button
                         icon="pi pi-pencil"
+                        @click="emit('editUser', data)"
                         severity="secondary"
                         variant="outlined"
                         rounded
-                        size="large"
+                        v-tooltip.top="'Editar usuario'"
                     />
                     <Button
                         icon="pi pi-trash"
+                        @click="emit('deleteUser', data)"
                         severity="danger"
                         variant="outlined"
                         rounded
-                        size="large"
+                        v-tooltip.top="'Eliminar usuario'"
                     />
                 </div>
             </template>

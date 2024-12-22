@@ -3,6 +3,7 @@
 <template>
     <div>
         <Toast />
+        <ConfirmDialog />
         <router-view />
     </div>
 </template>

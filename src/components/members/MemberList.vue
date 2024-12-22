@@ -91,5 +91,6 @@ const getMembers = async (event) => {
         loading.value = false;
     }
 };
+
 defineExpose({ getMembers });
 </script>
