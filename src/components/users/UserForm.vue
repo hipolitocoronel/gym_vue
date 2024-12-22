@@ -15,13 +15,19 @@ const props = defineProps({
 });
 
 const loading = ref(false);
-const initialValues = ref({
-    name: '',
-    email: '',
-    phone: null,
-    password: '',
-    passwordConfirm: ''
+
+// Valores iniciales como un computed
+const initialValues = computed(() => {
+    return {
+        name: props.data?.name ?? '',
+        email: props.data?.email ?? '',
+        phone: props.data?.phone ?? null,
+        password: isEditMode.value ? 'password' : '',
+        passwordConfirm: isEditMode.value ? 'password' : ''
+    };
 });
+
+const isEditMode = computed(() => (props.data?.id ? true : false));
 
 const resolver = zodResolver(
     z
@@ -48,15 +54,24 @@ const resolver = zodResolver(
         })
 );
 
-const isEditMode = computed(() => (props.data?.id ? true : false));
-
 const onFormSubmit = async (e) => {
+    console.log(e);
     if (e.valid) {
         try {
             loading.value = true;
-            isEditMode.value
-                ? await pb.collection('users').update(e.values.id, e.values)
-                : await pb.collection('users').create({ ...e.values, emailVisibility: true });
+
+            let payload = { ...e.values };
+            if (isEditMode.value) {
+                delete payload.password;
+                delete payload.passwordConfirm;
+
+                console.log(e.values);
+
+                await pb.collection('users').update(props.data.id, payload);
+            } else {
+                payload.emailVisibility = true;
+                await pb.collection('users').create(payload);
+            }
 
             toast.add({
                 severity: 'success',
@@ -87,7 +102,7 @@ const onFormSubmit = async (e) => {
         v-model:visible="props.visible"
         modal
         @update:visible="emit('closeModal')"
-        :header="isEditMode ? 'Editar Miembro' : 'Nuevo usuario'"
+        :header="isEditMode ? 'Editar usuario' : 'Nuevo usuario'"
         :style="{ width: '36rem' }"
     >
         <Form
@@ -144,7 +159,7 @@ const onFormSubmit = async (e) => {
                 </Message>
             </div>
 
-            <div class="flex gap-4">
+            <div class="flex gap-4" :style="isEditMode ? 'display: none' : ''">
                 <div class="flex flex-col gap-1" v-auto-animate>
                     <label for="password">Contraseña</label>
                     <Password

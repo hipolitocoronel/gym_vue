@@ -12,6 +12,12 @@ const toast = useToast();
 const showModal = ref(false);
 const querySearch = ref('');
 const userList = ref(null);
+const userData = ref({});
+
+const closeModal = () => {
+    showModal.value = false;
+    userData.value = {};
+};
 
 const getUsersByQuery = useDebounceFn(() => {
     // se manda rows nulo para que mantanga la paginacion que tenia antes
@@ -21,6 +27,11 @@ const getUsersByQuery = useDebounceFn(() => {
 const reloadData = () => {
     querySearch.value = '';
     userList.value.getUsers({ first: 0, rows: null });
+};
+
+const editUser = (user) => {
+    userData.value = user;
+    showModal.value = true;
 };
 
 const deleteUser = (user) => {
@@ -83,7 +94,12 @@ const deleteUser = (user) => {
             </Button>
         </div>
 
-        <UserList ref="userList" @deleteUser="deleteUser" @editUser="getUsersByQuery" />
-        <UserForm :visible="showModal" @closeModal="showModal = false" @reloadData="reloadData" />
+        <UserList ref="userList" @deleteUser="deleteUser" @editUser="editUser" />
+        <UserForm
+            :visible="showModal"
+            @closeModal="closeModal"
+            :data="userData"
+            @reloadData="reloadData"
+        />
     </div>
 </template>
