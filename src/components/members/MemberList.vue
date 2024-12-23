@@ -17,11 +17,11 @@
         <Column field="telefono" header="Telefono"> </Column>
         <Column field="sexo" header="Sexo"> </Column>
         <Column field="dni" header="Dni"> </Column>
-        <Column field="membresia" header="Membresia">
+        <Column header="Plan">
             <template #body="{ data }">
                 <Tag
-                    :value="data.membresia ? 'Activa' : 'Vencida'"
-                    :severity="data.membresia ? 'success' : 'danger'"
+                    :value="getMemberhipStatus(data) ? 'Activo' : 'Vencido'"
+                    :severity="getMemberhipStatus(data) ? 'success' : 'danger'"
                 />
             </template>
         </Column>
@@ -62,7 +62,15 @@ const totalRecords = ref(0);
 const rowsPerPage = ref(10); // tamaño de la tabla
 const toast = useToast();
 onMounted(() => getMembers({ first: first.value, rows: rowsPerPage.value }));
-
+const getMemberhipStatus = (member) => {
+    if (member.lastPayment !== null) {
+        let today = new Date();
+        let expiredDate = new Date(member.lastPayment);
+        return expiredDate > today;
+    } else {
+        return false;
+    }
+};
 const getMembers = async (event) => {
     try {
         // Parámetros de la consulta
@@ -75,6 +83,18 @@ const getMembers = async (event) => {
             sort: 'nombre',
             filter: `nombre~'${search ?? ''}' || dni~'${search ?? ''}' || telefono~'${search ?? ''}'`
         });
+        for (const member of result.items) {
+            try {
+                const lastPayment = await pb.collection('pagos').getList(1, 1, {
+                    filter: `id_miembro='${member.id}'`,
+                    sort: '-fecha_pago',
+                    fields: 'fecha_vencimiento'
+                });
+                member.lastPayment = lastPayment.items[0].fecha_vencimiento;
+            } catch (error) {
+                member.lastPayment = null;
+            }
+        }
         totalRecords.value = result.totalItems;
         members.value = result.items;
     } catch (error) {

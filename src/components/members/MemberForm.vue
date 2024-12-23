@@ -137,6 +137,7 @@
         </Form>
     </Dialog>
 </template>
+
 <script setup>
 import { Form } from '@primevue/forms';
 import pb from '@/service/pocketbase.js';
@@ -145,11 +146,14 @@ import { z } from 'zod';
 import { useToast } from 'primevue/usetoast';
 import { ref, defineProps, defineEmits, watch, computed } from 'vue';
 const toast = useToast();
-const showModal = ref(false);
+
 const emit = defineEmits(['closeModal', 'newChanges']);
 const props = defineProps({
     visible: Boolean,
-    memberData: Object
+    memberData: {
+        type: Object,
+        default: []
+    }
 });
 const errorDni = ref(false);
 const loading = ref(false);
@@ -208,13 +212,13 @@ const closeModal = () => {
 const onFormSubmit = async (e) => {
     if (e.valid) {
         try {
-            const memberData = e.values;
+            let member;
             loading.value = true;
             isEditMode.value
-                ? await pb.collection('miembros').update(memberData.id, memberData)
-                : await pb.collection('miembros').create(memberData);
+                ? (member = await pb.collection('miembros').update(e.values.id, e.values))
+                : (member = await pb.collection('miembros').create(e.values));
             closeModal();
-            emit('newChanges', isEditMode.value);
+            emit('newChanges', isEditMode.value, member);
         } catch (error) {
             if (error.response?.data?.dni?.code === 'validation_not_unique') {
                 errorDni.value = true;

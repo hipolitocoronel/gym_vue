@@ -34,7 +34,6 @@ import MemberForm from '@/components/members/MemberForm.vue';
 import MemberList from '@/components/members/MemberList.vue';
 import pb from '@/service/pocketbase.js';
 import { useDebounceFn } from '@vueuse/core';
-import Button from 'primevue/button';
 import { useConfirm } from 'primevue/useconfirm';
 import { useToast } from 'primevue/usetoast';
 import { ref } from 'vue';

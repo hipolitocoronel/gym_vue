@@ -17,8 +17,8 @@
         <Column header="Plazos" class="w-9/12">
             <template #body="{ data }">
                 <div
-                    :class="{ 'gap-52': (plazo.duracion = 1) }"
-                    class="flex gap-48"
+                    :class="{ 'gap-[200px]': plazo.duracion == 1 }"
+                    class="flex gap-52"
                     v-for="plazo in data.plazos"
                 >
                     <span>
@@ -53,12 +53,12 @@
                 </div>
             </template>
         </Column>
-        {{ memberships }}
     </DataTable>
 </template>
 <script setup>
 import { ref, defineProps, onMounted, defineExpose } from 'vue';
 import { useToast } from 'primevue/usetoast';
+import formatCurrency from '@/utils/formatCurrency';
 import pb from '@/service/pocketbase.js';
 const memberships = ref([]);
 const first = ref(0);
@@ -66,14 +66,9 @@ const loading = ref(false);
 const totalRecords = ref(0);
 const rowsPerPage = ref(10); // tamaño de la tabla
 const toast = useToast();
+
 onMounted(() => getMemberships({ first: first.value, rows: rowsPerPage.value }));
-const formatCurrency = (value) => {
-    return new Intl.NumberFormat('es-AR', {
-        style: 'currency',
-        currency: 'ARS',
-        minimumFractionDigits: 2
-    }).format(value);
-};
+
 const getMemberships = async (event) => {
     try {
         // Parámetros de la consulta
@@ -87,18 +82,12 @@ const getMemberships = async (event) => {
             sort: 'nombre',
             filter: filter
         });
+
         for (const plan of result.items) {
             const plazos = await pb.collection('planes_plazos').getFullList({
                 filter: `id_plan = '${plan.id}'`
             });
-            Object.assign(plan, {
-                ...plan,
-                plazos: plazos.map((plazo) => ({
-                    ...plazo,
-                    duracion: Number(plazo.duracion)
-                }))
-            });
-            console.log(plan);
+            plan.plazos = plazos;
         }
 
         totalRecords.value = result.totalItems;
