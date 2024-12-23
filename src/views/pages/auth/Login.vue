@@ -111,7 +111,7 @@ const googleLogin = async () => {
 
                     <Button
                         class="w-full mb-6"
-                        severity="contrast"
+                        severity="secondary"
                         variant="outlined"
                         @click="googleLogin"
                     >
@@ -190,11 +190,13 @@ const googleLogin = async () => {
                                 ></Checkbox>
                                 <label for="rememberme1">Recordar</label>
                             </div>
-                            <span
-                                class="ml-2 font-medium text-right no-underline cursor-pointer text-primary"
-                            >
-                                Olvidaste tu contraseña?
-                            </span>
+                            <router-link to="/auth/forgot-password">
+                                <span
+                                    class="ml-2 font-medium text-right no-underline cursor-pointer text-primary"
+                                >
+                                    Olvidaste tu contraseña?
+                                </span>
+                            </router-link>
                         </div>
                         <Button
                             class="w-full mt-2 font-bold"

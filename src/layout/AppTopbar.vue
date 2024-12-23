@@ -54,14 +54,20 @@ const logout = () => {
             <!-- <button class="layout-menu-button layout-topbar-action" @click="toggleMenu">
                 <i class="pi pi-bars"></i>
             </button> -->
-            <router-link to="/" class="layout-topbar-logo">
+            <router-link to="/" class="layout-topbar-logo" style="gap: 0.2rem">
                 <img
-                    src="https://cdn.logojoy.com/wp-content/uploads/20210517162426/barbell-symbol.png"
-                    alt=""
-                    width="26px"
+                    :src="
+                        isDarkTheme
+                            ? '/src/assets/img/logo-white.png'
+                            : '/src/assets/img/logo-black.png'
+                    "
+                    alt="logo"
+                    width="35px"
                 />
 
-                <span><b>GYM</b></span>
+                <p class="font-extrabold">
+                    Gym<span class="font-normal text-primary">Master</span>
+                </p>
             </router-link>
         </div>
 
