@@ -26,16 +26,9 @@
             @delete-membership="deleteMembership"
             @edit-membership="editMembership"
         />
-        <MembershipForm
-            :membershipData
-            :visible="showModal"
-            @closeModal="closeModal"
-            @newChanges="updateTable"
-        />
     </div>
 </template>
 <script setup>
-import MembershipForm from '@/components/memberships/MembershipForm.vue';
 import MembershipList from '@/components/memberships/MembershipList.vue';
 import pb from '@/service/pocketbase.js';
 import { useDebounceFn } from '@vueuse/core';
@@ -45,19 +38,9 @@ import { useToast } from 'primevue/usetoast';
 import { ref } from 'vue';
 const confirm = useConfirm();
 const toast = useToast();
-const showModal = ref(false);
-const membershipData = ref([]);
 const searchInput = ref('');
 const membershipList = ref(null);
-const closeModal = () => {
-    showModal.value = false;
-    membershipData.value = [];
-};
-//Obtiene la fila a editar y abre el modal
-const editMembership = (membership) => {
-    membershipData.value = membership;
-    showModal.value = true;
-};
+
 //Actualizar la tabla despues de agregar o editar un plan
 const updateTable = (isEditMode) => {
     searchInput.value = '';
@@ -76,7 +59,7 @@ const searchMemberships = useDebounceFn(() => {
 //Modal de eliminacion de plan
 const deleteMembership = (membership) => {
     confirm.require({
-        message: `Seguro que quieres eliminar la membresía ${membership.nombre} ?`,
+        message: `Seguro que quieres eliminar el plan ${membership.nombre} ?`,
         header: 'Confirmar Eliminación',
         icon: 'pi pi-info-circle',
         rejectProps: {
@@ -88,30 +71,32 @@ const deleteMembership = (membership) => {
             label: 'Eliminar',
             severity: 'danger'
         },
-        accept: () => {
-            confirmDeleteMembership(membership.id);
+        accept: async () => {
+            try {
+                let plazos = await pb.collection('planes_plazos').getFullList({
+                    filter: `id_plan="${membership.id}"`
+                });
+                for (const plazo of plazos) {
+                    await pb.collection('planes_plazos').delete(plazo.id);
+                }
+                await pb.collection('planes').delete(membership.id);
+                membershipList.value.getMemberships({ first: 0, rows: 10 });
+
+                toast.add({
+                    severity: 'success',
+                    summary: 'Confirmado',
+                    detail: 'Plan eliminado',
+                    life: 3000
+                });
+            } catch (error) {
+                toast.add({
+                    severity: 'error',
+                    summary: 'Operación fallida',
+                    detail: 'Intentelo nuevamente',
+                    life: 3000
+                });
+            }
         }
     });
-};
-//Eliminar plan de la base de datos
-const confirmDeleteMembership = async (memberID) => {
-    try {
-        await pb.collection('planes').delete(memberID);
-        membershipList.value.getMemberships({ first: 0, rows: 10 });
-
-        toast.add({
-            severity: 'success',
-            summary: 'Confirmado',
-            detail: 'Plan eliminado',
-            life: 3000
-        });
-    } catch (error) {
-        toast.add({
-            severity: 'error',
-            summary: 'Operación fallida',
-            detail: 'Intentelo nuevamente',
-            life: 3000
-        });
-    }
 };
 </script>

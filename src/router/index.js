@@ -35,6 +35,12 @@ const router = createRouter({
                             path: 'agregar-plan',
                             name: 'agregar-plan',
                             component: () => import('@/views/pages/MembershipsForm.vue')
+                        },
+                        {
+                            path: 'editar-plan/:id',
+                            name: 'editar-plan',
+                            sensitive: true,
+                            component: () => import('@/views/pages/MembershipsForm.vue')
                         }
                     ]
                 }
