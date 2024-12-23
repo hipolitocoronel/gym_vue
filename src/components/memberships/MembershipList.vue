@@ -13,8 +13,22 @@
         currentPageReportTemplate="Mostrando {last} de {totalRecords} planes"
     >
         <template #empty> Sin registros. </template>
-        <Column field="nombre" class="w-11/12" header="Nombre"> </Column>
-        <Column header="Acciones">
+        <Column field="nombre" class="w-2/12" header="Nombre"> </Column>
+        <Column header="Plazos" class="w-9/12">
+            <template #body="{ data }">
+                <div
+                    :class="{ 'gap-52': (plazo.duracion = 1) }"
+                    class="flex gap-48"
+                    v-for="plazo in data.plazos"
+                >
+                    <span>
+                        {{ plazo.duracion + (plazo.duracion > 1 ? ' meses' : ' mes') }}
+                    </span>
+                    <span>{{ formatCurrency(plazo.precio) }}</span>
+                </div>
+            </template>
+        </Column>
+        <Column header="Acciones" class="max-w-1/10">
             <template #body="{ data }">
                 <div class="flex gap-2">
                     <Button
@@ -39,6 +53,7 @@
                 </div>
             </template>
         </Column>
+        {{ memberships }}
     </DataTable>
 </template>
 <script setup>
@@ -72,6 +87,20 @@ const getMemberships = async (event) => {
             sort: 'nombre',
             filter: filter
         });
+        for (const plan of result.items) {
+            const plazos = await pb.collection('planes_plazos').getFullList({
+                filter: `id_plan = '${plan.id}'`
+            });
+            Object.assign(plan, {
+                ...plan,
+                plazos: plazos.map((plazo) => ({
+                    ...plazo,
+                    duracion: Number(plazo.duracion)
+                }))
+            });
+            console.log(plan);
+        }
+
         totalRecords.value = result.totalItems;
         memberships.value = result.items;
     } catch (error) {

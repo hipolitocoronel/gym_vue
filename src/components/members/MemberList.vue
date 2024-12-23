@@ -70,11 +70,10 @@ const getMembers = async (event) => {
         rowsPerPage.value = event.rows;
         loading.value = true;
         const search = event.search;
-        const filter = search ? `nombre ~ '${search}'` : '';
         const currentPage = Math.floor(first.value / rowsPerPage.value) + 1;
         const result = await pb.collection('miembros').getList(currentPage, rowsPerPage.value, {
             sort: 'nombre',
-            filter: filter
+            filter: `nombre~'${search ?? ''}' || dni~'${search ?? ''}' || telefono~'${search ?? ''}'`
         });
         totalRecords.value = result.totalItems;
         members.value = result.items;

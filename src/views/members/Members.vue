@@ -7,7 +7,7 @@
                     <i class="pi pi-search" />
                 </InputIcon>
                 <InputText
-                    placeholder="Buscar por nombre..."
+                    placeholder="Buscar por nombre, dni o teléfono..."
                     @input="searchMembers"
                     v-model="searchInput"
                     class="min-w-[350px]"

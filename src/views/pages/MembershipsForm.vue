@@ -60,7 +60,7 @@
                                     size="small"
                                     variant="simple"
                                 >
-                                    {{ 'La duración es obligatoria' }}
+                                    {{ errorPlazos[index]?.duracion }}
                                 </Message>
                             </div>
                             <div class="flex flex-col gap-1 grow" v-auto-animate>
@@ -83,7 +83,7 @@
                                     size="small"
                                     variant="simple"
                                 >
-                                    {{ 'El precio es obligatorio' }}
+                                    {{ errorPlazos[index]?.precio }}
                                 </Message>
                             </div>
                             <Button
@@ -220,12 +220,18 @@ const validateField = (field, index) => {
     if (field === 'duracion') {
         errorPlazos.value[index] = {
             ...errorPlazos.value[index],
-            duracion: plazos.value[index].duracion <= 0 || plazos.value[index].duracion === null
+            duracion:
+                plazos.value[index].duracion <= 0 || plazos.value[index].duracion === null
+                    ? 'La duración es obligatoria'
+                    : null
         };
     } else {
         errorPlazos.value[index] = {
             ...errorPlazos.value[index],
-            precio: plazos.value[index].precio <= 0 || plazos.value[index].precio === null
+            precio:
+                plazos.value[index].precio <= 0 || plazos.value[index].precio === null
+                    ? 'El precio es obligatorio'
+                    : null
         };
     }
 };
@@ -250,6 +256,7 @@ const removeVariant = async (index) => {
     if (plazos.value.length < 4) {
         errorPlan.value = false;
     }
+    console.log(plazos.value[1]);
 };
 //Valida que la duraciones y precios sean correctos
 const validateForm = () => {
