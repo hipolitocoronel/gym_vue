@@ -18,6 +18,11 @@
                 {{ data.expand.id_miembro.nombre }}
             </template>
         </Column>
+        <Column header="Fecha De Pago"
+            ><template #body="{ data }">
+                {{ dayjs(data.fecha_pago).format('DD/MM/YYYY') }}
+            </template>
+        </Column>
         <Column header="Plan">
             <template #body="{ data }">
                 {{
@@ -33,10 +38,13 @@
                 {{ formatCurrency(data.monto_total) }}
             </template>
         </Column>
-        <Column field="medio_pago" header="Medio de pago"> </Column>
-        <Column header="Fecha Pago"
-            ><template #body="{ data }">
-                {{ data.fecha_pago.split(' ')[0] }}
+        <Column header="Medio de pago">
+            <template #body="{ data }"
+                ><Tag
+                    :severity="data.medio_pago == 'Efectivo' ? 'success' : 'primary'"
+                    :value="data.medio_pago"
+                >
+                </Tag>
             </template>
         </Column>
         <Column header="Acciones" class="xl:max-w-20">
@@ -47,9 +55,9 @@
                         severity="secondary"
                         variant="outlined"
                         rounded
+                        @click="$emit('viewPayment', data)"
                         v-tooltip.top="'Ver Detalle'"
                         size="large"
-                        @click="$emit('editMember', data)"
                     />
                 </div>
             </template>
@@ -59,6 +67,7 @@
 <script setup>
 import { ref, defineProps, onMounted, defineExpose } from 'vue';
 import { useToast } from 'primevue/usetoast';
+import dayjs from 'dayjs/esm';
 import formatCurrency from '@/utils/formatCurrency';
 import pb from '@/service/pocketbase.js';
 const payments = ref([]);
@@ -67,6 +76,7 @@ const loading = ref(false);
 const totalRecords = ref(0);
 const rowsPerPage = ref(10); // tamaño de la tabla
 const toast = useToast();
+
 onMounted(() => getPayments({ first: first.value, rows: rowsPerPage.value }));
 
 const getPayments = async (event) => {
@@ -79,7 +89,8 @@ const getPayments = async (event) => {
         const currentPage = Math.floor(first.value / rowsPerPage.value) + 1;
         const result = await pb.collection('pagos').getList(currentPage, rowsPerPage.value, {
             sort: '-fecha_pago',
-            expand: 'id_plan_plazo, id_miembro, id_plan_plazo.id_plan'
+            expand: 'id_plan_plazo, id_miembro, id_plan_plazo.id_plan',
+            filter: search ? `id_miembro.nombre ~ '${search}'` : ''
         });
         totalRecords.value = result.totalItems;
         payments.value = result.items;

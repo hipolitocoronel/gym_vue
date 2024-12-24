@@ -6,26 +6,37 @@
                 <InputIcon>
                     <i class="pi pi-search" />
                 </InputIcon>
-                <InputText placeholder="Buscar..." class="min-w-[350px]" />
+                <InputText
+                    placeholder="Buscar por nombre..."
+                    class="min-w-[350px]"
+                    @input="searchPayments"
+                    v-model="searchInput"
+                />
             </IconField>
             <Button
                 severity="contrast"
-                @click="showModal = true"
+                @click="addPaymentModal = true"
                 label="Registrar Pago"
                 icon="pi pi-dollar"
             />
         </div>
-        <PaymentList ref="paymentList" @delete-member="deleteMember" @edit-member="PaymentList" />
+        <PaymentList @viewPayment="viewPayment" ref="paymentList" />
         <PaymentForm
-            :visible="showModal"
-            @closeModal="showModal = false"
+            :visible="addPaymentModal"
+            @closeModal="addPaymentModal = false"
             @newChanges="updateTable"
+        />
+        <PaymentDetails
+            :paymentData
+            :visible="paymentDetails"
+            @closeModal="paymentDetails = false"
         />
     </div>
 </template>
 <script setup>
 import PaymentForm from '@/components/payments/PaymentForm.vue';
 import PaymentList from '@/components/payments/PaymentList.vue';
+import PaymentDetails from '@/components/payments/PaymentDetails.vue';
 import pb from '@/service/pocketbase.js';
 import { useDebounceFn } from '@vueuse/core';
 import { useConfirm } from 'primevue/useconfirm';
@@ -33,16 +44,23 @@ import { useToast } from 'primevue/usetoast';
 import { ref } from 'vue';
 const confirm = useConfirm();
 const toast = useToast();
-const showModal = ref(false);
 const paymentList = ref(null);
 const searchInput = ref('');
-
+//Indica visibilidad del detalle del pago
+const paymentDetails = ref(false);
+const paymentData = ref(null);
+//Indica visibilidad del modal de agregar pago
+const addPaymentModal = ref(false);
 //Actualizar la tabla despues de agregar un pago
 const updateTable = () => {
     searchInput.value = '';
     paymentList.value.getPayments({ first: 0, rows: 10 });
 };
-const searchMembers = useDebounceFn(() => {
+const viewPayment = (payment) => {
+    paymentDetails.value = true;
+    paymentData.value = payment;
+};
+const searchPayments = useDebounceFn(() => {
     paymentList.value.getPayments({ first: 0, rows: 10, search: searchInput.value });
 }, 400);
 </script>
