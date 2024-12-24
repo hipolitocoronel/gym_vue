@@ -270,7 +270,7 @@ const onFilterMembers = (event) => {
 };
 const filtrarMiembros = useDebounceFn(async (value) => {
     const resultMembers = await pb.collection('miembros_pagos').getList(1, 5, {
-        sort: 'nombre',
+        sort: '-created',
         filter: `nombre~'${value ?? ''}' || dni~'${value ?? ''}'`,
         fields: 'id,nombre,dni,fecha_vencimiento'
     });
@@ -286,7 +286,6 @@ const closeModal = () => {
         plazoSelected: null
     };
     plazos.value = [];
-    members.value = [];
     emit('closeModal', false);
 };
 const emptyFilterMessage = computed(() => {
@@ -335,10 +334,10 @@ onMounted(async () => {
     try {
         loadingData.value = true;
         plans.value = await pb.collection('planes').getFullList({
-            sort: 'nombre'
+            sort: '-created'
         });
-        const resultMembers = await pb.collection('miembros').getList(1, 5, {
-            sort: '-nombre'
+        const resultMembers = await pb.collection('miembros_pagos').getList(1, 5, {
+            sort: '-created'
         });
         members.value = resultMembers.items;
     } catch (error) {

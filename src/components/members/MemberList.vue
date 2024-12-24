@@ -75,7 +75,7 @@ const getMembers = async (event) => {
         const result = await pb
             .collection('miembros_pagos')
             .getList(currentPage, rowsPerPage.value, {
-                sort: 'nombre',
+                sort: '-created',
                 filter: `nombre~'${search ?? ''}' || dni~'${search ?? ''}' || telefono~'${search ?? ''}'`
             });
         totalRecords.value = result.totalItems;

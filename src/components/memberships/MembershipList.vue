@@ -81,7 +81,7 @@ const getMemberships = async (event) => {
         const filter = search ? `nombre ~ '${search}'` : '';
         const currentPage = Math.floor(first.value / rowsPerPage.value) + 1;
         const result = await pb.collection('planes').getList(currentPage, rowsPerPage.value, {
-            sort: 'nombre',
+            sort: '-created',
             filter: filter
         });
 
