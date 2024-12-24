@@ -2,7 +2,7 @@
 
 <template>
     <div>
-        <Toast class="!z-50" />
+        <Toast />
         <ConfirmDialog />
         <router-view />
     </div>

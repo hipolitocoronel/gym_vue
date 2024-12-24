@@ -32,8 +32,8 @@
                     :filterFields="['dni', 'nombre']"
                     placeholder="Selecciona un miembro"
                     filterPlaceholder="Buscar miembro por nombre, dni..."
-                    emptyFilterMessage="No hay resultados"
-                    emptyMessage="No hay miembros"
+                    :emptyFilterMessage
+                    :emptyMessage
                     v-auto-animate
                     @filter="onFilterMembers"
                 >
@@ -68,6 +68,21 @@
                     variant="simple"
                     >{{ $form.memberSelected.error.message }}
                 </Message>
+                <span
+                    v-if="
+                        $form.memberSelected?.value &&
+                        $form.memberSelected?.value?.fecha_vencimiento
+                    "
+                    class="text-sm font-semibold"
+                    :class="
+                        getMembershipStatus($form.memberSelected?.value)
+                            ? 'text-green-500'
+                            : 'text-red-500'
+                    "
+                >
+                    Último Vencimiento
+                    {{ dayjs($form.memberSelected?.value?.fecha_vencimiento).format('DD/MM/YYYY') }}
+                </span>
             </div>
             <Fluid class="grid grid-cols-2 gap-4">
                 <div class="flex flex-col gap-1" v-auto-animate>
@@ -166,6 +181,8 @@ import { Form } from '@primevue/forms';
 import pb from '@/service/pocketbase.js';
 import { zodResolver } from '@primevue/forms/resolvers/zod';
 import { z } from 'zod';
+import dayjs from 'dayjs/esm';
+import getMembershipStatus from '@/utils/getMembershipStatus';
 import formatCurrency from '@/utils/formatCurrency';
 import { useDebounceFn } from '@vueuse/core';
 import { useToast } from 'primevue/usetoast';
@@ -178,6 +195,8 @@ const props = defineProps({
 });
 //Indica si ya se cargaron todos los datos a los select
 const loadingData = ref(false);
+//Indica si se esta cargando los miembro filtrados
+const loadingFilterMember = ref(false);
 //Valores iniciales del formulario
 const initialValues = ref({
     memberSelected: null,
@@ -245,13 +264,19 @@ const onPlanChange = async (plan, form) => {
     form.plazoSelected ? (form.plazoSelected.value = null) : '';
 };
 //Obtiene los miembros filtrados
-const onFilterMembers = useDebounceFn(async (event) => {
-    const resultMembers = await pb.collection('miembros').getList(1, 5, {
-        sort: '-nombre',
-        filter: `nombre~'${event.value ?? ''}' || dni~'${event.value ?? ''}'`
+const onFilterMembers = (event) => {
+    loadingFilterMember.value = true;
+    filtrarMiembros(event.value);
+};
+const filtrarMiembros = useDebounceFn(async (value) => {
+    const resultMembers = await pb.collection('miembros_pagos').getList(1, 5, {
+        sort: 'nombre',
+        filter: `nombre~'${value ?? ''}' || dni~'${value ?? ''}'`,
+        fields: 'id,nombre,dni,fecha_vencimiento'
     });
+    loadingFilterMember.value = false;
     members.value = resultMembers.items;
-}, 500);
+}, 400);
 
 const closeModal = () => {
     initialValues.value = {
@@ -261,8 +286,15 @@ const closeModal = () => {
         plazoSelected: null
     };
     plazos.value = [];
+    members.value = [];
     emit('closeModal', false);
 };
+const emptyFilterMessage = computed(() => {
+    return loadingFilterMember.value ? 'Cargando...' : 'No se encontraron resultados';
+});
+const emptyMessage = computed(() => {
+    return loadingFilterMember.value ? 'Cargando...' : 'No hay miembros registrados';
+});
 const onFormSubmit = async (e) => {
     if (e.valid) {
         let expirationDate = new Date();
