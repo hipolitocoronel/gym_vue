@@ -65,9 +65,7 @@ const logout = () => {
                     width="35px"
                 />
 
-                <p class="font-extrabold">
-                    Gym<span class="font-normal text-primary">Master</span>
-                </p>
+                <p class="font-extrabold">Gym<span class="font-bold text-primary">Master</span></p>
             </router-link>
         </div>
 
