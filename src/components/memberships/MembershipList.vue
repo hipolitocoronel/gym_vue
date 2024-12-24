@@ -14,17 +14,19 @@
     >
         <template #empty> Sin registros. </template>
         <Column field="nombre" class="w-2/12" header="Nombre"> </Column>
-        <Column header="Plazos" class="w-9/12">
+        <Column header="Plazos" class="w-3/12">
             <template #body="{ data }">
-                <div
-                    :class="{ 'gap-[200px]': plazo.duracion == 1 }"
-                    class="flex gap-52"
-                    v-for="plazo in data.plazos"
-                >
+                <div v-for="plazo in data.plazos">
                     <span>
                         {{ plazo.duracion + (plazo.duracion > 1 ? ' meses' : ' mes') }}
                     </span>
-                    <span>{{ formatCurrency(plazo.precio) }}</span>
+                </div>
+            </template>
+        </Column>
+        <Column class="w-7/12">
+            <template #body="{ data }">
+                <div v-for="plazo in data.plazos">
+                    <span> {{ formatCurrency(plazo.precio) }} </span>
                 </div>
             </template>
         </Column>
