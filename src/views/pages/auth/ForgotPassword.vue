@@ -6,41 +6,68 @@ import { Form } from '@primevue/forms';
 import { zodResolver } from '@primevue/forms/resolvers/zod';
 import { useToast } from 'primevue/usetoast';
 import { computed, ref } from 'vue';
-import { useRoute } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 import { z } from 'zod';
 const { isDarkTheme } = useLayout();
 
 const route = useRoute();
+const router = useRouter();
 const toast = useToast();
 const loading = ref(false);
 const initialValues = ref({ email: '', password: '', passwordConfirm: '' });
 const step = computed(() => (route.query?.token?.length > 0 ? 2 : 1));
 
 const resolver = zodResolver(
-    z.object({
-        email: z.string().email({ message: 'Correo electrónico inválido' }),
-        password: z
-            .string()
-            .min(3, { message: 'Mínimo 3 caracteres.' })
-            .max(20, { message: 'No debe exceder 20 caracteres.' }),
-        passwordConfirm: z.string().min(3, { message: 'Mínimo 3 caracteres.' })
-    })
+    step.value == 1
+        ? z.object({
+              email: z.string().email({ message: 'Correo electrónico inválido' })
+          })
+        : z
+              .object({
+                  password: z
+                      .string()
+                      .min(3, { message: 'Mínimo 3 caracteres.' })
+                      .max(20, { message: 'No debe exceder 20 caracteres.' }),
+                  passwordConfirm: z.string().min(3, { message: 'Mínimo 3 caracteres.' })
+              })
+              .refine((data) => data.password === data.passwordConfirm, {
+                  message: 'Las contraseñas no coinciden.',
+                  path: ['passwordConfirm']
+              })
 );
 
 const onFormSubmit = async (e) => {
     if (e.valid) {
         try {
             loading.value = true;
-            step.value == 1
-                ? await pb.collection('users').requestPasswordReset(e.values.email)
-                : await pb
-                      .collection('users')
-                      .confirmPasswordReset(
-                          route.query.token,
-                          e.values.password,
-                          e.values.passwordConfirm
-                      );
 
+            if (step.value == 1) {
+                await pb.collection('users').requestPasswordReset(e.values.email);
+
+                toast.add({
+                    severity: 'success',
+                    summary: 'Operación exitosa!',
+                    detail: 'Favor de revisar su correo electrónico.',
+                    life: 7000
+                });
+            } else {
+                await pb
+                    .collection('users')
+                    .confirmPasswordReset(
+                        route.query.token,
+                        e.values.password,
+                        e.values.passwordConfirm
+                    );
+
+                toast.add({
+                    severity: 'success',
+                    summary: 'Operación exitosa!',
+                    detail: 'Contraseña reestrablecida con éxito.',
+                    life: 5000
+                });
+
+                router.push({ name: 'login' });
+            }
             // redireccion
         } catch (error) {
             toast.add({
