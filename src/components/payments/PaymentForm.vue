@@ -35,6 +35,7 @@
                     :emptyFilterMessage
                     :emptyMessage
                     v-auto-animate
+                    autoFilterFocus
                     @filter="onFilterMembers"
                 >
                     <template #value="slotProps">
@@ -84,8 +85,8 @@
                     {{ dayjs($form.memberSelected?.value?.fecha_vencimiento).format('DD/MM/YYYY') }}
                 </span>
             </div>
-            <Fluid class="grid grid-cols-2 gap-4">
-                <div class="flex flex-col gap-1" v-auto-animate>
+            <Fluid class="flex gap-4">
+                <div class="flex flex-col w-[45%] gap-1" v-auto-animate>
                     <label>Medio de pago</label>
                     <Select
                         name="paymentMethodSelected"
@@ -102,7 +103,7 @@
                         >{{ $form.paymentMethodSelected.error.message }}
                     </Message>
                 </div>
-                <div class="flex flex-col gap-1" v-auto-animate>
+                <div class="flex flex-col grow gap-1" v-auto-animate>
                     <label>Plan</label>
                     <Select
                         name="planSelected"
@@ -271,7 +272,7 @@ const onFilterMembers = (event) => {
 const filtrarMiembros = useDebounceFn(async (value) => {
     const resultMembers = await pb.collection('miembros_pagos').getList(1, 5, {
         sort: '-created',
-        filter: `nombre~'${value ?? ''}' || dni~'${value ?? ''}'`,
+        filter: `(nombre~'${value ?? ''}' || dni~'${value ?? ''}') && deleted = null`,
         fields: 'id,nombre,dni,fecha_vencimiento'
     });
     loadingFilterMember.value = false;
@@ -286,6 +287,7 @@ const closeModal = () => {
         plazoSelected: null
     };
     plazos.value = [];
+    loadMembers();
     emit('closeModal', false);
 };
 const emptyFilterMessage = computed(() => {
@@ -329,17 +331,24 @@ const onFormSubmit = async (e) => {
         }
     }
 };
+const loadMembers = async () => {
+    const resultMembers = await pb.collection('miembros_pagos').getList(1, 5, {
+        sort: '-created',
+        fields: 'id,nombre,dni,fecha_vencimiento',
+        filter: 'deleted = null'
+    });
+    members.value = resultMembers.items;
+};
 //Carga los datos para utilizar en los select
 onMounted(async () => {
     try {
         loadingData.value = true;
         plans.value = await pb.collection('planes').getFullList({
+            fields: 'id,nombre',
+            filter: 'deleted = null',
             sort: '-created'
         });
-        const resultMembers = await pb.collection('miembros_pagos').getList(1, 5, {
-            sort: '-created'
-        });
-        members.value = resultMembers.items;
+        loadMembers();
     } catch (error) {
         toast.add({
             severity: 'error',

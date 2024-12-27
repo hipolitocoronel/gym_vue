@@ -212,16 +212,12 @@ const onFormSubmit = async (e) => {
             closeModal();
             emit('newChanges', isEditMode.value);
         } catch (error) {
-            if (error.response?.data?.nombre?.code === 'validation_not_unique') {
-                errorName.value = true;
-            } else {
-                toast.add({
-                    severity: 'error',
-                    summary: 'Operación fallida',
-                    detail: 'Intentelo nuevamente',
-                    life: 3000
-                });
-            }
+            toast.add({
+                severity: 'error',
+                summary: 'Operación fallida',
+                detail: 'Intentelo nuevamente',
+                life: 3000
+            });
         } finally {
             loading.value = false;
         }

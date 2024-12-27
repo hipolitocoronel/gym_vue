@@ -76,7 +76,7 @@ const getMembers = async (event) => {
             .collection('miembros_pagos')
             .getList(currentPage, rowsPerPage.value, {
                 sort: '-created',
-                filter: `nombre~'${search ?? ''}' || dni~'${search ?? ''}' || telefono~'${search ?? ''}'`
+                filter: `(nombre~'${search ?? ''}' || dni~'${search ?? ''}' || telefono~'${search ?? ''}') && deleted = null`
             });
         totalRecords.value = result.totalItems;
         members.value = result.items;

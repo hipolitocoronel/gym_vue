@@ -49,7 +49,7 @@
         </Column>
         <Column header="Acciones" class="xl:max-w-20">
             <template #body="{ data }">
-                <div class="flex gap-2 justify-center">
+                <div class="flex gap-2 justify-end">
                     <Button
                         icon="pi pi-eye"
                         severity="secondary"
@@ -90,8 +90,10 @@ const getPayments = async (event) => {
         const result = await pb.collection('pagos').getList(currentPage, rowsPerPage.value, {
             sort: '-fecha_pago',
             expand: 'id_plan_plazo, id_miembro, id_plan_plazo.id_plan',
+            fields: 'fecha_pago,monto_total,medio_pago, fecha_vencimiento, expand.id_plan_plazo.duracion, expand.id_plan_plazo.precio, expand.id_plan_plazo.expand.id_plan.nombre, expand.id_miembro.nombre, expand.id_miembro.dni',
             filter: search ? `id_miembro.nombre ~ '${search}'` : ''
         });
+
         totalRecords.value = result.totalItems;
         payments.value = result.items;
     } catch (error) {

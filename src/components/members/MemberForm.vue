@@ -218,10 +218,20 @@ const onFormSubmit = async (e) => {
                 ? (member = await pb.collection('miembros').update(e.values.id, e.values))
                 : (member = await pb.collection('miembros').create(e.values));
             closeModal();
-            emit('newChanges', isEditMode.value, member);
+            emit('newChanges', isEditMode.value);
         } catch (error) {
             if (error.response?.data?.dni?.code === 'validation_not_unique') {
-                errorDni.value = true;
+                const member = await pb
+                    .collection('miembros')
+                    .getFirstListItem(`dni="${e.values.dni}"`);
+                if (!member.deleted) {
+                    errorDni.value = true;
+                } else {
+                    member.deleted = null;
+                    await pb.collection('miembros').update(member.id, member);
+                    closeModal();
+                    emit('newChanges', isEditMode.value);
+                }
             } else {
                 toast.add({
                     severity: 'error',

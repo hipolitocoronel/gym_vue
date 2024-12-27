@@ -59,6 +59,7 @@ const updateTable = () => {
 const viewPayment = (payment) => {
     paymentDetails.value = true;
     paymentData.value = payment;
+    console.log(payment);
 };
 const searchPayments = useDebounceFn(() => {
     paymentList.value.getPayments({ first: 0, rows: 10, search: searchInput.value });
