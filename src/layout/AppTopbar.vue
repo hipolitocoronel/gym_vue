@@ -14,31 +14,61 @@ const router = useRouter();
 const { toggleDarkMode, isDarkTheme } = useLayout();
 
 onMounted(async () => {
-    // si no está habilitado dark mode se habilita
-    !isDarkTheme.value && toggleDarkMode();
+    // Habilitar dark mode si no está habilitado
+    if (!isDarkTheme.value) {
+        toggleDarkMode();
+    }
 
-    // si el usuario no ingresó, redireccionar a login
+    // Verificar autenticación del usuario
     if (!pb.authStore.isValid) {
         router.push({ name: 'login' });
-    } else if (!store.userLogged) {
-        try {
-            loading.value = true;
+        return; // Detener ejecución si no está autenticado
+    }
 
-            const user = await pb.collection('users').getOne(pb.authStore.record.id);
+    // Obtener usuario logueado si no está cargado
+    if (!store.userLogged) {
+        await getUserLogged();
+    }
 
-            // guardando informacion de usuario
-            store.setUserLogged(user);
-        } catch (error) {
-            router.push({ name: 'login' });
-            console.log(error);
-        } finally {
-            loading.value = false;
-        }
+    // Obtener gimnasio actual si no está definido
+    if (!store.currentGym) {
+        await getCurrentGym(store.userLogged.gimnasio_id);
     }
 });
 
 const toggle = (event) => {
     op.value.toggle(event);
+};
+
+const getUserLogged = async () => {
+    try {
+        loading.value = true;
+
+        const user = await pb.collection('users').getOne(pb.authStore.record.id);
+
+        // guardando informacion de usuario
+        store.setUserLogged(user);
+    } catch (error) {
+        router.push({ name: 'login' });
+        console.log(error);
+    } finally {
+        loading.value = false;
+    }
+};
+
+const getCurrentGym = async (id) => {
+    try {
+        loading.value = true;
+
+        const gym = await pb.collection('gimnasios').getOne(id);
+
+        // guardando informacion de usuario
+        store.setCurrentGym(gym);
+    } catch (error) {
+        console.log(error);
+    } finally {
+        loading.value = false;
+    }
 };
 
 const logout = () => {
@@ -65,10 +95,21 @@ const logout = () => {
                     width="35px"
                 />
 
-                <p class="font-extrabold">
-                    Gym<span class="font-normal text-primary">Master</span>
-                </p>
+                <p class="font-extrabold">Gym<span class="font-bold text-primary">Master</span></p>
             </router-link>
+        </div>
+        <div class="flex items-center gap-2">
+            <Avatar
+                shape="circle"
+                :label="store.currentGym?.nombre?.substring(0, 1)"
+                v-if="!store.currentGym?.logo"
+            />
+            <Avatar shape="circle" :image="store.srcLogoGym + '?thumb=50x50'" v-else />
+
+            <p class="font-semibold">
+                {{ store.currentGym?.nombre }} <span class="mx-2">|</span>
+                {{ store.currentGym?.direccion }}
+            </p>
         </div>
 
         <div class="layout-topbar-actions">

@@ -48,6 +48,11 @@ const router = createRouter({
                             component: () => import('@/views/pages/MembershipsForm.vue')
                         }
                     ]
+                },
+                {
+                    path: '/configuracion',
+                    name: 'configuracion',
+                    component: () => import('@/views/pages/Settings.vue')
                 }
             ]
         },
