@@ -102,9 +102,9 @@ const logout = () => {
             <Avatar
                 shape="circle"
                 :label="store.currentGym?.nombre?.substring(0, 1)"
-                v-if="!store.currentGym.logo"
+                v-if="!store.currentGym?.logo"
             />
-            <Avatar shape="circle" :image="store.currentGym.lgoo" v-else />
+            <Avatar shape="circle" :image="store.srcLogoGym + '?thumb=50x50'" v-else />
 
             <p class="font-semibold">
                 {{ store.currentGym?.nombre }} <span class="mx-2">|</span>
