@@ -1,68 +1,100 @@
 <template>
     <div class="card">
-        <h1 class="text-xl mb-2 font-semibold">Flujo de ingresos</h1>
+        <div class="flex justify-between">
+            <h1 class="text-xl mb-2 font-semibold">Flujo de ingresos</h1>
+            <SelectButton
+                v-model="period"
+                class="-mt-2"
+                :options="options"
+                @update:modelValue="setChartData"
+            />
+        </div>
 
-        <Chart type="line" :data="chartData" :options="chartOptions" class="h-[25rem]" />
+        <Chart type="line" :data="chartData" :options="chartOptions" class="h-[20rem]" />
     </div>
 </template>
 
 <script setup>
 import { ref, onMounted } from 'vue';
-
+import pb from '@/service/pocketbase';
+import 'chartjs-adapter-date-fns';
+import dayjs from 'dayjs/esm';
+import { es } from 'date-fns/locale';
+const options = ref(['Semanal', 'Mensual']);
+const period = ref('Semanal');
+const chartData = ref({});
+const chartOptions = ref({});
+const unit = ref(null);
 onMounted(() => {
-    chartData.value = setChartData();
+    setChartData('Semanal');
     chartOptions.value = setChartOptions();
 });
+const setChartData = async (event) => {
+    const dateFormat = 'YYYY-MM-DD';
+    const filterDate = dayjs()
+        .subtract(event === 'Semanal' ? 7 : 1, event === 'Semanal' ? 'day' : 'month')
+        .format(dateFormat);
 
-const chartData = ref();
-const chartOptions = ref();
-
-const setChartData = () => {
-    const documentStyle = getComputedStyle(document.documentElement);
-
-    return {
-        labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July'],
+    const records = await pb.collection('ingresos_diarios').getFullList({
+        fields: 'total_monto, probando',
+        filter: `probando >= '${filterDate}'`
+    });
+    const dates = records.map((record) => dayjs(record.probando).format('YYYY-MM-DD'));
+    const data = records.map((record) => record.total_monto);
+    chartData.value = {
+        labels: dates,
         datasets: [
             {
-                label: 'Plan Basico',
-                data: [65, 59, 80, 81, 56, 55, 40],
+                label: 'Cobros',
+                data: data,
                 fill: false,
-                borderColor: documentStyle.getPropertyValue('--p-cyan-500'),
-                tension: 0.4,
-                pointBackgroundColor: documentStyle.getPropertyValue('--p-cyan-500')
-            },
-            {
-                label: 'Plan VIP',
-                data: [21, 23, 34, 70, 100, 40, 20],
-                fill: false,
-                borderColor: documentStyle.getPropertyValue('--p-gray-500'),
-                tension: 0.4,
-                pointBackgroundColor: documentStyle.getPropertyValue('--p-gray-500')
+                backgroundColor: '#107acc',
+                borderColor: '#107acc',
+                tension: 0.4
             }
         ]
     };
+
+    chartOptions.value.scales.x.time.unit = event === 'Semanal' ? 'day' : 'week';
 };
+
 const setChartOptions = () => {
     const documentStyle = getComputedStyle(document.documentElement);
     const textColor = documentStyle.getPropertyValue('--p-text-color');
     const textColorSecondary = documentStyle.getPropertyValue('--p-text-muted-color');
-
     return {
         maintainAspectRatio: false,
 
         plugins: {
+            tooltip: {
+                callbacks: {
+                    label: function (tooltipItem) {
+                        return `Ingresos: $${tooltipItem.formattedValue.toLocaleString()}`;
+                    }
+                }
+            },
             legend: {
                 position: 'top',
-                align: 'end',
+
                 labels: {
                     usePointStyle: true,
-                    color: textColor,
+                    color: '#FFFFFF',
                     backgroundColor: textColor
                 }
             }
         },
         scales: {
             x: {
+                type: 'time',
+                time: {
+                    tooltipFormat: 'MMM dd, yyyy',
+                    unit: 'day'
+                },
+                adapters: {
+                    date: {
+                        locale: es
+                    }
+                },
                 ticks: {
                     color: textColorSecondary
                 },
@@ -71,9 +103,6 @@ const setChartOptions = () => {
                 }
             },
             y: {
-                ticks: {
-                    color: textColorSecondary
-                },
                 grid: {
                     display: false
                 },

@@ -298,8 +298,7 @@ const emptyMessage = computed(() => {
 });
 const onFormSubmit = async (e) => {
     if (e.valid) {
-        let expirationDate = new Date();
-        expirationDate.setMonth(expirationDate.getMonth() + e.values.plazoSelected.duracion);
+        let expirationDate = dayjs().add(e.values.plazoSelected.duracion, 'month');
         let payload = {
             id_plan_plazo: e.values.plazoSelected.id,
             id_miembro: e.values.memberSelected.id,

@@ -60,6 +60,7 @@ onMounted(() => getPayments());
 
 const getPayments = async () => {
     try {
+        loading.value = true;
         const result = await pb.collection('pagos').getList(1, 5, {
             sort: '-fecha_pago',
             expand: 'id_plan_plazo, id_miembro, id_plan_plazo.id_plan',

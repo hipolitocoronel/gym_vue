@@ -5,21 +5,19 @@ import StatsWidget from '@/components/dashboard/StatsWidget.vue';
 import PopularMemberships from '@/components/dashboard/PopularMemberships.vue';
 import { ref } from 'vue';
 
-const optionsRange = ref(['Diario', 'Semanal', 'Mensual']);
-const range = ref('Diario');
+const options = ref(['Diario', 'Semanal', 'Mensual']);
+const value = ref('Diario');
 </script>
 
 <template>
-    <div>
-        <SelectButton v-model="range" :options="optionsRange" />
-    </div>
-
     <div class="grid grid-cols-12 gap-8">
         <StatsWidget />
-        <div class="col-span-12">
+        <div class="col-span-12 xl:col-span-8">
             <RevenueStreamWidget />
         </div>
-
+        <div class="col-span-12 xl:col-span-4">
+            <PopularMemberships />
+        </div>
         <div class="xl:col-span-12">
             <RecentPaymentsWidget />
         </div>
