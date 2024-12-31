@@ -1,18 +1,13 @@
 <template>
     <div class="card flex flex-col justify-center h-[367px]">
-        <h1 class="text-xl mb-2 font-semibold">Planes Populares</h1>
-        <Chart
-            type="doughnut"
-            :data="chartData"
-            :options="chartOptions"
-            class="h-full aspect-square"
-        />
+        <h1 class="mb-2 text-xl font-semibold">Planes Populares</h1>
+        <Chart type="doughnut" :data="chartData" :options="chartOptions" class="mx-auto max-w-80" />
     </div>
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
 import pb from '@/service/pocketbase';
+import { onMounted, ref } from 'vue';
 const data = ref([]);
 onMounted(async () => {
     chartOptions.value = setChartOptions();
