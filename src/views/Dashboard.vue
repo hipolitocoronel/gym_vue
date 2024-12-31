@@ -18,7 +18,7 @@ const value = ref('Diario');
         <div class="col-span-12 xl:col-span-4">
             <PopularMemberships />
         </div>
-        <div class="xl:col-span-12">
+        <div class="col-span-12">
             <RecentPaymentsWidget />
         </div>
     </div>
