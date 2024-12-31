@@ -1,7 +1,12 @@
 <template>
-    <div class="card flex flex-col justify-center">
+    <div class="card flex flex-col justify-center h-[367px]">
         <h1 class="text-xl mb-2 font-semibold">Planes Populares</h1>
-        <Chart type="doughnut" :data="chartData" :options="chartOptions" class="w-full h-[20rem]" />
+        <Chart
+            type="doughnut"
+            :data="chartData"
+            :options="chartOptions"
+            class="h-full aspect-square"
+        />
     </div>
 </template>
 
@@ -48,6 +53,7 @@ const setChartOptions = () => {
     const textColor = documentStyle.getPropertyValue('--p-text-color');
 
     return {
+        responsive: true,
         plugins: {
             tooltip: {
                 callbacks: {
