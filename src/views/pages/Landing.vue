@@ -17,7 +17,10 @@ import AppConfigurator from '@/layout/AppConfigurator.vue';
             <div
                 class="absolute left-0 right-0 top-0 h-40 bg-gradient-to-b from-blue-400/20 from-15% to-black"
             ></div>
-            <TopbarWidget class="mx-auto" style="width: 60%" />
+
+            <div style="width: 60%; margin: auto">
+                <TopbarWidget />
+            </div>
 
             <HeroWidget />
             <FeaturesWidget />
