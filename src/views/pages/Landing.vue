@@ -1,11 +1,11 @@
 <script setup lang="ts">
+import ContactWidget from '@/components/landing/ContactWidget.vue';
 import FeaturesWidget from '@/components/landing/FeaturesWidget.vue';
 import FooterWidget from '@/components/landing/FooterWidget.vue';
 import HeroWidget from '@/components/landing/HeroWidget.vue';
 import HighlightsWidget from '@/components/landing/HighlightsWidget.vue';
 import PricingWidget from '@/components/landing/PricingWidget.vue';
 import TopbarWidget from '@/components/landing/TopbarWidget.vue';
-import ContactWidget from '@/components/landing/ContactWidget.vue';
 
 import AppConfigurator from '@/layout/AppConfigurator.vue';
 </script>
@@ -13,8 +13,11 @@ import AppConfigurator from '@/layout/AppConfigurator.vue';
 <template>
     <div class="bg-black">
         <AppConfigurator />
-        <div id="home" class="landing-wrapper overflow-hidden">
-            <TopbarWidget />
+        <div id="home" class="overflow-hidden landing-wrapper">
+            <div
+                class="absolute left-0 right-0 top-0 h-40 bg-gradient-to-b from-blue-400/20 from-15% to-black"
+            ></div>
+            <TopbarWidget class="mx-auto" style="width: 60%" />
 
             <HeroWidget />
             <FeaturesWidget />

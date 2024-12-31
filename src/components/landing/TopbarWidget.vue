@@ -1,6 +1,6 @@
 <script setup>
-import { onMounted } from 'vue';
 import { useLayout } from '@/layout/composables/layout';
+import { onMounted } from 'vue';
 const { toggleDarkMode, isDarkTheme } = useLayout();
 
 onMounted(() => {
@@ -24,12 +24,13 @@ function smoothScroll(id) {
 
 <template>
     <div
-        class="mt-4 mx-20 px-2 py-1 flex items-center justify-between bg-white rounded-xl relative"
+        class="relative flex items-center justify-between px-2 py-1 mx-20 mt-4 border rounded-xl !border-gray-600"
+        style="background: #00000020; backdrop-filter: blur(5px)"
     >
-        <router-link to="/" class="layout-topbar-logo flex items-center" style="gap: 0.2rem">
-            <img src="/src/assets/img/logo-black.png" alt="logo" width="35px" />
-            <p class="font-extrabold text-black">
-                Gym<span class="font-bold text-primary text-lg">Master</span>
+        <router-link to="/" class="flex items-center layout-topbar-logo" style="gap: 0.2rem">
+            <img src="/src/assets/img/logo-white.png" alt="logo" width="35px" />
+            <p class="font-extrabold">
+                Gym<span class="text-lg font-bold text-primary">Master</span>
             </p>
         </router-link>
 
@@ -52,20 +53,17 @@ function smoothScroll(id) {
 
         <!-- Enlaces de navegación centrados -->
         <ul
-            class="list-none flex items-center flex-row cursor-pointer gap-8 absolute left-1/2 transform lg:-translate-x-1/2"
+            class="absolute flex flex-row items-center gap-8 list-none transform cursor-pointer left-1/2 lg:-translate-x-1/2"
         >
             <li>
-                <a
-                    @click="smoothScroll('hero')"
-                    class="px-0 py-4 text-surface-0 dark:text-surface-900 font-medium text-lg"
-                >
+                <a @click="smoothScroll('hero')" class="px-0 py-4 text-lg font-bold text-surface-0">
                     <span>Inicio</span>
                 </a>
             </li>
             <li>
                 <a
                     @click="smoothScroll('features')"
-                    class="px-0 py-4 text-surface-0 dark:text-surface-900 font-medium text-lg"
+                    class="px-0 py-4 text-lg font-medium text-surface-0 text-muted-color"
                 >
                     <span>Características</span>
                 </a>
@@ -73,7 +71,7 @@ function smoothScroll(id) {
             <li>
                 <a
                     @click="smoothScroll('pricing')"
-                    class="px-0 py-4 text-surface-0 dark:text-surface-900 font-medium text-lg"
+                    class="px-0 py-4 text-lg font-medium text-surface-0 text-muted-color"
                 >
                     <span>Precios</span>
                 </a>
@@ -81,7 +79,7 @@ function smoothScroll(id) {
             <li>
                 <a
                     @click="smoothScroll('contact')"
-                    class="px-0 py-4 text-surface-0 dark:text-surface-900 font-medium text-lg"
+                    class="px-0 py-4 text-lg font-medium text-surface-0 text-muted-color"
                 >
                     <span>Contacto</span>
                 </a>
@@ -93,14 +91,15 @@ function smoothScroll(id) {
             <Button
                 label="Iniciar Sesión"
                 as="router-link"
-                text
                 to="/auth/login"
-                class="!rounded-xl !border-gray-200 !text-black"
+                size="small"
+                variant="link"
             ></Button>
             <Button
                 label="Registrarse"
                 to="/auth/login"
                 class="!rounded-xl !py-4 !border-none !text-black"
+                size="small"
             ></Button>
         </div>
     </div>
