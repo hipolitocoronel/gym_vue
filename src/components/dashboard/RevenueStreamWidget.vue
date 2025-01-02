@@ -36,10 +36,10 @@ const setChartData = async (event) => {
         .format(dateFormat);
 
     const records = await pb.collection('ingresos_diarios').getFullList({
-        fields: 'total_monto, probando',
-        filter: `probando >= '${filterDate}'`
+        fields: 'total_monto, fecha_pago',
+        filter: `fecha_pago >= '${filterDate}'`
     });
-    const dates = records.map((record) => dayjs(record.probando).format('YYYY-MM-DD'));
+    const dates = records.map((record) => dayjs(record.fecha_pago).format('YYYY-MM-DD'));
     const data = records.map((record) => record.total_monto);
     chartData.value = {
         labels: dates,

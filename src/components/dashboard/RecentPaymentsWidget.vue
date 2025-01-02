@@ -1,6 +1,15 @@
 <template>
     <div class="card">
-        <h2 class="text-xl font-bold mb-3">Últimos Pagos</h2>
+        <div class="flex justify-between">
+            <h2 class="text-xl font-bold mb-3">Últimos Pagos</h2>
+            <Button
+                label="Ver Más"
+                severity="secondary"
+                as="router-link"
+                to="/pagos"
+                size="small"
+            />
+        </div>
         <DataTable
             size="large"
             class="mb-4"

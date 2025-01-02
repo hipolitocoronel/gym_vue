@@ -79,7 +79,7 @@
                     class="flex items-center justify-center bg-blue-100 dark:bg-blue-400/10 rounded-border"
                     style="width: 2.5rem; height: 2.5rem"
                 >
-                    <i class="pi pi-credit-card text-blue-500 !text-xl"></i>
+                    <i class="pi pi-percentage text-blue-500 !text-xl"></i>
                 </div>
             </div>
         </div>

@@ -65,11 +65,16 @@
     </DataTable>
 </template>
 <script setup>
-import { ref, onMounted, defineExpose } from 'vue';
+import { ref, defineProps, onMounted, defineExpose, nextTick } from 'vue';
 import { useToast } from 'primevue/usetoast';
 import dayjs from 'dayjs/esm';
 import formatCurrency from '@/utils/formatCurrency';
 import pb from '@/service/pocketbase.js';
+const props = defineProps({
+    from: Date,
+    to: Date
+});
+
 const payments = ref([]);
 const first = ref(0);
 const loading = ref(false);
@@ -80,18 +85,18 @@ const toast = useToast();
 onMounted(() => getPayments({ first: first.value, rows: rowsPerPage.value }));
 
 const getPayments = async (event) => {
+    await nextTick();
     try {
         // Parámetros de la consulta
         first.value = event.first;
         rowsPerPage.value = event.rows;
         loading.value = true;
-        const search = event.search;
         const currentPage = Math.floor(first.value / rowsPerPage.value) + 1;
         const result = await pb.collection('pagos').getList(currentPage, rowsPerPage.value, {
             sort: '-fecha_pago',
             expand: 'id_plan_plazo, id_miembro, id_plan_plazo.id_plan',
             fields: 'fecha_pago,monto_total,medio_pago, fecha_vencimiento, expand.id_plan_plazo.duracion, expand.id_plan_plazo.precio, expand.id_plan_plazo.expand.id_plan.nombre, expand.id_miembro.nombre, expand.id_miembro.dni',
-            filter: search ? `id_miembro.nombre ~ '${search}'` : ''
+            filter: `fecha_pago >= '${dayjs(props.from).format('YYYY-MM-DD')}' && fecha_pago <= '${dayjs(props.to).format('YYYY-MM-DD')}'  ${event?.filter ? '&& ' + event.filter : ''}`
         });
 
         totalRecords.value = result.totalItems;
