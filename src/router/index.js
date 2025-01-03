@@ -29,6 +29,11 @@ const router = createRouter({
                     component: () => import('@/views/pages/Payments.vue')
                 },
                 {
+                    path: '/reportes',
+                    name: 'reportes',
+                    component: () => import('@/views/pages/Reports.vue')
+                },
+                {
                     path: '/planes',
                     children: [
                         {

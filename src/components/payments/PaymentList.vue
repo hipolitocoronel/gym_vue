@@ -65,7 +65,7 @@
     </DataTable>
 </template>
 <script setup>
-import { ref, defineProps, onMounted, defineExpose } from 'vue';
+import { ref, onMounted, defineExpose } from 'vue';
 import { useToast } from 'primevue/usetoast';
 import dayjs from 'dayjs/esm';
 import formatCurrency from '@/utils/formatCurrency';

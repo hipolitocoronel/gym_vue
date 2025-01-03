@@ -87,7 +87,7 @@ const getMemberships = async (event) => {
 
         for (const plan of result.items) {
             const plazos = await pb.collection('planes_plazos').getFullList({
-                filter: `id_plan = '${plan.id}'`
+                filter: `id_plan = '${plan.id}' && deleted = null`
             });
             plan.plazos = plazos;
         }

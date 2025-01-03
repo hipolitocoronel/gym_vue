@@ -260,7 +260,7 @@ const updateMemberSelected = (mode, member) => {
 //Obtiene los plazos asociados al plam seleccionado
 const onPlanChange = async (plan, form) => {
     plazos.value = await pb.collection('planes_plazos').getFullList({
-        filter: `id_plan='${plan.id}'`
+        filter: `id_plan='${plan.id}' && deleted = null`
     });
     form.plazoSelected ? (form.plazoSelected.value = null) : '';
 };
