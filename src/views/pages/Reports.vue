@@ -85,7 +85,7 @@
                     class="!h-10"
                     severity="contrast"
                     v-tooltip.top="'Filtrar Resultados'"
-                    @click="onFilterReports"
+                    @click="refreshReports"
                 />
             </div>
             <div class="col-span-2 items-end flex justify-end">
@@ -138,7 +138,7 @@ const exportCSV = async () => {
     await reportsList.value.exportCSV();
     loadingExport.value = false;
 };
-const onFilterReports = () => {
+const refreshReports = () => {
     const buildFilter = (key, value) => (value ? `${key}='${value}'` : null);
 
     const filters = [
@@ -170,9 +170,6 @@ const onPlanChange = async (plan) => {
     } finally {
         loadingPeriods.value = false;
     }
-};
-const refreshReports = () => {
-    reportsList.value.getPayments({ first: 0, rows: 10 });
 };
 onMounted(async () => {
     try {
