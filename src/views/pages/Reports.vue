@@ -117,6 +117,7 @@ const loadingPeriods = ref(false);
 const loadingExport = ref(false);
 const startDate = ref(new Date(today.setMonth(today.getMonth() - 1)));
 const endDate = ref(new Date());
+
 //Indica cuales son los items seleccionados
 const selectedPaymentMethod = ref(null);
 const selectedPlan = ref(null);

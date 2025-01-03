@@ -8,7 +8,7 @@
     >
         <div class="flex flex-col gap-4">
             <div>
-                <p class="text-gray-700 dark:text-gray-300">Información del Miembro</p>
+                <p class="text-gray-700 dark:text-gray-300 text-lg">Información del Miembro</p>
                 <div class="mt-3 grid grid-cols-2">
                     <p class="sub-header">DNI</p>
                     <p class="sub-header">Nombre</p>
@@ -20,9 +20,9 @@
                     </p>
                 </div>
             </div>
-            <div class="flex flex-col gap-4">
+            <div class="flex flex-col gap-4 mt-3">
                 <div>
-                    <p class="text-gray-700 dark:text-gray-300">Detalles del Pago</p>
+                    <p class="text-gray-700 dark:text-gray-300 text-lg">Detalles del Pago</p>
                     <div class="my-3 flex gap-3 flex-col">
                         <div class="grid grid-cols-2">
                             <p class="sub-header">Fecha</p>
@@ -67,9 +67,9 @@
     </Dialog>
 </template>
 <script setup>
-import dayjs from 'dayjs/esm';
 import formatCurrency from '@/utils/formatCurrency';
-import { ref, defineProps } from 'vue';
+import dayjs from 'dayjs/esm';
+import { defineProps } from 'vue';
 
 const props = defineProps({
     visible: Boolean,
@@ -78,7 +78,7 @@ const props = defineProps({
 </script>
 <style scope>
 .sub-header {
-    @apply text-gray-400 col-span-1 font-light;
+    @apply text-gray-400 col-span-1 font-light !text-sm;
 }
 .main-info {
     @apply col-span-1 font-bold text-[15px];

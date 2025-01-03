@@ -41,21 +41,6 @@
                 </Tag>
             </template>
         </Column>
-        <Column header="Acciones" class="xl:max-w-20">
-            <template #body="{ data }">
-                <div class="flex gap-2 justify-end">
-                    <Button
-                        icon="pi pi-eye"
-                        severity="secondary"
-                        variant="outlined"
-                        rounded
-                        @click="$emit('viewPayment', data)"
-                        v-tooltip.top="'Ver Detalle'"
-                        size="large"
-                    />
-                </div>
-            </template>
-        </Column>
     </DataTable>
 </template>
 <script setup>
