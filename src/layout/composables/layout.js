@@ -35,6 +35,7 @@ export function useLayout() {
 
     const executeDarkModeToggle = () => {
         layoutConfig.darkTheme = !layoutConfig.darkTheme;
+        window.localStorage.setItem('darkMode', !layoutConfig.darkTheme);
         document.documentElement.classList.toggle('app-dark');
     };
 
@@ -50,7 +51,9 @@ export function useLayout() {
         }
     };
 
-    const isSidebarActive = computed(() => layoutState.overlayMenuActive || layoutState.staticMenuMobileActive);
+    const isSidebarActive = computed(
+        () => layoutState.overlayMenuActive || layoutState.staticMenuMobileActive
+    );
 
     const isDarkTheme = computed(() => layoutConfig.darkTheme);
 

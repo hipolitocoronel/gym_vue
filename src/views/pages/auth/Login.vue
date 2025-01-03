@@ -204,6 +204,14 @@ const googleLogin = async () => {
                             :loading="loading"
                             label="Iniciar sesión"
                         />
+
+                        <router-link to="/auth/completar-registro">
+                            <span
+                                class="ml-2 font-medium text-right no-underline cursor-pointer text-primary"
+                            >
+                                Registro
+                            </span>
+                        </router-link>
                     </Form>
                 </div>
             </div>

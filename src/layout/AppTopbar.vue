@@ -4,7 +4,6 @@ import pb from '@/service/pocketbase';
 import { useIndexStore } from '@/storage';
 import { onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
-import AppConfigurator from './AppConfigurator.vue';
 
 const store = useIndexStore();
 const loading = ref(false);
@@ -14,11 +13,6 @@ const router = useRouter();
 const { toggleDarkMode, isDarkTheme } = useLayout();
 
 onMounted(async () => {
-    // Habilitar dark mode si no está habilitado
-    if (!isDarkTheme.value) {
-        toggleDarkMode();
-    }
-
     // Verificar autenticación del usuario
     if (!pb.authStore.isValid) {
         router.push({ name: 'login' });
@@ -80,7 +74,6 @@ const logout = () => {
 <template>
     <div class="layout-topbar">
         <div class="layout-topbar-logo-container">
-            <AppConfigurator />
             <!-- <button class="layout-menu-button layout-topbar-action" @click="toggleMenu">
                 <i class="pi pi-bars"></i>
             </button> -->

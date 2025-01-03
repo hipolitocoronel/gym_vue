@@ -1,15 +1,4 @@
 <script setup>
-import { useLayout } from '@/layout/composables/layout';
-import { onMounted } from 'vue';
-const { toggleDarkMode, isDarkTheme } = useLayout();
-
-onMounted(() => {
-    // Habilitar dark mode si no está habilitado
-    if (!isDarkTheme.value) {
-        toggleDarkMode();
-    }
-});
-
 function smoothScroll(id) {
     document.body.click();
     const element = document.getElementById(id);
