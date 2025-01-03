@@ -9,6 +9,7 @@
                     :options="paymentMethods"
                     optionLabel="nombre"
                     fluid
+                    showClear
                     :optionValue="(selectedPaymentMethod) => selectedPaymentMethod.nombre"
                     :loading="loadingData"
                     emptyMessage="No hay medios de pago"
@@ -22,6 +23,7 @@
                     :options="plans"
                     optionLabel="nombre"
                     fluid
+                    showClear
                     :optionValue="(selectedPlan) => selectedPlan.id"
                     @update:modelValue="onPlanChange"
                     :loading="loadingData"
@@ -35,6 +37,7 @@
                     v-model="selectedPeriod"
                     :loading="loadingPeriods"
                     :options="periods"
+                    showClear
                     :optionValue="(selectedPeriod) => selectedPeriod.id"
                     emptyMessage="Selecciona un plan primero"
                     placeholder="Selecciona el plazo del plan"
@@ -49,32 +52,34 @@
         </div>
         <div class="grid xl:grid-cols-12 gap-4 mt-4 mb-3">
             <div class="flex flex-col gap-2 col-span-4">
-                <label for="dateFrom">Desde</label>
+                <label for="startDate">Desde</label>
                 <DatePicker
-                    v-model="dateFrom"
+                    v-model="startDate"
                     showIcon
-                    inputId="dateFrom"
+                    inputId="startDate"
                     dateFormat="dd/mm/yy"
                     fluid
-                    :maxDate="dateUntil"
+                    :minDate="getMinStartDate"
+                    :maxDate="endDate"
                     @update:modelValue="refreshReports"
                     iconDisplay="input"
                 />
             </div>
             <div class="flex flex-col gap-2 col-span-4">
-                <label for="dateUntil">Hasta</label>
+                <label for="endDate">Hasta</label>
                 <DatePicker
-                    v-model="dateUntil"
+                    v-model="endDate"
                     showIcon
-                    inputId="dateUntil"
+                    inputId="endDate"
                     dateFormat="dd/mm/yy"
-                    :minDate="dateFrom"
+                    :minDate="startDate"
+                    :maxDate="new Date()"
                     fluid
                     @update:modelValue="refreshReports"
                     iconDisplay="input"
                 />
             </div>
-            <div class="flex items-end">
+            <div class="flex items-end col-span-2">
                 <Button
                     icon="pi pi-filter"
                     class="!h-10"
@@ -83,24 +88,35 @@
                     @click="onFilterReports"
                 />
             </div>
+            <div class="col-span-2 items-end flex justify-end">
+                <Button
+                    icon="pi pi-external-link"
+                    label="Exportar"
+                    class="!h-10"
+                    severity="secondary"
+                    :loading="loadingExport"
+                    @click="exportCSV"
+                />
+            </div>
         </div>
 
-        <ReportsList :from="dateFrom" :to="dateUntil" ref="reportsList" />
+        <ReportsList :startDate :endDate ref="reportsList" />
     </div>
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
-import { useToast } from 'primevue/usetoast';
-import pb from '@/service/pocketbase';
-const toast = useToast();
 import ReportsList from '@/components/dashboard/ReportsList.vue';
+import pb from '@/service/pocketbase';
+import { useToast } from 'primevue/usetoast';
+import { computed, onMounted, ref } from 'vue';
+const toast = useToast();
 const reportsList = ref(null);
 const today = new Date();
 const loadingData = ref(false);
 const loadingPeriods = ref(false);
-const dateFrom = ref(new Date(today.setMonth(today.getMonth() - 1)));
-const dateUntil = ref(new Date());
+const loadingExport = ref(false);
+const startDate = ref(new Date(today.setMonth(today.getMonth() - 1)));
+const endDate = ref(new Date());
 //Indica cuales son los items seleccionados
 const selectedPaymentMethod = ref(null);
 const selectedPlan = ref(null);
@@ -110,15 +126,34 @@ const paymentMethods = ref([{ nombre: 'Efectivo' }, { nombre: 'Transferencia' }]
 const plans = ref([]);
 const periods = ref([]);
 
+const getMinStartDate = computed(() => {
+    const date = new Date(endDate.value);
+    date.setMonth(date.getMonth() - 2);
+    return date;
+});
+
+const exportCSV = async () => {
+    loadingExport.value = true;
+    await reportsList.value.exportCSV();
+    loadingExport.value = false;
+};
 const onFilterReports = () => {
-    console.log(finalFilter);
+    const buildFilter = (key, value) => (value ? `${key}='${value}'` : null);
+
+    const filters = [
+        buildFilter('medio_pago', selectedPaymentMethod.value),
+        buildFilter('id_plan_plazo.id_plan', selectedPlan.value),
+        buildFilter('id_plan_plazo', selectedPeriod.value)
+    ].filter(Boolean);
+
     reportsList.value.getPayments({
         first: 0,
         rows: 10,
-        filter:
+        ...(filters.length && { filter: filters.join(' && ') })
     });
 };
 const onPlanChange = async (plan) => {
+    selectedPeriod.value = null;
     try {
         loadingPeriods.value = true;
         periods.value = await pb.collection('planes_plazos').getFullList({
