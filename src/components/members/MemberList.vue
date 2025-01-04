@@ -15,8 +15,6 @@
         <template #empty> Sin registros. </template>
         <Column field="dni" header="DNI"> </Column>
         <Column field="nombre" header="Nombre"> </Column>
-        <Column field="telefono" header="Telefono"> </Column>
-        <Column field="sexo" header="Sexo"> </Column>
         <Column header="Plan">
             <template #body="{ data }">
                 <Tag
@@ -25,6 +23,8 @@
                 />
             </template>
         </Column>
+        <Column field="telefono" header="Telefono"> </Column>
+        <Column field="sexo" header="Sexo"> </Column>
         <Column header="Acciones" class="xl:max-w-20">
             <template #body="{ data }">
                 <div class="flex gap-2">
@@ -52,10 +52,10 @@
     </DataTable>
 </template>
 <script setup>
-import { ref, defineProps, onMounted, defineExpose } from 'vue';
-import { useToast } from 'primevue/usetoast';
-import getMembershipStatus from '@/utils/getMembershipStatus';
 import pb from '@/service/pocketbase.js';
+import getMembershipStatus from '@/utils/getMembershipStatus';
+import { useToast } from 'primevue/usetoast';
+import { defineExpose, onMounted, ref } from 'vue';
 const members = ref([]);
 const first = ref(0);
 const loading = ref(false);

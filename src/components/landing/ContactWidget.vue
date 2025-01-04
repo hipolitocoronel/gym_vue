@@ -7,7 +7,7 @@
             />
         </div>
         <div class="col-span-12 lg:col-span-6 mt-20">
-            <h2 class="text-center font-bold text-5xl mb-4">Contáctanos</h2>
+            <h2 class="text-center font-bold text-4xl sm:text-5xl mb-4">Contáctanos</h2>
             <Form
                 v-slot="$form"
                 :initialValues

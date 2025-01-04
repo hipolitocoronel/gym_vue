@@ -72,14 +72,13 @@ const exportCSV = async () => {
         });
 
         const csvContent = [
-            ['Cliente', 'Fecha', 'Plan', 'Monto', 'Medio de Pago'].join(','),
+            ['Cliente', 'Fecha', 'Plan', 'Plazo', 'Monto', 'Medio de Pago'].join(','),
             ...result.map((item) =>
                 [
                     item.expand.id_miembro.nombre,
                     dayjs(item.fecha_pago).format('DD/MM/YYYY'),
-                    item.expand.id_plan_plazo.expand.id_plan.nombre +
-                        ' ' +
-                        item.expand.id_plan_plazo.duracion +
+                    item.expand.id_plan_plazo.expand.id_plan.nombre,
+                    item.expand.id_plan_plazo.duracion +
                         ' ' +
                         (item.expand.id_plan_plazo.duracion > 1 ? 'meses' : 'mes'),
                     item.monto_total,
