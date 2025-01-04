@@ -139,12 +139,12 @@
 </template>
 
 <script setup>
-import { Form } from '@primevue/forms';
 import pb from '@/service/pocketbase.js';
+import { Form } from '@primevue/forms';
 import { zodResolver } from '@primevue/forms/resolvers/zod';
-import { z } from 'zod';
 import { useToast } from 'primevue/usetoast';
-import { ref, defineProps, defineEmits, watch, computed } from 'vue';
+import { computed, defineEmits, defineProps, ref, watch } from 'vue';
+import { z } from 'zod';
 const toast = useToast();
 
 const emit = defineEmits(['closeModal', 'newChanges']);
@@ -218,7 +218,7 @@ const onFormSubmit = async (e) => {
                 ? (member = await pb.collection('miembros').update(e.values.id, e.values))
                 : (member = await pb.collection('miembros').create(e.values));
             closeModal();
-            emit('newChanges', isEditMode.value);
+            emit('newChanges', isEditMode.value, member);
         } catch (error) {
             if (error.response?.data?.dni?.code === 'validation_not_unique') {
                 const member = await pb

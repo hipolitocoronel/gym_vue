@@ -178,16 +178,16 @@
     />
 </template>
 <script setup>
-import { Form } from '@primevue/forms';
 import pb from '@/service/pocketbase.js';
-import { zodResolver } from '@primevue/forms/resolvers/zod';
-import { z } from 'zod';
-import dayjs from 'dayjs/esm';
-import getMembershipStatus from '@/utils/getMembershipStatus';
 import formatCurrency from '@/utils/formatCurrency';
+import getMembershipStatus from '@/utils/getMembershipStatus';
+import { Form } from '@primevue/forms';
+import { zodResolver } from '@primevue/forms/resolvers/zod';
 import { useDebounceFn } from '@vueuse/core';
+import dayjs from 'dayjs/esm';
 import { useToast } from 'primevue/usetoast';
-import { ref, defineProps, defineEmits, watch, computed, onMounted } from 'vue';
+import { computed, defineEmits, defineProps, onMounted, ref } from 'vue';
+import { z } from 'zod';
 const toast = useToast();
 const emit = defineEmits(['closeModal', 'newChanges']);
 const loading = ref(false);
@@ -254,7 +254,7 @@ const resolver = zodResolver(
 );
 //Modal para agregar miembro
 const showMemberForm = ref(false);
-const updateMemberSelected = (mode, member) => {
+const updateMemberSelected = (_, member) => {
     initialValues.value.memberSelected = member;
 };
 //Obtiene los plazos asociados al plam seleccionado
