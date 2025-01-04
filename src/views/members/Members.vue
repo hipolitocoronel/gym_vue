@@ -86,6 +86,7 @@ const deleteMember = (member) => {
             try {
                 member.deleted = new Date();
                 await pb.collection('miembros').update(member.id, member);
+                searchInput.value = '';
                 memberList.value.getMembers({ first: 0, rows: 10 });
                 toast.add({
                     severity: 'success',
