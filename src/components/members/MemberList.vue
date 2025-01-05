@@ -52,10 +52,10 @@
     </DataTable>
 </template>
 <script setup>
-import { ref, defineProps, onMounted, defineExpose } from 'vue';
-import { useToast } from 'primevue/usetoast';
-import getMembershipStatus from '@/utils/getMembershipStatus';
 import pb from '@/service/pocketbase.js';
+import getMembershipStatus from '@/utils/getMembershipStatus';
+import { useToast } from 'primevue/usetoast';
+import { defineExpose, onMounted, ref } from 'vue';
 const members = ref([]);
 const first = ref(0);
 const loading = ref(false);

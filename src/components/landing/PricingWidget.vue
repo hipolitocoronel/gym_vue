@@ -1,6 +1,6 @@
 <template>
-    <div id="pricing" class="py-10 px-6 md:px-10 lg:px-6 xl:px-20">
-        <div class="text-center mb-4">
+    <div id="pricing" class="pt-10 px-6 md:px-10 lg:px-6 xl:px-20">
+        <div class="text-center mb-4 mt-14">
             <div
                 class="text-4xl md:text-5xl md:min-h-14 font-extrabold leading-tight mb-2 bg-gradient-to-r from-white to-gray-700 bg-clip-text text-transparent"
             >

@@ -1,5 +1,17 @@
 <script setup>
-function smoothScroll(id) {
+import { useLayout } from '@/layout/composables/layout';
+import { onMounted, ref } from 'vue';
+const { toggleDarkMode, isDarkTheme } = useLayout();
+
+onMounted(() => {
+    // Habilitar dark mode si no está habilitado
+    if (!isDarkTheme.value) {
+        toggleDarkMode();
+    }
+});
+
+const visible = ref(false);
+function smoothScroll(id, closeCallback = null) {
     document.body.click();
     const element = document.getElementById(id);
     if (element) {
@@ -8,51 +20,41 @@ function smoothScroll(id) {
             block: 'start'
         });
     }
+    if (closeCallback) closeCallback();
 }
 </script>
 
 <template>
     <div
-        class="relative flex items-center justify-between px-2 py-1 mx-20 mt-4 border rounded-xl !border-gray-600"
-        style="background: #00000020; backdrop-filter: blur(5px)"
+        class="px-2 py-2 flex items-center justify-between bg-black/40 backdrop-blur-md fixed top-0 left-1/2 transform -translate-x-1/2 rounded-b-xl w-full md:w-[95%] lg:w-[90%] xl:w-[80%] z-50"
     >
-        <router-link to="/" class="flex items-center layout-topbar-logo" style="gap: 0.2rem">
-            <img src="/src/assets/img/logo-white.png" alt="logo" width="35px" />
-            <p class="font-extrabold">
-                Gym<span class="text-lg font-bold text-primary">Master</span>
-            </p>
-        </router-link>
+        <div class="flex items-center gap-4">
+            <Button class="lg:!hidden !text-white" size="large" text @click="visible = true"
+                ><i class="pi pi-bars !text-2xl"></i
+            ></Button>
+            <router-link to="/" class="layout-topbar-logo flex items-center" style="gap: 0.2rem">
+                <img src="/src/assets/img/logo-white.png" alt="logo" width="35px" />
+                <p class="font-extrabold text-white">
+                    Gym<span class="font-bold text-primary text-lg">Master</span>
+                </p>
+            </router-link>
+        </div>
 
-        <Button
-            class="lg:!hidden"
-            text
-            severity="secondary"
-            rounded
-            v-styleclass="{
-                selector: '@next',
-                enterFromClass: 'hidden',
-                enterActiveClass: 'animate-scalein',
-                leaveToClass: 'hidden',
-                leaveActiveClass: 'animate-fadeout',
-                hideOnOutsideClick: true
-            }"
-        >
-            <i class="pi pi-bars !text-2xl"></i>
-        </Button>
-
-        <!-- Enlaces de navegación centrados -->
         <ul
-            class="absolute flex flex-row items-center gap-8 list-none transform cursor-pointer left-1/2 lg:-translate-x-1/2"
+            class="list-none lg:flex items-center flex-row cursor-pointer gap-8 absolute left-1/2 hidden transform md:-translate-x-1/2"
         >
             <li>
-                <a @click="smoothScroll('hero')" class="px-0 py-4 text-lg font-bold text-surface-0">
+                <a
+                    @click="smoothScroll('hero')"
+                    class="px-0 py-4 text-white font-medium lg:text-lg"
+                >
                     <span>Inicio</span>
                 </a>
             </li>
             <li>
                 <a
                     @click="smoothScroll('features')"
-                    class="px-0 py-4 text-lg font-medium text-surface-0 text-muted-color"
+                    class="px-0 py-4 text-white font-medium lg:text-lg"
                 >
                     <span>Características</span>
                 </a>
@@ -60,7 +62,7 @@ function smoothScroll(id) {
             <li>
                 <a
                     @click="smoothScroll('pricing')"
-                    class="px-0 py-4 text-lg font-medium text-surface-0 text-muted-color"
+                    class="px-0 py-4 text-white font-medium lg:text-lg"
                 >
                     <span>Precios</span>
                 </a>
@@ -68,28 +70,92 @@ function smoothScroll(id) {
             <li>
                 <a
                     @click="smoothScroll('contact')"
-                    class="px-0 py-4 text-lg font-medium text-surface-0 text-muted-color"
+                    class="px-0 py-4 text-white font-medium lg:text-lg"
                 >
                     <span>Contacto</span>
                 </a>
             </li>
         </ul>
 
-        <!-- Botones de inicio de sesión y registro -->
-        <div class="flex gap-2">
+        <div class="lg:flex gap-2 hidden">
             <Button
                 label="Iniciar Sesión"
                 as="router-link"
+                text
                 to="/auth/login"
-                size="small"
-                variant="link"
+                class="!rounded-xl !border-gray-200 !text-white"
             ></Button>
             <Button
                 label="Registrarse"
                 to="/auth/login"
                 class="!rounded-xl !py-4 !border-none !text-black"
-                size="small"
             ></Button>
         </div>
+        <Drawer
+            v-model:visible="visible"
+            class="!w-[22rem] !border-0 !border-r !border-r-surface-700"
+        >
+            <template #container="{ closeCallback }">
+                <div class="flex flex-col h-full bg-black">
+                    <div class="flex items-center justify-between px-6 pt-4 shrink-0">
+                        <div class="flex items-center gap-4">
+                            <img src="/src/assets/img/logo-white.png" alt="logo" width="35px" />
+                            <p class="font-extrabold text-white">
+                                Gym<span class="font-bold text-primary text-lg">Master</span>
+                            </p>
+                        </div>
+                        <span>
+                            <Button
+                                type="button"
+                                @click="closeCallback"
+                                icon="pi pi-times"
+                                text
+                                class="!text-white -mr-4"
+                            ></Button>
+                        </span>
+                    </div>
+                    <hr
+                        class="mt-4 mx-4 border-t border-0 border-surface-200 dark:border-surface-700"
+                    />
+                    <div class="px-6 mt-16">
+                        <ul class="flex flex-col cursor-pointer gap-4">
+                            <li>
+                                <a
+                                    @click="smoothScroll('hero', closeCallback)"
+                                    class="px-0 py-4 text-white font-medium text-xl"
+                                >
+                                    <span>Inicio</span>
+                                </a>
+                            </li>
+                            <li>
+                                <a
+                                    @click="smoothScroll('features', closeCallback)"
+                                    class="px-0 py-4 text-white font-medium text-xl"
+                                >
+                                    <span>Características</span>
+                                </a>
+                            </li>
+                            <li>
+                                <a
+                                    @click="smoothScroll('pricing', closeCallback)"
+                                    class="px-0 py-4 text-white font-medium text-xl"
+                                >
+                                    <span>Precios</span>
+                                </a>
+                            </li>
+                            <li>
+                                <a
+                                    @click="smoothScroll('contact', closeCallback)"
+                                    class="px-0 py-4 text-white font-medium text-xl"
+                                >
+                                    <span>Contacto</span>
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="mt-auto"></div>
+                </div>
+            </template>
+        </Drawer>
     </div>
 </template>
