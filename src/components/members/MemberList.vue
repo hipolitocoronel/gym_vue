@@ -15,6 +15,8 @@
         <template #empty> Sin registros. </template>
         <Column field="dni" header="DNI"> </Column>
         <Column field="nombre" header="Nombre"> </Column>
+        <Column field="telefono" header="Telefono"> </Column>
+        <Column field="sexo" header="Sexo"> </Column>
         <Column header="Plan">
             <template #body="{ data }">
                 <Tag
@@ -23,8 +25,6 @@
                 />
             </template>
         </Column>
-        <Column field="telefono" header="Telefono"> </Column>
-        <Column field="sexo" header="Sexo"> </Column>
         <Column header="Acciones" class="xl:max-w-20">
             <template #body="{ data }">
                 <div class="flex gap-2">

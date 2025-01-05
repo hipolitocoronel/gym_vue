@@ -1,6 +1,6 @@
 <script setup>
-import { onMounted } from 'vue';
 import { useLayout } from '@/layout/composables/layout';
+import { onMounted } from 'vue';
 const { toggleDarkMode, isDarkTheme } = useLayout();
 
 onMounted(() => {
@@ -50,7 +50,6 @@ function smoothScroll(id) {
             <i class="pi pi-bars !text-2xl"></i>
         </Button>
 
-        <!-- Enlaces de navegación centrados -->
         <ul
             class="list-none flex items-center flex-row cursor-pointer gap-8 absolute left-1/2 transform lg:-translate-x-1/2"
         >
@@ -88,7 +87,6 @@ function smoothScroll(id) {
             </li>
         </ul>
 
-        <!-- Botones de inicio de sesión y registro -->
         <div class="flex gap-2">
             <Button
                 label="Iniciar Sesión"
