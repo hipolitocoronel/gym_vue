@@ -1,6 +1,7 @@
 <template>
-    <div id="hero" class="flex flex-col pt-6 px-4 lg:px-20 overflow-hidden bg-black">
-        <div class="mt-0 md:mt-16 max-w-3xl mx-auto text-center">
+    <div id="hero" class="flex flex-col px-4 lg:px-20 overflow-hidden bg-black">
+        <div></div>
+        <div class="mt-24 md:mt-36 max-w-3xl mx-auto text-center">
             <h1
                 class="text-[42px] sm:text-6xl md:text-7xl lg:text-8xl lg:min-h-52 font-extrabold leading-tight bg-gradient-to-r from-white to-gray-700 bg-clip-text text-transparent"
             >

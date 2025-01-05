@@ -16,7 +16,7 @@
             <div class="card mb-0 bg-slate-950 md:w-1/3">
                 <div class="flex flex-col items-center">
                     <div class="-mr-8">
-                        <img src="@/assets/img/Miembros.jpg" alt="" />
+                        <img src="" alt="" />
                     </div>
                     <div class="mb-3 mt-5">
                         <span class="block text-xl text-center font-semibold mb-3"
@@ -50,12 +50,7 @@
 
             <div class="card mb-0 bg-slate-950 md:w-1/3">
                 <div class="flex flex-col items-center">
-                    <div
-                        class="flex items-center justify-center bg-[#a85b53] rounded-border"
-                        style="width: 2.5rem; height: 2.5rem"
-                    >
-                        <i class="pi pi-clock text-black !text-2xl font-semibold"></i>
-                    </div>
+                    <div></div>
                     <div class="text-center mb-3 mt-5">
                         <span class="block text-xl font-semibold mb-3"
                             >Gestión de Entrenadores</span

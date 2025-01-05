@@ -1,12 +1,12 @@
 <template>
-    <div class="grid grid-cols-12 xl:mx-32 mt-8" id="contact">
+    <div class="grid grid-cols-12 py-16 xl:mx-32 mt-8" id="contact">
         <div class="col-span-12 md:col-span-6 mt-10 hidden lg:block">
             <img
                 src="https://www.pngplay.com/wp-content/uploads/6/Fitness-PNG-HD-Quality.png"
                 alt=""
             />
         </div>
-        <div class="col-span-12 lg:col-span-6 mt-20">
+        <div class="col-span-12 lg:col-span-6 mt-14 md:mt-20">
             <h2 class="text-center font-bold text-4xl sm:text-5xl mb-4">Contáctanos</h2>
             <Form
                 v-slot="$form"
