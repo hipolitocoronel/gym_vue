@@ -1,17 +1,58 @@
 <script setup>
+import ConfirmStep from '@/components/register/ConfirmStep.vue';
+import GymForm from '@/components/register/GymForm.vue';
+import PersonalInformation from '@/components/register/PersonalInformation.vue';
+import SucursalForm from '@/components/register/SucursalForm.vue';
+
 import { useLayout } from '@/layout/composables/layout';
 import { ref } from 'vue';
 
 const { isDarkTheme } = useLayout();
-const activeStep = ref(1);
-const name = ref();
-const email = ref();
-const password = ref();
-</script>
+const activeStep = ref(4);
 
+const personalForm = ref(null);
+const gymForm = ref(null);
+const sucursalForm = ref(null);
+
+const stepsConfig = [
+    { value: 1, icon: 'pi pi-user', formRef: personalForm, panel: PersonalInformation },
+    { value: 2, icon: 'pi pi-building', formRef: gymForm, panel: GymForm },
+    { value: 3, icon: 'pi pi-map-marker', formRef: sucursalForm, panel: SucursalForm },
+    { value: 4, icon: 'pi pi-check', isFinalStep: true, panel: ConfirmStep }
+];
+
+const getStepClasses = (step) => [
+    'rounded-full border-2 min-w-12 h-12 inline-flex items-center justify-center',
+    {
+        'bg-primary text-primary-contrast border-primary': step <= activeStep.value,
+        'border-surface-200 dark:border-surface-700': step > activeStep.value
+    }
+];
+
+const validateStep = async (step) => {
+    const stepConfig = stepsConfig.find((s) => s.value === step);
+    if (stepConfig?.formRef?.value) {
+        return await stepConfig.formRef.value[0].validate();
+    }
+    return false;
+};
+
+const stepsManager = async () => {
+    const currentStep = activeStep.value;
+
+    // Valida el formulario asociado al paso actual
+    const isValid = await validateStep(currentStep);
+
+    // Si es válido, avanza al siguiente paso
+    if (isValid) {
+        activeStep.value++;
+    }
+};
+</script>
 <template>
-    <div class="flex flex-col items-center h-screen card">
-        <div class="flex items-center justify-center mb-6">
+    <div class="flex flex-col items-center min-h-screen card">
+        <!-- Encabezado (Logo y Título) -->
+        <div class="relative flex items-center justify-center my-6" style="visibility: hidden">
             <img
                 :src="
                     isDarkTheme
@@ -21,147 +62,63 @@ const password = ref();
                 alt="Logo"
                 width="50px"
             />
-
             <p class="text-xl font-extrabold">
                 Gym<span class="font-bold text-primary">Master</span>
             </p>
         </div>
 
-        <Stepper v-model:value="activeStep" class="basis-[40rem] w-[40rem]">
-            <StepList>
-                <Step v-slot="{ activateCallback, value, a11yAttrs }" asChild :value="1">
-                    <div class="flex flex-row flex-auto gap-2" v-bind="a11yAttrs.root">
-                        <button
-                            class="inline-flex flex-col gap-2 bg-transparent border-0"
-                            @click="activateCallback"
-                            v-bind="a11yAttrs.header"
-                        >
-                            <span
-                                :class="[
-                                    'rounded-full border-2 w-12 h-12 inline-flex items-center justify-center',
-                                    {
-                                        'bg-primary text-primary-contrast border-primary':
-                                            value <= activeStep,
-                                        'border-surface-200 dark:border-surface-700':
-                                            value > activeStep
-                                    }
-                                ]"
-                            >
-                                <i class="pi pi-user" />
-                            </span>
-                        </button>
-                        <Divider />
-                    </div>
-                </Step>
-                <Step v-slot="{ activateCallback, value, a11yAttrs }" asChild :value="2">
-                    <div class="flex flex-row flex-auto gap-2 pl-2" v-bind="a11yAttrs.root">
-                        <button
-                            class="inline-flex flex-col gap-2 bg-transparent border-0"
-                            @click="activateCallback"
-                            v-bind="a11yAttrs.header"
-                        >
-                            <span
-                                :class="[
-                                    'rounded-full border-2 w-12 h-12 inline-flex items-center justify-center',
-                                    {
-                                        'bg-primary text-primary-contrast border-primary':
-                                            value <= activeStep,
-                                        'border-surface-200 dark:border-surface-700':
-                                            value > activeStep
-                                    }
-                                ]"
-                            >
-                                <i class="pi pi-building" />
-                            </span>
-                        </button>
-                        <Divider />
-                    </div>
-                </Step>
-                <Step v-slot="{ activateCallback, value, a11yAttrs }" asChild :value="3">
-                    <div class="flex flex-row pl-2" v-bind="a11yAttrs.root">
-                        <button
-                            class="inline-flex flex-col gap-2 bg-transparent border-0"
-                            @click="activateCallback"
-                            v-bind="a11yAttrs.header"
-                        >
-                            <span
-                                :class="[
-                                    'rounded-full border-2 w-12 h-12 inline-flex items-center justify-center',
-                                    {
-                                        'bg-primary text-primary-contrast border-primary':
-                                            value <= activeStep,
-                                        'border-surface-200 dark:border-surface-700':
-                                            value > activeStep
-                                    }
-                                ]"
-                            >
-                                <i class="pi pi-id-card" />
-                            </span>
-                        </button>
+        <!-- Stepper -->
+        <Stepper v-model:value="activeStep" class="w-[46rem]">
+            <StepList style="width: 53rem !important">
+                <Step
+                    v-for="step in stepsConfig"
+                    :key="step.value"
+                    v-slot="{ value, a11yAttrs }"
+                    asChild
+                    :value="step.value"
+                >
+                    <div
+                        class="flex flex-row flex-auto gap-2"
+                        :class="{ 'pl-2': step.value > 1 }"
+                        v-bind="a11yAttrs.root"
+                    >
+                        <span :class="getStepClasses(value)">
+                            <i :class="step.icon" />
+                        </span>
+                        <Divider v-if="!step.isFinalStep" />
                     </div>
                 </Step>
             </StepList>
+
             <StepPanels>
-                <StepPanel v-slot="{ activateCallback }" :value="1">
-                    <PersonalInformation />
-                    <div class="flex justify-end pt-6">
-                        <Button
-                            label="Siguiente"
-                            icon="pi pi-arrow-right"
-                            iconPos="right"
-                            @click="activateCallback(2)"
-                        />
-                    </div>
-                </StepPanel>
-                <StepPanel v-slot="{ activateCallback }" :value="2">
-                    <div
-                        class="flex flex-col gap-2 mx-auto"
-                        style="min-height: 16rem; max-width: 24rem"
-                    >
-                        <div class="mt-4 mb-4 text-xl font-semibold text-center">
-                            Choose your interests
-                        </div>
-                        <div></div>
-                    </div>
-                    <div class="flex justify-between pt-6">
-                        <Button
-                            label="Back"
-                            severity="secondary"
-                            icon="pi pi-arrow-left"
-                            @click="activateCallback(1)"
-                        />
-                        <Button
-                            label="Next"
-                            icon="pi pi-arrow-right"
-                            iconPos="right"
-                            @click="activateCallback(3)"
-                        />
-                    </div>
-                </StepPanel>
-                <StepPanel v-slot="{ activateCallback }" :value="3">
-                    <div
-                        class="flex flex-col gap-2 mx-auto"
-                        style="min-height: 16rem; max-width: 24rem"
-                    >
-                        <div class="mt-4 mb-4 text-xl font-semibold text-center">
-                            Account created successfully
-                        </div>
-                        <div class="text-center">
-                            <img
-                                alt="logo"
-                                src="https://primefaces.org/cdn/primevue/images/stepper/content.svg"
+                <template v-for="step in stepsConfig" :key="step.value">
+                    <StepPanel :value="step.value">
+                        <component :is="step.panel" :ref="step.formRef" />
+                        <div class="flex justify-between pt-6">
+                            <Button
+                                :style="step.value == 1 && 'visibility: hidden'"
+                                label="Volver"
+                                severity="secondary"
+                                icon="pi pi-arrow-left"
+                                @click="activeStep--"
+                            />
+                            <Button
+                                v-if="!step.isFinalStep"
+                                label="Siguiente"
+                                icon="pi pi-arrow-right"
+                                iconPos="right"
+                                @click="stepsManager()"
+                            />
+                            <Button
+                                v-else
+                                label="Confirmar y finalizar"
+                                icon="pi pi-check-circle"
+                                iconPos="right"
+                                severity="success"
                             />
                         </div>
-                    </div>
-                    <div class="flex justify-start pt-6">
-                        <Button
-                            label="Back"
-                            severity="secondary"
-                            icon="pi pi-arrow-left"
-                            @click="activateCallback(2)"
-                        />
-                    </div>
-                </StepPanel>
+                    </StepPanel>
+                </template>
             </StepPanels>
         </Stepper>
     </div>
