@@ -40,7 +40,7 @@ const getData = async () => {
     return data.value;
 };
 
-defineExpose({ validate, getData });
+defineExpose({ validate, getData, form: form.value });
 </script>
 
 <template>

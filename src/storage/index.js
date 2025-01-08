@@ -2,7 +2,12 @@ import { defineStore } from 'pinia';
 
 export const useIndexStore = defineStore('index', {
     state: () => {
-        return { userLogged: null, currentGym: null };
+        return {
+            userLogged: null,
+            currentGym: null,
+            sucursales: [{ direccion: '' }],
+            currentSucursal: null
+        };
     },
     getters: {
         getUserLogged: (state) => state.userLogged,
@@ -23,6 +28,12 @@ export const useIndexStore = defineStore('index', {
         },
         setCurrentGym(gym) {
             this.currentGym = gym;
+        },
+        setSucursales(sucursales) {
+            this.sucursales = sucursales;
+        },
+        setCurrentSucursal(sucursal) {
+            this.currentSucursal = sucursal;
         }
     }
 });

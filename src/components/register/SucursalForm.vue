@@ -8,8 +8,8 @@ const formRefs = ref([{}]);
 
 const initialValues = ref([
     {
-        nombre: '',
-        direccion: ''
+        nombre: 'Sucursal principal',
+        direccion: 'Paraguay 1700'
     }
 ]);
 
@@ -39,6 +39,8 @@ const quitarSucursal = (index) => {
 
 const validate = async () => {
     for (const form of formRefs.value) {
+        if (!form) continue;
+
         const { errors } = await form.validate();
         if (Object.keys(errors).length > 0) return false;
     }

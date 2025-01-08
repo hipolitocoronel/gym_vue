@@ -8,6 +8,7 @@ import { useRouter } from 'vue-router';
 const store = useIndexStore();
 const loading = ref(false);
 const op = ref();
+const menuSucursales = ref();
 const router = useRouter();
 
 const { toggleDarkMode, isDarkTheme } = useLayout();
@@ -34,6 +35,10 @@ const toggle = (event) => {
     op.value.toggle(event);
 };
 
+const toggleSucursales = (event) => {
+    menuSucursales.value.toggle(event);
+};
+
 const getUserLogged = async () => {
     try {
         loading.value = true;
@@ -58,6 +63,28 @@ const getCurrentGym = async (id) => {
 
         // guardando informacion de usuario
         store.setCurrentGym(gym);
+
+        // Obteniendo sucursales
+        getSucursales(gym.id);
+    } catch (error) {
+        console.log(error);
+    } finally {
+        loading.value = false;
+    }
+};
+
+const getSucursales = async (gym_id) => {
+    try {
+        loading.value = true;
+
+        const sucursales = await pb
+            .collection('sucursales')
+            .getFullList({ filter: `gimnasio_id = "${gym_id}"` });
+
+        // guardando informacion de usuario
+        store.setSucursales(sucursales);
+
+        store.setCurrentSucursal(sucursales[0]);
     } catch (error) {
         console.log(error);
     } finally {
@@ -99,10 +126,29 @@ const logout = () => {
             />
             <Avatar shape="circle" :image="store.srcLogoGym + '?thumb=50x50'" v-else />
 
-            <p class="font-semibold">
-                {{ store.currentGym?.nombre }} <span class="mx-2">|</span>
-                {{ store.currentGym?.direccion }}
-            </p>
+            <div class="flex items-center">
+                <span class="ml-1 font-semibold">
+                    {{ store.currentGym?.nombre }}
+                </span>
+
+                <span class="pl-4">|</span>
+
+                <Button
+                    type="button"
+                    @click="toggleSucursales"
+                    size="small"
+                    variant="text"
+                    severity="contrast"
+                    class="ml-2"
+                >
+                    <div class="text-base">
+                        <span class="mr-2"> Sucursal: </span>
+
+                        {{ store.sucursales[0].direccion }}
+                    </div>
+                    <i class="ml-1 pi {pi-fw} pi-arrows-v"></i>
+                </Button>
+            </div>
         </div>
 
         <div class="layout-topbar-actions">
@@ -144,4 +190,23 @@ const logout = () => {
             <ProgressSpinner style="width: 27px; height: 27px" v-else strokeWidth="4" />
         </div>
     </div>
+
+    <Popover ref="menuSucursales">
+        <div class="flex flex-col gap-2 w-[22rem]">
+            <p class="p-1 mb-1 font-semibold">Listado de sucursales</p>
+            <div v-for="sucursal in store.sucursales">
+                <Button
+                    fluid
+                    severity="secondary"
+                    :variant="store.currentSucursal.id == sucursal.id ? 'secondary' : 'text'"
+                >
+                    <div class="flex w-full gap-3 text-start">
+                        <span class="flex-1">{{ sucursal.nombre }}</span>
+
+                        <span class="flex-1 text-end"> {{ sucursal.direccion }}</span>
+                    </div>
+                </Button>
+            </div>
+        </div>
+    </Popover>
 </template>

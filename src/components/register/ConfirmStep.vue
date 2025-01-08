@@ -1,4 +1,6 @@
-<script setup></script>
+<script setup>
+const props = defineProps(['personalForm']);
+</script>
 
 <template>
     <h2 class="pt-4 mb-2 text-xl font-bold"><span class="mr-2">4.</span> Verificar información</h2>
@@ -21,6 +23,8 @@
                         <label class="text-xs text-muted-color">TELÉFONO</label>
                         <p class="font-bold">3782442451</p>
                     </div>
+
+                    {{ props.personalForm }}
                 </div>
 
                 <div class="flex justify-end">

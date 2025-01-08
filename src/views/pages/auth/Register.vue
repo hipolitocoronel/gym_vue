@@ -14,8 +14,6 @@ const loading = ref(false);
 const toast = useToast();
 const router = useRouter();
 
-const checked = ref(false);
-
 const initialValues = ref({
     email: '',
     password: ''
@@ -106,9 +104,9 @@ const googleLogin = async () => {
                         <div
                             class="mb-1 text-3xl font-semibold text-surface-900 dark:text-surface-0"
                         >
-                            ¡Bienvenido de nuevo!
+                            ¡Comenzar ahora!
                         </div>
-                        <span class="text-muted-color">Ingrese para continuar</span>
+                        <span class="text-muted-color">Crear una nueva cuenta</span>
                     </div>
 
                     <Button
@@ -154,7 +152,7 @@ const googleLogin = async () => {
                             </Message>
                         </div>
 
-                        <div class="mb-2" v-auto-animate>
+                        <div class="mb-9" v-auto-animate>
                             <label
                                 for="password"
                                 class="block mb-1 font-medium text-surface-900 dark:text-surface-0"
@@ -183,26 +181,19 @@ const googleLogin = async () => {
                             </Message>
                         </div>
 
-                        <div class="flex justify-end mb-8 text-sm">
-                            <router-link to="/auth/forgot-password">
-                                <span class="font-medium text-primary">
-                                    ¿Olvidaste tu contraseña?
-                                </span>
-                            </router-link>
-                        </div>
                         <Button
                             class="w-full mt-2 font-bold"
                             type="submit"
                             :loading="loading"
-                            label="Iniciar sesión"
+                            label="Registrarse"
                         />
 
                         <div class="py-2 mt-4 text-center text-muted-color">
-                            ¿No tienes una cuenta?
+                            ¿Ya tienes una cuenta?
 
-                            <router-link to="/auth/register">
+                            <router-link to="/auth/login">
                                 <span class="ml-1 font-semibold underline text-primary">
-                                    Registrate ahora
+                                    Ingresar ahora
                                 </span>
                             </router-link>
                         </div>

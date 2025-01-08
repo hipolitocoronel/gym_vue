@@ -52,7 +52,7 @@ const stepsManager = async () => {
 <template>
     <div class="flex flex-col items-center min-h-screen card">
         <!-- Encabezado (Logo y Título) -->
-        <div class="relative flex items-center justify-center my-6" style="visibility: hidden">
+        <div class="relative flex items-center justify-center my-6">
             <img
                 :src="
                     isDarkTheme
