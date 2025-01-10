@@ -15,7 +15,7 @@
         <template #empty> Sin registros. </template>
         <Column field="dni" header="DNI"> </Column>
         <Column field="nombre" header="Nombre"> </Column>
-        <Column header="Horario" class="xl:max-w-20"
+        <Column header="Horario" v-if="storage?.currentGym?.gestionar_horarios" class="xl:max-w-20"
             ><template #body="{ data }">
                 <Tag
                     :value="data.horario ? dayjs(data.horario).format('HH:mm') : 'Libre'"
@@ -73,10 +73,12 @@
 </template>
 <script setup>
 import pb from '@/service/pocketbase.js';
+import { useIndexStore } from '@/storage';
 import getMembershipStatus from '@/utils/getMembershipStatus';
 import dayjs from 'dayjs/esm';
 import { useToast } from 'primevue/usetoast';
 import { defineExpose, onMounted, ref } from 'vue';
+const storage = useIndexStore();
 const members = ref([]);
 const first = ref(0);
 const loading = ref(false);

@@ -26,7 +26,8 @@ const initialValues = computed(() => {
             : null,
         horario_cierre: store.currentGym?.horario_cierre
             ? new Date(store.currentGym?.horario_cierre)
-            : null
+            : null,
+        gestionar_horarios: store.currentGym?.gestionar_horarios || false
     };
 });
 
@@ -51,7 +52,8 @@ const resolver = zodResolver(
             }),
             horario_cierre: z.date({
                 invalid_type_error: 'El horario de cierre es obligatorio.'
-            })
+            }),
+            gestionar_horarios: z.boolean()
         })
         .refine((data) => data.horario_cierre > data.horario_apertura, {
             message: 'El horario de cierre debe ser posterior al de apertura.',
@@ -181,47 +183,65 @@ const onFormSubmit = async (e) => {
                     {{ $form.telefono.error.message }}
                 </Message>
             </div>
-            <div class="flex gap-4">
-                <div class="flex flex-col flex-1 gap-1 mb-4" v-auto-animate>
-                    <label for="horarioApertura">Horarios</label>
-                    <DatePicker
-                        placeholder="Ingrese horario de apertura"
-                        id="horarioApertura"
-                        v-tooltip.left="'Horario de apertura'"
-                        name="horario_apertura"
-                        timeOnly
-                        fluid
-                    />
+            <div v-auto-animate>
+                <div class="flex gap-4" v-if="$form?.gestionar_horarios?.value">
+                    <div class="flex flex-col flex-1 gap-1 mb-4" v-auto-animate>
+                        <label for="horarioApertura">Horarios</label>
+                        <DatePicker
+                            placeholder="Ingrese horario de apertura"
+                            id="horarioApertura"
+                            v-tooltip.left="'Horario de apertura'"
+                            name="horario_apertura"
+                            timeOnly
+                            fluid
+                        />
 
-                    <Message
-                        v-if="$form.horario_apertura?.invalid"
-                        severity="error"
-                        size="small"
-                        variant="simple"
-                    >
-                        {{ $form.horario_apertura.error.message }}
-                    </Message>
-                </div>
-                <div class="flex flex-col flex-1 gap-1 mb-4" v-auto-animate>
-                    <label class="invisible">Horarios</label>
-                    <DatePicker
-                        placeholder="Ingrese horario de cierre"
-                        name="horario_cierre"
-                        v-tooltip.right="'Horario de cierre'"
-                        timeOnly
-                        fluid
-                    />
+                        <Message
+                            v-if="$form.horario_apertura?.invalid"
+                            severity="error"
+                            size="small"
+                            variant="simple"
+                        >
+                            {{ $form.horario_apertura.error.message }}
+                        </Message>
+                    </div>
 
-                    <Message
-                        v-if="$form.horario_cierre?.invalid"
-                        severity="error"
-                        size="small"
-                        variant="simple"
-                    >
-                        {{ $form.horario_cierre.error.message }}
-                    </Message>
+                    <div class="flex flex-col flex-1 gap-1 mb-4" v-auto-animate>
+                        <label class="invisible">Horarios</label>
+                        <DatePicker
+                            placeholder="Ingrese horario de cierre"
+                            name="horario_cierre"
+                            v-tooltip.right="'Horario de cierre'"
+                            timeOnly
+                            fluid
+                        />
+
+                        <Message
+                            v-if="$form.horario_cierre?.invalid"
+                            severity="error"
+                            size="small"
+                            variant="simple"
+                        >
+                            {{ $form.horario_cierre.error.message }}
+                        </Message>
+                    </div>
                 </div>
             </div>
+
+            <div class="flex flex-col gap-2 mb-4">
+                <label for="flexible">Gestionar horarios</label>
+                <RadioButtonGroup name="gestionar_horarios" class="flex flex-wrap gap-4">
+                    <div class="flex items-center gap-2">
+                        <RadioButton inputId="si" :value="true" />
+                        <label for="si">Si</label>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <RadioButton inputId="no" :value="false" />
+                        <label for="no">No</label>
+                    </div>
+                </RadioButtonGroup>
+            </div>
+
             <p class="mb-5">
                 Los campos marcados con <span class="text-red-400">(*)</span> son obligatorios
             </p>

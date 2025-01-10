@@ -143,7 +143,7 @@ import pb from '@/service/pocketbase.js';
 import { Form } from '@primevue/forms';
 import { zodResolver } from '@primevue/forms/resolvers/zod';
 import { useToast } from 'primevue/usetoast';
-import { computed, defineEmits, defineProps, ref, watch } from 'vue';
+import { computed, defineEmits, defineProps, ref } from 'vue';
 import { z } from 'zod';
 const toast = useToast();
 
@@ -157,13 +157,7 @@ const props = defineProps({
 });
 const errorDni = ref(false);
 const loading = ref(false);
-const initialValues = ref({
-    nombre: '',
-    telefono: null,
-    direccion: '',
-    dni: null,
-    sexo: ''
-});
+
 const resolver = zodResolver(
     z.object({
         nombre: z
@@ -188,23 +182,17 @@ const resolver = zodResolver(
 const isEditMode = computed(() => {
     return props.memberData.length != 0 ? true : false;
 });
-watch(
-    () => props.memberData,
-    (newValue) => {
-        if (isEditMode.value) {
-            initialValues.value = { ...newValue };
-        } else {
-            initialValues.value = {
-                nombre: '',
-                telefono: null,
-                direccion: '',
-                dni: null,
-                sexo: ''
-            };
-        }
-    },
-    { immediate: true }
-);
+
+const initialValues = computed(() => {
+    return {
+        nombre: props.memberData?.nombre || '',
+        telefono: props.memberData?.telefono || null,
+        direccion: props.memberData?.direccion || '',
+        dni: props.memberData?.dni || null,
+        sexo: props.memberData?.sexo || ''
+    };
+});
+
 const closeModal = () => {
     errorDni.value = false;
     emit('closeModal');

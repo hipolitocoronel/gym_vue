@@ -129,7 +129,11 @@
             <div v-auto-animate class="flex gap-4">
                 <div
                     class="flex flex-col gap-1 w-[45%]"
-                    :class="{ grow: $form.planSelected?.value.horario === 'flexible' }"
+                    :class="{
+                        grow:
+                            $form.planSelected?.value.horario === 'flexible' ||
+                            !storage?.currentGym?.gestionar_horarios
+                    }"
                     v-if="plazos.length > 0"
                     v-auto-animate
                 >
@@ -158,7 +162,11 @@
                 <div
                     class="flex flex-col gap-1 grow"
                     v-auto-animate
-                    v-if="plazos.length > 0 && $form.planSelected?.value.horario === 'fijo'"
+                    v-if="
+                        plazos.length > 0 &&
+                        $form.planSelected?.value.horario === 'fijo' &&
+                        storage?.currentGym?.gestionar_horarios
+                    "
                 >
                     <label for="schedule">Horario</label>
 
@@ -357,7 +365,10 @@ const onFormSubmit = async (e) => {
             monto_total: e.values.plazoSelected.precio,
             fecha_pago: new Date(),
             fecha_vencimiento: expirationDate,
-            horario: e.values.planSelected.horario == 'fijo' ? e.values.schedule : null
+            horario:
+                e.values.planSelected.horario == 'fijo' && storage.currentGym.gestionar_horarios
+                    ? e.values.schedule
+                    : null
         };
         try {
             loading.value = true;

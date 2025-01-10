@@ -36,7 +36,11 @@
                             rows="5"
                         />
                     </div>
-                    <div class="flex flex-col gap-2 mt-1">
+
+                    <div
+                        class="flex flex-col gap-2 mt-1"
+                        v-if="store?.currentGym?.gestionar_horarios"
+                    >
                         <label for="flexible">Horarios</label>
                         <RadioButtonGroup v-model="horarios" class="flex flex-wrap gap-4">
                             <div class="flex items-center gap-2">
@@ -151,6 +155,7 @@
 </template>
 <script setup>
 import pb from '@/service/pocketbase.js';
+import { useIndexStore } from '@/storage';
 import { toTypedSchema } from '@vee-validate/zod';
 import { useToast } from 'primevue/usetoast';
 import { useField, useForm } from 'vee-validate';
@@ -162,6 +167,7 @@ const route = useRoute();
 const router = useRouter();
 const schedule = ref('flexible');
 const loading = ref(false);
+const store = useIndexStore();
 const isEditMode = computed(() => {
     return route.params?.id ? true : false;
 });
