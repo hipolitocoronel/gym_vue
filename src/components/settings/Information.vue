@@ -57,7 +57,7 @@ const resolver = zodResolver(
         })
         .refine((data) => data.horario_cierre >= data.horario_apertura, {
             message: 'El horario de cierre debe ser posterior al de apertura.',
-            path: ['horarioCierre']
+            path: ['horario_cierre']
         })
 );
 
