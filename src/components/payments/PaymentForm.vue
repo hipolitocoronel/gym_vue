@@ -16,6 +16,7 @@
                 'paymentMethodSelected',
                 'planSelected',
                 'plazoSelected',
+                'schedule',
                 $form?.memberSelected?.value ? '' : 'memberSelected'
             ]"
             @submit="onFormSubmit"
@@ -85,7 +86,7 @@
                     {{ dayjs($form.memberSelected?.value?.fecha_vencimiento).format('DD/MM/YYYY') }}
                 </span>
             </div>
-            <Fluid class="flex gap-4">
+            <div class="flex gap-4">
                 <div class="flex flex-col w-[45%] gap-1" v-auto-animate>
                     <label>Medio de pago</label>
                     <Select
@@ -123,10 +124,15 @@
                         >{{ $form.planSelected.error.message }}
                     </Message>
                 </div>
-            </Fluid>
+            </div>
 
-            <div v-auto-animate>
-                <div class="flex flex-col gap-1" v-if="plazos.length > 0" v-auto-animate>
+            <div v-auto-animate class="flex gap-4">
+                <div
+                    class="flex flex-col gap-1 w-[45%]"
+                    :class="{ grow: $form.planSelected?.value.horario === 'flexible' }"
+                    v-if="plazos.length > 0"
+                    v-auto-animate
+                >
                     <label>Plazo</label>
                     <Select
                         name="plazoSelected"
@@ -147,6 +153,31 @@
                         variant="simple"
                         >{{ $form.plazoSelected.error.message }}
                     </Message>
+                </div>
+
+                <div
+                    class="flex flex-col gap-1 grow"
+                    v-auto-animate
+                    v-if="plazos.length > 0 && $form.planSelected?.value.horario === 'fijo'"
+                >
+                    <label for="schedule">Horario</label>
+
+                    <DatePicker
+                        name="schedule"
+                        id="schedule"
+                        timeOnly
+                        placeholder="Ingrese el horario de asistencia"
+                        autocomplete="off"
+                        fluid
+                    />
+
+                    <Message
+                        v-if="$form.schedule?.invalid"
+                        severity="error"
+                        size="small"
+                        variant="simple"
+                        >{{ $form.schedule.error?.message }}</Message
+                    >
                 </div>
             </div>
 
@@ -179,6 +210,7 @@
 </template>
 <script setup>
 import pb from '@/service/pocketbase.js';
+import { useIndexStore } from '@/storage';
 import formatCurrency from '@/utils/formatCurrency';
 import getMembershipStatus from '@/utils/getMembershipStatus';
 import { Form } from '@primevue/forms';
@@ -190,6 +222,7 @@ import { computed, defineEmits, defineProps, onMounted, ref } from 'vue';
 import { z } from 'zod';
 const toast = useToast();
 const emit = defineEmits(['closeModal', 'newChanges']);
+const storage = useIndexStore();
 const loading = ref(false);
 const props = defineProps({
     visible: Boolean
@@ -203,7 +236,12 @@ const initialValues = ref({
     memberSelected: null,
     paymentMethodSelected: null,
     planSelected: null,
-    plazoSelected: null
+    plazoSelected: null,
+    schedule: (() => {
+        const now = new Date();
+        now.setMinutes(0, 0, 0);
+        return now;
+    })()
 });
 //Listas de select
 const members = ref([]);
@@ -212,45 +250,63 @@ const plans = ref([]);
 const plazos = ref([]);
 //Validaciones del formulario
 const resolver = zodResolver(
-    z.object({
-        memberSelected: z.object(
-            {
-                id: z.string()
-            },
-            {
-                invalid_type_error: 'El miembro es obligatorio'
-            }
-        ),
+    z
+        .object({
+            memberSelected: z.object(
+                {
+                    id: z.string()
+                },
+                {
+                    invalid_type_error: 'El miembro es obligatorio'
+                }
+            ),
 
-        paymentMethodSelected: z.object(
-            {
-                nombre: z.string()
-            },
-            {
-                invalid_type_error: 'El medio de pago es obligatorio'
-            }
-        ),
+            paymentMethodSelected: z.object(
+                {
+                    nombre: z.string()
+                },
+                {
+                    invalid_type_error: 'El medio de pago es obligatorio'
+                }
+            ),
 
-        planSelected: z.object(
-            {
-                id: z.string()
-            },
-            {
-                invalid_type_error: 'El plan es obligatorio'
-            }
-        ),
+            planSelected: z.object(
+                {
+                    id: z.string(),
+                    horario: z.string()
+                },
+                {
+                    invalid_type_error: 'El plan es obligatorio'
+                }
+            ),
 
-        plazoSelected: z.object(
-            {
-                id: z.string(),
-                precio: z.number(),
-                duracion: z.number()
-            },
-            {
-                invalid_type_error: 'El plazo es obligatorio'
+            plazoSelected: z.object(
+                {
+                    id: z.string(),
+                    precio: z.number(),
+                    duracion: z.number()
+                },
+                {
+                    invalid_type_error: 'El plazo es obligatorio'
+                }
+            ),
+            schedule: z.date().optional()
+        })
+        .superRefine((values, ctx) => {
+            if (values.planSelected.horario === 'flexible') return;
+            if (values.schedule > new Date(storage.currentGym.horario_cierre)) {
+                ctx.addIssue({
+                    path: ['schedule'],
+                    message: 'Debe ser anterior al horario de cierre'
+                });
             }
-        )
-    })
+            if (values.schedule < new Date(storage.currentGym.horario_apertura)) {
+                ctx.addIssue({
+                    path: ['schedule'],
+                    message: 'Debe ser posterior al horario de apertura'
+                });
+            }
+        })
 );
 //Modal para agregar miembro
 const showMemberForm = ref(false);
@@ -262,6 +318,7 @@ const onPlanChange = async (plan, form) => {
     plazos.value = await pb.collection('planes_plazos').getFullList({
         filter: `id_plan='${plan.id}' && deleted = null`
     });
+
     form.plazoSelected ? (form.plazoSelected.value = null) : '';
 };
 //Obtiene los miembros filtrados
@@ -280,12 +337,6 @@ const filtrarMiembros = useDebounceFn(async (value) => {
 }, 400);
 
 const closeModal = () => {
-    initialValues.value = {
-        memberSelected: null,
-        paymentMethodSelected: null,
-        planSelected: null,
-        plazoSelected: null
-    };
     plazos.value = [];
     loadMembers();
     emit('closeModal', false);
@@ -305,7 +356,8 @@ const onFormSubmit = async (e) => {
             medio_pago: e.values.paymentMethodSelected.nombre,
             monto_total: e.values.plazoSelected.precio,
             fecha_pago: new Date(),
-            fecha_vencimiento: expirationDate
+            fecha_vencimiento: expirationDate,
+            horario: e.values.planSelected.horario == 'fijo' ? e.values.schedule : null
         };
         try {
             loading.value = true;
@@ -343,7 +395,7 @@ onMounted(async () => {
     try {
         loadingData.value = true;
         plans.value = await pb.collection('planes').getFullList({
-            fields: 'id,nombre',
+            fields: 'id,nombre, horario',
             filter: 'deleted = null',
             sort: '-created'
         });

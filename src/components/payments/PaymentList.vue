@@ -47,9 +47,9 @@
                 </Tag>
             </template>
         </Column>
-        <Column header="Acciones" class="xl:max-w-20">
+        <Column header="Acciones" class="xl:max-w-16">
             <template #body="{ data }">
-                <div class="flex gap-2 justify-end">
+                <div class="flex gap-2 justify-center">
                     <Button
                         icon="pi pi-eye"
                         severity="secondary"
@@ -65,11 +65,11 @@
     </DataTable>
 </template>
 <script setup>
-import { ref, onMounted, defineExpose } from 'vue';
-import { useToast } from 'primevue/usetoast';
-import dayjs from 'dayjs/esm';
-import formatCurrency from '@/utils/formatCurrency';
 import pb from '@/service/pocketbase.js';
+import formatCurrency from '@/utils/formatCurrency';
+import dayjs from 'dayjs/esm';
+import { useToast } from 'primevue/usetoast';
+import { defineExpose, onMounted, ref } from 'vue';
 const payments = ref([]);
 const first = ref(0);
 const loading = ref(false);

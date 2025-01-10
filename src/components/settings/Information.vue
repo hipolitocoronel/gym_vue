@@ -20,26 +20,43 @@ const initialValues = computed(() => {
         nombre: store.currentGym?.nombre || '',
         direccion: store.currentGym?.direccion || '',
         correo: store.currentGym?.correo || '',
-        telefono: store.currentGym?.telefono || null
+        telefono: store.currentGym?.telefono || null,
+        horario_apertura: store.currentGym?.horario_apertura
+            ? new Date(store.currentGym?.horario_apertura)
+            : null,
+        horario_cierre: store.currentGym?.horario_cierre
+            ? new Date(store.currentGym?.horario_cierre)
+            : null
     };
 });
 
 const resolver = zodResolver(
-    z.object({
-        nombre: z.string().min(3, { message: 'Mínimo 4 caracteres.' }),
-        direccion: z.string().min(3, { message: 'Mínimo 6 caracteres.' }),
-        correo: z
-            .string()
-            .email({ message: 'Correo electrónico inválido' })
-            .optional()
-            .or(z.literal('')),
-        telefono: z
-            .number({ message: 'El teléfono es obligatorio.' })
-            .min(1, { message: 'El teléfono es obligatorio.' })
-            .max(999999999999, { message: 'No debe exceder 12 caracteres' })
-            .optional()
-            .nullable()
-    })
+    z
+        .object({
+            nombre: z.string().min(3, { message: 'Mínimo 4 caracteres.' }),
+            direccion: z.string().min(3, { message: 'Mínimo 6 caracteres.' }),
+            correo: z
+                .string()
+                .email({ message: 'Correo electrónico inválido' })
+                .optional()
+                .or(z.literal('')),
+            telefono: z
+                .number({ message: 'El teléfono es obligatorio.' })
+                .min(1, { message: 'El teléfono es obligatorio.' })
+                .max(999999999999, { message: 'No debe exceder 12 caracteres' })
+                .optional()
+                .nullable(),
+            horario_apertura: z.date({
+                invalid_type_error: 'El horario de apertura es obligatorio.'
+            }),
+            horario_cierre: z.date({
+                invalid_type_error: 'El horario de cierre es obligatorio.'
+            })
+        })
+        .refine((data) => data.horario_cierre > data.horario_apertura, {
+            message: 'El horario de cierre debe ser posterior al de apertura.',
+            path: ['horarioCierre']
+        })
 );
 
 function onFileSelect(event) {
@@ -68,7 +85,7 @@ const onFormSubmit = async (e) => {
                 .collection('gimnasios')
                 .update(store.currentGym.id, payload);
 
-            // guardando informacion de usuario
+            // guardando informacion del gimnasio
             store.setCurrentGym(gymUpdated);
 
             toast.add({
@@ -164,7 +181,47 @@ const onFormSubmit = async (e) => {
                     {{ $form.telefono.error.message }}
                 </Message>
             </div>
+            <div class="flex gap-4">
+                <div class="flex flex-col flex-1 gap-1 mb-4" v-auto-animate>
+                    <label for="horarioApertura">Horarios</label>
+                    <DatePicker
+                        placeholder="Ingrese horario de apertura"
+                        id="horarioApertura"
+                        v-tooltip.left="'Horario de apertura'"
+                        name="horario_apertura"
+                        timeOnly
+                        fluid
+                    />
 
+                    <Message
+                        v-if="$form.horario_apertura?.invalid"
+                        severity="error"
+                        size="small"
+                        variant="simple"
+                    >
+                        {{ $form.horario_apertura.error.message }}
+                    </Message>
+                </div>
+                <div class="flex flex-col flex-1 gap-1 mb-4" v-auto-animate>
+                    <label class="invisible">Horarios</label>
+                    <DatePicker
+                        placeholder="Ingrese horario de cierre"
+                        name="horario_cierre"
+                        v-tooltip.right="'Horario de cierre'"
+                        timeOnly
+                        fluid
+                    />
+
+                    <Message
+                        v-if="$form.horario_cierre?.invalid"
+                        severity="error"
+                        size="small"
+                        variant="simple"
+                    >
+                        {{ $form.horario_cierre.error.message }}
+                    </Message>
+                </div>
+            </div>
             <p class="mb-5">
                 Los campos marcados con <span class="text-red-400">(*)</span> son obligatorios
             </p>

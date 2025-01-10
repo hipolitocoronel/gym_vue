@@ -38,7 +38,7 @@
                     </div>
                     <div class="flex flex-col gap-2 mt-1">
                         <label for="flexible">Horarios</label>
-                        <RadioButtonGroup v-model="schedule" class="flex flex-wrap gap-4">
+                        <RadioButtonGroup v-model="horarios" class="flex flex-wrap gap-4">
                             <div class="flex items-center gap-2">
                                 <RadioButton inputId="flexible" value="flexible" />
                                 <label for="flexible">Flexible</label>
@@ -54,7 +54,7 @@
                     <h2 class="text-xl font-bold">Plazos</h2>
 
                     <div v-auto-animate>
-                        <div class="flex gap-3 mb-6" v-for="(plazo, index) in plazos" :key="index">
+                        <div class="flex gap-3 mb-6" v-for="(_, index) in plazos" :key="index">
                             <div class="flex flex-col gap-1 grow" v-auto-animate>
                                 <label v-if="index === 0" class="mt-2" for="duracion"
                                     >Duración en Meses</label
@@ -150,14 +150,12 @@
     </div>
 </template>
 <script setup>
-import { useField, useForm } from 'vee-validate';
-import { toTypedSchema } from '@vee-validate/zod';
-import { useDebounceFn } from '@vueuse/core';
 import pb from '@/service/pocketbase.js';
+import { toTypedSchema } from '@vee-validate/zod';
 import { useToast } from 'primevue/usetoast';
-import { useRouter } from 'vue-router';
-import { useRoute } from 'vue-router';
-import { ref, computed, watch } from 'vue';
+import { useField, useForm } from 'vee-validate';
+import { computed, ref, watch } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
 import { z } from 'zod';
 const toast = useToast();
 const route = useRoute();
@@ -193,7 +191,7 @@ const fetchData = async () => {
             errorFetch.value = false;
             nombre.value = plan.nombre;
             descripcion.value = plan.descripcion;
-            schedule.value = plan.horarios;
+            horarios.value = plan.horario;
             plazos.value = plazosData.map((plazo) => ({
                 duracion: plazo.duracion,
                 precio: plazo.precio,

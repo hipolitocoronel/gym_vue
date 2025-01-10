@@ -74,6 +74,7 @@ const createAccount = () => {
                     router.push({ name: 'login' });
                     toast.add({
                         severity: 'success',
+                        life: 3000,
                         summary: 'Registro exitoso!',
                         detail: 'Ya podés ingresar.'
                     });

@@ -11,7 +11,7 @@
                 <p class="text-gray-700 dark:text-gray-300 text-lg">Información del Miembro</p>
                 <div class="mt-3 grid grid-cols-2">
                     <p class="sub-header">DNI</p>
-                    <p class="sub-header">Nombre</p>
+                    <p class="sub-header">NOMBRE</p>
                     <p class="main-info">
                         {{ paymentData.expand.id_miembro.dni }}
                     </p>
@@ -25,8 +25,8 @@
                     <p class="text-gray-700 dark:text-gray-300 text-lg">Detalles del Pago</p>
                     <div class="my-3 flex gap-3 flex-col">
                         <div class="grid grid-cols-2">
-                            <p class="sub-header">Fecha</p>
-                            <p class="sub-header">Plan</p>
+                            <p class="sub-header">FECHA</p>
+                            <p class="sub-header">PLAN</p>
                             <p class="main-info">
                                 {{ dayjs(paymentData.fecha_pago).format('DD/MM/YYYY') }}
                             </p>
@@ -37,8 +37,8 @@
                             </p>
                         </div>
                         <div class="grid grid-cols-2">
-                            <p class="sub-header">Método de Pago</p>
-                            <p class="sub-header">Vencimiento</p>
+                            <p class="sub-header">MÉTODO DE PAGO</p>
+                            <p class="sub-header">VENCIMIENTO</p>
                             <p class="main-info">
                                 {{ paymentData.medio_pago }}
                             </p>
@@ -47,7 +47,7 @@
                             </p>
                         </div>
                         <div>
-                            <p class="sub-header">Monto Total</p>
+                            <p class="sub-header">MONTO TOTAL</p>
                             <p class="font-bold text-2xl">
                                 {{ formatCurrency(paymentData.monto_total) }}
                             </p>

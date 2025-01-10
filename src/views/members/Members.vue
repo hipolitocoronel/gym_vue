@@ -20,16 +20,23 @@
                 icon="pi pi-user-plus"
             />
         </div>
-        <MemberList ref="memberList" @delete-member="deleteMember" @edit-member="editMember" />
+        <MemberList
+            ref="memberList"
+            @delete-member="deleteMember"
+            @watch-member="watchMember"
+            @edit-member="editMember"
+        />
         <MemberForm
             :memberData
             :visible="showModal"
             @closeModal="closeModal"
             @newChanges="updateTable"
         />
+        <MemberDetails :memberData :visible="showModalDetails" @closeModal="closeModal" />
     </div>
 </template>
 <script setup>
+import MemberDetails from '@/components/members/MemberDetails.vue';
 import MemberForm from '@/components/members/MemberForm.vue';
 import MemberList from '@/components/members/MemberList.vue';
 import pb from '@/service/pocketbase.js';
@@ -39,18 +46,27 @@ import { useToast } from 'primevue/usetoast';
 import { ref } from 'vue';
 const confirm = useConfirm();
 const toast = useToast();
+//Modal de creacion y edicion
 const showModal = ref(false);
+//Modal de detalles
+const showModalDetails = ref(false);
 const memberData = ref([]);
 const memberList = ref(null);
 const searchInput = ref('');
 const closeModal = () => {
     showModal.value = false;
+    showModalDetails.value = false;
     memberData.value = [];
 };
 //Obtiene la fila a editar y abre el modal
 const editMember = (member) => {
     memberData.value = member;
     showModal.value = true;
+};
+//Mostrar el detalle del miembro
+const watchMember = (member) => {
+    memberData.value = member;
+    showModalDetails.value = true;
 };
 //Actualizar la tabla despues de agregar o editar un miembrp
 const updateTable = (isEditMode) => {
