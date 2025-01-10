@@ -12,11 +12,15 @@
             </p>
         </div>
 
-        <div class="flex flex-col md:flex-row gap-6 xl:gap-10 mt-14">
-            <div class="card mb-0 bg-slate-950 md:w-1/3">
+        <div class="grid grid-cols-12 gap-10">
+            <div class="card mb-0 bg-slate-950 col-span-6">
                 <div class="flex flex-col items-center">
-                    <div class="-mr-8">
-                        <img src="" alt="" />
+                    <div class="">
+                        <img
+                            src="@/assets/img/members_landing.png"
+                            class="min-h-fit rounded-xl"
+                            alt=""
+                        />
                     </div>
                     <div class="mb-3 mt-5">
                         <span class="block text-xl text-center font-semibold mb-3"
@@ -30,7 +34,7 @@
                     </div>
                 </div>
             </div>
-            <div class="card mb-0 bg-slate-950 md:w-1/3 overflow-hidden">
+            <div class="card mb-0 bg-slate-950 overflow-hidden col-span-6">
                 <div class="flex flex-col items-center">
                     <div class="-mr-20">
                         <img class="!rounded-s-2xl max-h-[260px]" src="" alt="" />
@@ -48,7 +52,7 @@
                 </div>
             </div>
 
-            <div class="card mb-0 bg-slate-950 md:w-1/3">
+            <div class="card mb-0 bg-slate-950 col-span-6">
                 <div class="flex flex-col items-center">
                     <div></div>
                     <div class="text-center mb-3 mt-5">

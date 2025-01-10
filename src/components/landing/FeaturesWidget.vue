@@ -13,7 +13,7 @@
         </div>
 
         <div class="flex flex-col md:flex-row gap-6 xl:gap-10 mt-14">
-            <div class="card mb-0 bg-green-950 md:w-1/3">
+            <div class="card mb-0 bg-green-950">
                 <div class="flex flex-col items-center">
                     <div
                         class="flex items-center justify-center bg-lime-400 rounded-border"
@@ -33,7 +33,7 @@
                     </div>
                 </div>
             </div>
-            <div class="card mb-0 bg-slate-950 md:w-1/3">
+            <div class="card mb-0 bg-slate-950">
                 <div class="flex flex-col items-center">
                     <div
                         class="flex items-center justify-center dark:bg-cyan-600 rounded-border"
@@ -52,7 +52,7 @@
                 </div>
             </div>
 
-            <div class="card mb-0 bg-[#080603] md:w-1/3">
+            <div class="card mb-0 bg-[#080603]">
                 <div class="flex flex-col items-center">
                     <div
                         class="flex items-center justify-center bg-[#a85b53] rounded-border"

@@ -19,24 +19,24 @@
                     <div>
                         <h4 class="font-medium text-lg text-gray-400">Producto</h4>
                         <ul class="flex flex-col gap-2 mt-2 text-gray-200">
-                            <li><router-link to="/">Características</router-link></li>
-                            <li><router-link to="/">Precios</router-link></li>
+                            <li><a @click="smoothScroll('features')">Características</a @click="smoothScroll('pricing')"></li>
+                            <li><a @click="smoothScroll('pricing')">Precios</a @click="smoothScroll('pricing')"></li>
                         </ul>
                     </div>
 
                     <div>
                         <h4 class="font-medium text-lg text-gray-400">Nosotros</h4>
                         <ul class="flex flex-col gap-2 mt-2 text-gray-200">
-                            <li><router-link to="/">Acerca de</router-link></li>
-                            <li><router-link to="/">Contacto</router-link></li>
+                            <li><a @click="smoothScroll('pricing')">Acerca de</a @click="smoothScroll('pricing')"></li>
+                            <li><a @click="smoothScroll('contact')">Contacto</a @click="smoothScroll('pricing')"></li>
                         </ul>
                     </div>
 
                     <div>
                         <h4 class="font-medium text-lg text-gray-400">Legal</h4>
                         <ul class="flex flex-col gap-2 mt-2 text-gray-200">
-                            <li><router-link to="/">Términos de Servicio</router-link></li>
-                            <li><router-link to="/">Política de Privacidad</router-link></li>
+                            <li><a @click="smoothScroll('pricing')">Términos de Servicio</a @click="smoothScroll('pricing')"></li>
+                            <li><a @click="smoothScroll('pricing')">Política de Privacidad</a @click="smoothScroll('pricing')"></li>
                         </ul>
                     </div>
                 </div>
@@ -61,3 +61,11 @@
         </div>
     </div>
 </template>
+<script setup>
+import smoothScroll from '@/utils/smoothScroll';
+</script>
+<style scoped>
+a{
+    cursor: pointer;
+}
+</style>

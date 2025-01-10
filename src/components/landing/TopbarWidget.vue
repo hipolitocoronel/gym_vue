@@ -1,5 +1,6 @@
 <script setup>
 import { useLayout } from '@/layout/composables/layout';
+import smoothScroll from '@/utils/smoothScroll';
 import { onMounted, ref } from 'vue';
 const { toggleDarkMode, isDarkTheme } = useLayout();
 
@@ -11,22 +12,11 @@ onMounted(() => {
 });
 
 const visible = ref(false);
-function smoothScroll(id, closeCallback = null) {
-    document.body.click();
-    const element = document.getElementById(id);
-    if (element) {
-        element.scrollIntoView({
-            behavior: 'smooth',
-            block: 'start'
-        });
-    }
-    if (closeCallback) closeCallback();
-}
 </script>
 
 <template>
     <div
-        class="px-2 py-2 flex items-center justify-between bg-black/40 backdrop-blur-md fixed top-0 left-1/2 transform -translate-x-1/2 rounded-b-xl w-full md:w-[95%] lg:w-[90%] xl:w-[80%] z-50"
+        class="px-2 py-2 flex items-center justify-between bg-black/50 backdrop-blur-md fixed top-0 left-1/2 transform -translate-x-1/2 rounded-b-xl w-full md:w-[95%] lg:w-[90%] xl:w-[80%] z-50"
     >
         <div class="flex items-center gap-4">
             <Button class="lg:!hidden !text-white" size="large" text @click="visible = true"

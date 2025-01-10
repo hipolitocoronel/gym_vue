@@ -28,14 +28,5 @@
     </div>
 </template>
 <script setup>
-function smoothScroll(id) {
-    document.body.click();
-    const element = document.getElementById(id);
-    if (element) {
-        element.scrollIntoView({
-            behavior: 'smooth',
-            block: 'start'
-        });
-    }
-}
+import smoothScroll from '@/utils/smoothScroll';
 </script>
