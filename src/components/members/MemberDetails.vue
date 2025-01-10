@@ -56,13 +56,17 @@
                                     (memberData.expand.id_plan_plazo.duracion > 1 ? 'meses' : 'mes')
                                 }}
                             </p>
-                            <p class="col-span-1 font-bold text-[15px]">
+                            <p
+                                class="col-span-1 font-bold text-[15px]"
+                                v-if="storage?.currentGym?.gestionar_horarios"
+                            >
                                 {{
                                     memberData.horario
                                         ? dayjs(memberData.horario).format('HH:mm')
                                         : 'Libre'
                                 }}
                             </p>
+                            <p class="col-span-1 font-bold text-[15px]" v-else>-</p>
                         </div>
                         <div class="grid grid-cols-2">
                             <p class="sub-header">FECHA DE PAGO</p>
@@ -89,8 +93,10 @@
     </Dialog>
 </template>
 <script setup>
+import { useIndexStore } from '@/storage';
 import dayjs from 'dayjs/esm';
 import { defineProps } from 'vue';
+const storage = useIndexStore();
 const props = defineProps({
     visible: Boolean,
     memberData: Object
