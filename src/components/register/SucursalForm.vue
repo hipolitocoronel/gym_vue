@@ -1,17 +1,12 @@
 <script setup>
+import { useRegisterStore } from '@/storage/register';
 import { Form } from '@primevue/forms';
 import { zodResolver } from '@primevue/forms/resolvers/zod';
 import { ref } from 'vue';
 import { z } from 'zod';
 
+const store = useRegisterStore();
 const formRefs = ref([{}]);
-
-const initialValues = ref([
-    {
-        nombre: 'Sucursal principal',
-        direccion: 'Paraguay 1700'
-    }
-]);
 
 const resolver = zodResolver(
     z.object({
@@ -21,11 +16,11 @@ const resolver = zodResolver(
 );
 
 const agregarSucursal = async () => {
-    const form = formRefs.value[initialValues.value.length - 1];
+    const form = formRefs.value[formRefs.value.length - 1];
     const { errors } = await form.validate();
 
     if (Object.keys(errors) == 0) {
-        initialValues.value.push({
+        store.formData[3].push({
             nombre: '',
             direccion: ''
         });
@@ -33,13 +28,15 @@ const agregarSucursal = async () => {
 };
 
 const quitarSucursal = (index) => {
-    initialValues.value.splice(index, 1);
+    store.formData[3].splice(index, 1);
     formRefs.value.splice(index, 1);
 };
 
 const validate = async () => {
     for (const form of formRefs.value) {
         if (!form) continue;
+
+        await form.onSubmit();
 
         const { errors } = await form.validate();
         if (Object.keys(errors).length > 0) return false;
@@ -53,13 +50,14 @@ defineExpose({ validate });
 <template>
     <h2 class="pt-4 mb-2 text-xl font-bold"><span class="mr-2">3.</span> Sucursales</h2>
     <div class="flex flex-col gap-5">
-        <div v-for="(init, index) in initialValues" :key="index" v-auto-animate>
+        <div v-for="(init, index) in store.formData[3]" :key="index" v-auto-animate>
             <Form
                 v-slot="$form"
                 :ref="(el) => (formRefs[index] = el)"
                 :initialValues="init"
                 :resolver
                 class="relative flex-1"
+                @submit="(e) => store.fillRegisterForm(3, e.values, index)"
             >
                 <div class="flex flex-col flex-1 gap-1 mb-4" v-auto-animate>
                     <label for="nombre">Nombre <span class="text-red-400">*</span></label>
@@ -107,10 +105,10 @@ defineExpose({ validate });
                 </div>
             </Form>
 
-            <Divider v-if="index < initialValues.length - 1" />
+            <Divider v-if="index < store.formData[3].length - 1" />
         </div>
 
-        <div class="flex justify-end" v-if="initialValues.length <= 2">
+        <div class="flex justify-end" v-if="store.formData[3].length <= 2">
             <Button
                 severity="success"
                 @click="agregarSucursal()"

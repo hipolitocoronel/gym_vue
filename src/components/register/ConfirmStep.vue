@@ -1,5 +1,7 @@
 <script setup>
-const props = defineProps(['personalForm']);
+import { useRegisterStore } from '@/storage/register';
+
+const { formData } = useRegisterStore();
 </script>
 
 <template>
@@ -10,21 +12,19 @@ const props = defineProps(['personalForm']);
             <AccordionContent>
                 <div class="mb-3">
                     <label class="text-xs text-muted-color">NOMBRE</label>
-                    <p class="font-bold">Hipolito Coronel</p>
+                    <p class="font-bold">{{ formData[1].name }}</p>
                 </div>
 
                 <div class="flex justify-between gap-4 mb-3">
                     <div class="flex-1">
                         <label class="text-xs text-muted-color">CORREO ELECTRÓNICO</label>
-                        <p class="font-bold">hipolitocoronel1522@gmail.com</p>
+                        <p class="font-bold">{{ formData[1].email }}</p>
                     </div>
 
                     <div class="flex-1">
                         <label class="text-xs text-muted-color">TELÉFONO</label>
-                        <p class="font-bold">3782442451</p>
+                        <p class="font-bold">{{ formData[1].phone }}</p>
                     </div>
-
-                    {{ props.personalForm }}
                 </div>
 
                 <div class="flex justify-end">
@@ -43,27 +43,32 @@ const props = defineProps(['personalForm']);
             <AccordionContent>
                 <div class="flex items-center gap-6">
                     <div class="overflow-hidden border rounded-full w-36 h-36">
-                        <img
-                            src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTxxnxkpf9kjMmNyIVWQ_f_TVKBhV_kzkNaLg&s"
-                            alt=""
-                        />
+                        <div
+                            class="flex items-center justify-center h-full"
+                            v-if="!formData[2].src"
+                        >
+                            <i class="pi pi-images text-muted-color" style="font-size: 2.5rem"></i>
+                        </div>
+                        <img :src="formData[2].src" class="object-cover w-full h-full" v-else />
                     </div>
 
-                    <div>
+                    <div class="flex-1">
                         <div class="mb-3">
                             <label class="text-xs text-muted-color">NOMBRE</label>
-                            <p class="font-bold">Hipolito Coronel</p>
+                            <p class="font-bold">{{ formData[2].nombre }}</p>
                         </div>
 
-                        <div class="flex justify-between gap-6 mb-3">
+                        <div class="flex justify-between w-full gap-6 mb-3">
                             <div class="flex-1">
                                 <label class="text-xs text-muted-color">CORREO ELECTRÓNICO</label>
-                                <p class="font-bold">hipolitocoronel1522@gmail.com</p>
+                                <p class="font-bold">
+                                    {{ formData[2].correo.length > 0 ? formData[2].correo : '-' }}
+                                </p>
                             </div>
 
                             <div class="flex-1">
                                 <label class="text-xs text-muted-color">TELÉFONO</label>
-                                <p class="font-bold">3782442451</p>
+                                <p class="font-bold">{{ formData[2].telefono ?? '-' }}</p>
                             </div>
                         </div>
                     </div>
@@ -83,15 +88,15 @@ const props = defineProps(['personalForm']);
         <AccordionPanel value="2">
             <AccordionHeader>3. Tus sucursales</AccordionHeader>
             <AccordionContent>
-                <div class="flex justify-between gap-6 mb-3" v-for="n in 3">
+                <div class="flex justify-between gap-6 mb-3" v-for="sucursal in formData[3]">
                     <div class="flex-1">
                         <label class="text-xs text-muted-color">NOMBRE</label>
-                        <p class="font-bold">Sucursal principal</p>
+                        <p class="font-bold">{{ sucursal.nombre }}</p>
                     </div>
 
                     <div class="flex-1">
                         <label class="text-xs text-muted-color">DIRECCIÓN</label>
-                        <p class="font-bold">Sarmiento 1278</p>
+                        <p class="font-bold">{{ sucursal.direccion }}</p>
                     </div>
                 </div>
 

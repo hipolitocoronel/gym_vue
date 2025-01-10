@@ -1,46 +1,46 @@
 <script setup>
+import { useRegisterStore } from '@/storage/register.js';
 import { Form } from '@primevue/forms';
 import { zodResolver } from '@primevue/forms/resolvers/zod';
 import { defineEmits, ref } from 'vue';
 import { z } from 'zod';
 
 const emit = defineEmits(['closeModal', 'reloadData']);
+const store = useRegisterStore();
 const form = ref(null);
-const data = ref(null);
-
-const initialValues = ref({
-    name: 'Hipolito',
-    email: 'hipolito@gmail.com',
-    phone: 3782442451
-});
 
 const resolver = zodResolver(
-    z.object({
-        name: z
-            .string()
-            .nonempty({ message: 'El nombre es obligatorio.' })
-            .min(5, { message: 'Debe tener al menos 5 caracteres' })
-            .max(50, { message: 'No debe exceder 50 caracteres' }),
-        email: z.string().email({ message: 'Correo electrónico inválido' }),
-        phone: z.coerce
-            .number()
-            .min(1, { message: 'El teléfono es obligatorio.' })
-            .max(999999999999, { message: 'No debe exceder 12 caracteres' })
-    })
+    z
+        .object({
+            name: z
+                .string()
+                .nonempty({ message: 'El nombre es obligatorio.' })
+                .min(5, { message: 'Debe tener al menos 5 caracteres' })
+                .max(50, { message: 'No debe exceder 50 caracteres' }),
+            email: z.string().email({ message: 'Correo electrónico inválido' }),
+            phone: z.coerce
+                .number()
+                .min(1, { message: 'El teléfono es obligatorio.' })
+                .max(999999999999, { message: 'No debe exceder 12 caracteres' }),
+            password: z
+                .string()
+                .min(3, { message: 'Mínimo 3 caracteres.' })
+                .max(20, { message: 'No debe exceder 20 caracteres.' }),
+            passwordConfirm: z.string().min(3, { message: 'Mínimo 3 caracteres.' })
+        })
+        .refine((data) => data.password === data.passwordConfirm, {
+            message: 'Las contraseñas no coinciden.',
+            path: ['passwordConfirm']
+        })
 );
 
 const validate = async () => {
+    await form.value.onSubmit();
     const { errors } = await form.value.validate();
     return Object.keys(errors).length === 0;
 };
 
-const getData = async () => {
-    await form.value.onSubmit(); // guarda los valores en variable data
-
-    return data.value;
-};
-
-defineExpose({ validate, getData, form: form.value });
+defineExpose({ validate });
 </script>
 
 <template>
@@ -48,9 +48,9 @@ defineExpose({ validate, getData, form: form.value });
     <Form
         ref="form"
         v-slot="$form"
-        :initialValues
+        :initialValues="store.formData[1]"
         :resolver
-        @submit="(e) => (data = e.values)"
+        @submit="(e) => store.fillRegisterForm(1, e.values)"
         class="flex flex-col justify-center gap-5"
     >
         <div class="flex flex-col gap-1" v-auto-animate>
@@ -98,6 +98,57 @@ defineExpose({ validate, getData, form: form.value });
             <Message v-if="$form.phone?.invalid" severity="error" size="small" variant="simple">
                 {{ $form.phone.error.message }}
             </Message>
+        </div>
+
+        <div class="flex gap-4">
+            <div class="flex flex-col flex-1 gap-1" v-auto-animate>
+                <label for="password">Contraseña <span class="text-red-400">*</span></label>
+                <Password
+                    name="password"
+                    id="password"
+                    v-model="password"
+                    placeholder="Ingrese una contraseña"
+                    :toggleMask="true"
+                    class="mb-2"
+                    fluid
+                    :feedback="false"
+                >
+                </Password>
+
+                <Message
+                    v-if="$form.password?.invalid"
+                    severity="error"
+                    size="small"
+                    variant="simple"
+                >
+                    {{ $form.password.error.message }}
+                </Message>
+            </div>
+
+            <div class="flex flex-col flex-1 gap-1" v-auto-animate>
+                <label for="passwordConfirm">
+                    Confirmar contraseña <span class="text-red-400">*</span>
+                </label>
+                <Password
+                    name="passwordConfirm"
+                    id="passwordConfirm"
+                    v-model="passwordConfirm"
+                    placeholder="Favor de confirmar contraseña"
+                    :toggleMask="true"
+                    class="mb-2"
+                    fluid
+                    :feedback="false"
+                />
+
+                <Message
+                    v-if="$form.passwordConfirm?.invalid"
+                    severity="error"
+                    size="small"
+                    variant="simple"
+                >
+                    {{ $form.passwordConfirm.error.message }}
+                </Message>
+            </div>
         </div>
     </Form>
 </template>

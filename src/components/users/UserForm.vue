@@ -65,8 +65,6 @@ const onFormSubmit = async (e) => {
                 delete payload.password;
                 delete payload.passwordConfirm;
 
-                console.log(e.values);
-
                 await pb.collection('users').update(props.data.id, payload);
             } else {
                 payload.emailVisibility = true;

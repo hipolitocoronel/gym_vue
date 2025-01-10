@@ -144,10 +144,17 @@ const logout = () => {
                     <div class="text-base">
                         <span class="mr-2"> Sucursal: </span>
 
-                        {{ store.sucursales[0].direccion }}
+                        <span class="font-medium">
+                            {{ store.sucursales[0].direccion }}
+                        </span>
                     </div>
                     <i class="ml-1 pi {pi-fw} pi-arrows-v"></i>
                 </Button>
+
+                <div
+                    class="w-4 h-4 ml-1 bg-red-400 rounded-full cursor-pointer circle pulse"
+                    v-tooltip.bottom="'Estás al día'"
+                ></div>
             </div>
         </div>
 
@@ -210,3 +217,22 @@ const logout = () => {
         </div>
     </Popover>
 </template>
+
+<style>
+.circle {
+    box-shadow: 0px 0px 1px 1px #7ee9031a !important;
+}
+
+.pulse {
+    animation: pulse-animation 2s infinite;
+}
+
+@keyframes pulse-animation {
+    0% {
+        box-shadow: 0 0 0 0px rgba(201, 255, 5, 0.863);
+    }
+    100% {
+        box-shadow: 0 0 0 10px rgba(218, 238, 43, 0);
+    }
+}
+</style>

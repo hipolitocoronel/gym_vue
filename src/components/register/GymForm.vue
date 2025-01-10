@@ -1,28 +1,15 @@
 <script setup>
-import pb from '@/service/pocketbase';
-import { useIndexStore } from '@/storage';
+import { useRegisterStore } from '@/storage/register';
 import { Form } from '@primevue/forms';
 import { zodResolver } from '@primevue/forms/resolvers/zod';
 import { useToast } from 'primevue/usetoast';
-import { computed, defineExpose, ref } from 'vue';
+import { defineExpose, ref } from 'vue';
 import { z } from 'zod';
 
-const store = useIndexStore();
-const src = ref(store.srcLogoGym);
-const logo = ref(null);
-const loading = ref(false);
+const store = useRegisterStore();
+const src = ref(null);
 const toast = useToast();
 const form = ref(null);
-
-// Valores iniciales como un computed
-const initialValues = computed(() => {
-    src.value = store.srcLogoGym;
-    return {
-        nombre: store.currentGym?.nombre || '',
-        correo: store.currentGym?.correo || '',
-        telefono: store.currentGym?.telefono || null
-    };
-});
 
 const resolver = zodResolver(
     z.object({
@@ -47,51 +34,21 @@ function onFileSelect(event) {
 
     reader.onload = async (e) => {
         src.value = e.target.result;
+        store.updateField(2, 'src', e.target.result);
     };
 
     reader.readAsDataURL(file);
-    logo.value = file;
+    store.updateField(2, 'logo', file);
 }
 
-const onFormSubmit = async (e) => {
-    if (e.valid) {
-        try {
-            const payload = { ...e.values, logo: logo.value };
-            loading.value = true;
-
-            if (!logo.value && src.value) {
-                delete payload.logo;
-            }
-
-            const gymUpdated = await pb
-                .collection('gimnasios')
-                .update(store.currentGym.id, payload);
-
-            // guardando informacion de usuario
-            store.setCurrentGym(gymUpdated);
-
-            toast.add({
-                severity: 'success',
-                summary: 'Operación exitosa!',
-                detail: 'Los cambios se guardaron correctamente.',
-                life: 3000
-            });
-        } catch (error) {
-            toast.add({
-                severity: 'error',
-                summary: 'Operación fallida',
-                detail: 'Intentelo nuevamente',
-                life: 3000
-            });
-
-            console.error(error);
-        } finally {
-            loading.value = false;
-        }
-    }
+const removeLogo = () => {
+    src.value = null;
+    store.updateField(2, 'logo', null);
+    store.updateField(2, 'src', null);
 };
 
 const validate = async () => {
+    await form.value.onSubmit();
     const { errors } = await form.value.validate();
     return Object.keys(errors).length === 0;
 };
@@ -130,7 +87,7 @@ defineExpose({ validate });
                         icon="pi pi-trash"
                         severity="danger"
                         label="Quitar"
-                        @click="src = null"
+                        @click="removeLogo()"
                         class="w-full"
                         size="small"
                         v-else
@@ -146,11 +103,11 @@ defineExpose({ validate });
 
         <Form
             v-slot="$form"
-            :initialValues
+            :initialValues="store.formData[2]"
             :resolver
             class="flex-1 flex-shrink"
             ref="form"
-            @submit="onFormSubmit"
+            @submit="(e) => store.fillRegisterForm(2, e.values)"
         >
             <div class="flex flex-col flex-1 gap-1 mb-4" v-auto-animate>
                 <label for="nombre">Nombre <span class="text-red-400">*</span></label>
