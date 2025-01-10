@@ -55,7 +55,7 @@ const resolver = zodResolver(
             }),
             gestionar_horarios: z.boolean()
         })
-        .refine((data) => data.horario_cierre > data.horario_apertura, {
+        .refine((data) => data.horario_cierre >= data.horario_apertura, {
             message: 'El horario de cierre debe ser posterior al de apertura.',
             path: ['horarioCierre']
         })
@@ -192,6 +192,7 @@ const onFormSubmit = async (e) => {
                             id="horarioApertura"
                             v-tooltip.left="'Horario de apertura'"
                             name="horario_apertura"
+                            stepMinute="15"
                             timeOnly
                             fluid
                         />
@@ -211,6 +212,7 @@ const onFormSubmit = async (e) => {
                         <DatePicker
                             placeholder="Ingrese horario de cierre"
                             name="horario_cierre"
+                            stepMinute="15"
                             v-tooltip.right="'Horario de cierre'"
                             timeOnly
                             fluid
