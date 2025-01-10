@@ -1,20 +1,18 @@
 <script setup>
 import FloatingConfigurator from '@/components/FloatingConfigurator.vue';
-import pb from '@/service/pocketbase.js';
-import { useIndexStore } from '@/storage/index.js';
+import { useRegisterStore } from '@/storage/register.js';
 import { Form } from '@primevue/forms';
 import { zodResolver } from '@primevue/forms/resolvers/zod';
+import axios from 'axios';
 import { useToast } from 'primevue/usetoast';
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { z } from 'zod';
 
-const store = useIndexStore();
+const store = useRegisterStore();
 const loading = ref(false);
 const toast = useToast();
 const router = useRouter();
-
-const checked = ref(false);
 
 const initialValues = ref({
     email: '',
@@ -30,54 +28,34 @@ const resolver = zodResolver(
 
 const onFormSubmit = async (e) => {
     if (e.valid) {
-        try {
-            loading.value = true;
-            const authData = await pb
-                .collection('users')
-                .authWithPassword(e.values.email, e.values.password);
+        // guardando informacion de usuario
+        const { email, password } = e.values;
+        console.log(e.values);
+        store.updateField(1, 'email', email);
+        store.updateField(1, 'password', password);
 
-            // guardando informacion de usuario
-            store.setUserLogged(authData.record);
-
-            // redireccion
-            router.push({ name: 'dashboard' });
-        } catch (error) {
-            toast.add({
-                severity: 'error',
-                summary: 'Operación fallida',
-                detail: 'Intentelo nuevamente',
-                life: 3000
-            });
-
-            console.error(error);
-        } finally {
-            loading.value = false;
-        }
+        // redireccion
+        router.push({ name: 'completar-registro' });
     }
 };
 
-const googleLogin = async () => {
-    try {
-        loading.value = true;
-        const authData = await pb.collection('users').authWithOAuth2({ provider: 'google' });
+const googleCallback = (res) => {
+    const baseUrl = import.meta.env.VITE_GOOGLE_API;
 
-        // guardando informacion de usuario
-        store.setUserLogged(authData.record);
+    axios
+        .get(baseUrl, {
+            headers: {
+                Authorization: `Bearer ${res?.access_token}`
+            }
+        })
+        .then((res) => {
+            const { name, email } = res.data;
+            store.updateField(1, 'name', name);
+            store.updateField(1, 'email', email);
 
-        // redireccion
-        router.push({ name: 'dashboard' });
-    } catch (error) {
-        console.error(error);
-
-        toast.add({
-            severity: 'error',
-            summary: 'Operación fallida',
-            detail: 'Intentelo nuevamente',
-            life: 3000
+            // redireccion
+            router.push({ name: 'completar-registro' });
         });
-    } finally {
-        loading.value = false;
-    }
 };
 </script>
 
@@ -106,24 +84,21 @@ const googleLogin = async () => {
                         <div
                             class="mb-1 text-3xl font-semibold text-surface-900 dark:text-surface-0"
                         >
-                            ¡Bienvenido de nuevo!
+                            ¡Comenzar ahora!
                         </div>
-                        <span class="text-muted-color">Ingrese para continuar</span>
+                        <span class="text-muted-color">Crear una nueva cuenta</span>
                     </div>
 
-                    <Button
-                        class="w-full mb-3"
-                        severity="secondary"
-                        variant="outlined"
-                        @click="googleLogin"
-                    >
-                        <img
-                            src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/c1/Google_%22G%22_logo.svg/768px-Google_%22G%22_logo.svg.png"
-                            alt=""
-                            width="24px"
-                        />
-                        <span class="ml-1"> Continuar con Google </span>
-                    </Button>
+                    <GoogleLogin :callback="googleCallback" class="w-full" popup-type="TOKEN">
+                        <Button class="w-full mb-3" severity="secondary" variant="outlined">
+                            <img
+                                src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/c1/Google_%22G%22_logo.svg/768px-Google_%22G%22_logo.svg.png"
+                                alt=""
+                                width="24px"
+                            />
+                            <span class="ml-1"> Continuar con Google </span>
+                        </Button>
+                    </GoogleLogin>
 
                     <Divider><span class="text-sm text-muted-color">O también</span></Divider>
 
@@ -154,7 +129,7 @@ const googleLogin = async () => {
                             </Message>
                         </div>
 
-                        <div class="mb-2" v-auto-animate>
+                        <div class="mb-9" v-auto-animate>
                             <label
                                 for="password"
                                 class="block mb-1 font-medium text-surface-900 dark:text-surface-0"
@@ -183,26 +158,19 @@ const googleLogin = async () => {
                             </Message>
                         </div>
 
-                        <div class="flex justify-end mb-8 text-sm">
-                            <router-link to="/auth/forgot-password">
-                                <span class="font-medium text-primary">
-                                    ¿Olvidaste tu contraseña?
-                                </span>
-                            </router-link>
-                        </div>
                         <Button
                             class="w-full mt-2 font-bold"
                             type="submit"
                             :loading="loading"
-                            label="Iniciar sesión"
+                            label="Registrarse"
                         />
 
                         <div class="py-2 mt-4 text-center text-muted-color">
-                            ¿No tienes una cuenta?
+                            ¿Ya tienes una cuenta?
 
-                            <router-link to="/auth/register">
+                            <router-link to="/auth/login">
                                 <span class="ml-1 font-semibold underline text-primary">
-                                    Registrate ahora
+                                    Ingresar ahora
                                 </span>
                             </router-link>
                         </div>

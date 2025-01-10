@@ -11,9 +11,16 @@ import PrimeVue from 'primevue/config';
 import ConfirmationService from 'primevue/confirmationservice';
 import ToastService from 'primevue/toastservice';
 import Tooltip from 'primevue/tooltip';
+import vue3GoogleLogin from 'vue3-google-login';
+
+const googleOpc = {
+    clientId: import.meta.env.VITE_GOOGLE_CLIENT_ID
+};
+
 const app = createApp(App);
 const pinia = createPinia();
 
+app.use(vue3GoogleLogin, googleOpc);
 app.use(router);
 app.use(pinia);
 app.use(PrimeVue, {

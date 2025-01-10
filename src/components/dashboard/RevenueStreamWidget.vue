@@ -1,7 +1,7 @@
 <template>
     <div class="card">
         <div class="flex justify-between">
-            <h1 class="text-xl mb-2 font-semibold">Flujo de ingresos</h1>
+            <h1 class="mb-2 text-xl font-semibold">Flujo de ingresos</h1>
             <SelectButton
                 v-model="period"
                 class="-mt-2"
@@ -15,11 +15,11 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
 import pb from '@/service/pocketbase';
 import 'chartjs-adapter-date-fns';
-import dayjs from 'dayjs/esm';
 import { es } from 'date-fns/locale';
+import dayjs from 'dayjs/esm';
+import { onMounted, ref } from 'vue';
 const options = ref(['Semanal', 'Mensual']);
 const period = ref('Semanal');
 const chartData = ref({});

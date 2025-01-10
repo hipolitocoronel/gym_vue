@@ -26,9 +26,19 @@ const initialValues = computed(() => {
 
 const resolver = zodResolver(
     z.object({
-        nombre: z.string().min(3, { message: 'Mínmo 4 caracteres.' }),
-        direccion: z.string().min(3, { message: 'Mínmo 6 caracteres.' }),
-        correo: z.string().email({ message: 'Correo electrónico inválido' })
+        nombre: z.string().min(3, { message: 'Mínimo 4 caracteres.' }),
+        direccion: z.string().min(3, { message: 'Mínimo 6 caracteres.' }),
+        correo: z
+            .string()
+            .email({ message: 'Correo electrónico inválido' })
+            .optional()
+            .or(z.literal('')),
+        telefono: z
+            .number({ message: 'El teléfono es obligatorio.' })
+            .min(1, { message: 'El teléfono es obligatorio.' })
+            .max(999999999999, { message: 'No debe exceder 12 caracteres' })
+            .optional()
+            .nullable()
     })
 );
 
@@ -49,6 +59,11 @@ const onFormSubmit = async (e) => {
         try {
             const payload = { ...e.values, logo: logo.value };
             loading.value = true;
+
+            if (!logo.value && src.value) {
+                delete payload.logo;
+            }
+
             const gymUpdated = await pb
                 .collection('gimnasios')
                 .update(store.currentGym.id, payload);
@@ -132,10 +147,11 @@ const onFormSubmit = async (e) => {
 
             <div class="flex flex-col flex-1 gap-1 mb-4" v-auto-animate>
                 <label for="telefono">Teléfono</label>
-                <InputText
+                <InputNumber
                     name="telefono"
                     id="telefono"
                     placeholder="Ej: 3794123456"
+                    :useGrouping="false"
                     class="mb-2"
                 />
 
