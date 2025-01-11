@@ -25,6 +25,7 @@
                 </Button>
             </div>
         </div>
+        <img src="@/assets/img/captura_sistema.png" class="mt-10 lg:mt-2" alt="Captura Sistema" />
     </div>
 </template>
 <script setup>

@@ -1,5 +1,5 @@
 <template>
-    <div id="features" class="py-6 px-6 lg:px-12 mt-8 mx-0 xl:mx-28">
+    <div id="features" class="py-4 lg:py-6 px-6 lg:px-12 mt-8 mx-0 xl:mx-28">
         <div class="col-span-12 text-center mt-20 mb-6">
             <h2
                 class="text-4xl md:text-5xl md:min-h-14 font-extrabold leading-tight bg-gradient-to-r from-white to-gray-700 bg-clip-text text-transparent"
@@ -13,10 +13,7 @@
         </div>
 
         <div class="flex flex-col md:flex-row gap-6 xl:gap-10 mt-14">
-            <div
-                class="card mb-0 bg-green-950"
-                v-animateonscroll="{ enterClass: 'animate-fadein' }"
-            >
+            <div class="card mb-0 bg-green-950">
                 <div class="flex flex-col items-center">
                     <div
                         class="flex items-center justify-center bg-lime-400 rounded-border"
@@ -36,10 +33,7 @@
                     </div>
                 </div>
             </div>
-            <div
-                class="card mb-0 bg-slate-950"
-                v-animateonscroll="{ enterClass: 'animate-fadein' }"
-            >
+            <div class="card mb-0 bg-slate-950">
                 <div class="flex flex-col items-center">
                     <div
                         class="flex items-center justify-center dark:bg-cyan-600 rounded-border"
@@ -58,10 +52,7 @@
                 </div>
             </div>
 
-            <div
-                class="card mb-0 bg-[#080603]"
-                v-animateonscroll="{ enterClass: 'animate-fadein' }"
-            >
+            <div class="card mb-0 bg-[#080603]">
                 <div class="flex flex-col items-center">
                     <div
                         class="flex items-center justify-center bg-[#a85b53] rounded-border"
