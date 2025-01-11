@@ -304,10 +304,7 @@ const resolver = zodResolver(
         .superRefine((values, ctx) => {
             if (values.planSelected.horario === 'flexible') return;
             if (
-                values.schedule.getHours() >=
-                    new Date(storage.currentGym.horario_cierre).getHours() &&
-                values.schedule.getMinutes() >=
-                    new Date(storage.currentGym.horario_cierre).getMinutes()
+                values.schedule.getHours() > new Date(storage.currentGym.horario_cierre).getHours()
             ) {
                 ctx.addIssue({
                     path: ['schedule'],
