@@ -44,7 +44,7 @@ defineExpose({ validate });
 </script>
 
 <template>
-    <h2 class="pt-4 mb-2 text-xl font-bold"><span class="mr-2">1.</span> Infomación personal</h2>
+    <h2 class="pt-4 mb-2 text-xl font-bold"><span class="mr-2">1.</span> Cuéntanos sobre ti</h2>
     <Form
         ref="form"
         v-slot="$form"

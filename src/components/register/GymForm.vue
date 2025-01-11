@@ -57,7 +57,7 @@ defineExpose({ validate });
 </script>
 <template>
     <h2 class="pt-4 mb-2 text-xl font-bold">
-        <span class="mr-2">2.</span> Infomación del gimnasio
+        <span class="mr-2">2.</span> Cuéntanos sobre tu gimnasio
     </h2>
     <div class="flex gap-7">
         <div class="flex flex-col w-64 gap-3 my-3">
@@ -97,7 +97,7 @@ defineExpose({ validate });
 
             <div class="text-muted-color">
                 <p class="text-sm">Imagen no mayor a 4MB</p>
-                <p class="text-xs">Resolución recomendada: 1000x1000</p>
+                <p class="text-xs">Resolución recomendada: 800x800 px</p>
             </div>
         </div>
 

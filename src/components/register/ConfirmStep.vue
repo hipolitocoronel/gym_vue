@@ -1,5 +1,8 @@
 <script setup>
 import { useRegisterStore } from '@/storage/register';
+import { defineEmits } from 'vue';
+
+const emit = defineEmits(['changeStep']);
 
 const { formData } = useRegisterStore();
 </script>
@@ -34,6 +37,7 @@ const { formData } = useRegisterStore();
                         icon="pi pi-pencil"
                         severity="secondary"
                         class="mt-4"
+                        @click="emit('changeStep', 1)"
                     ></Button>
                 </div>
             </AccordionContent>
@@ -81,6 +85,7 @@ const { formData } = useRegisterStore();
                         icon="pi pi-pencil"
                         severity="secondary"
                         class="mt-4"
+                        @click="emit('changeStep', 2)"
                     ></Button>
                 </div>
             </AccordionContent>
@@ -107,6 +112,7 @@ const { formData } = useRegisterStore();
                         icon="pi pi-pencil"
                         severity="secondary"
                         class="mt-4"
+                        @click="emit('changeStep', 3)"
                     ></Button>
                 </div>
             </AccordionContent>

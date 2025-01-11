@@ -149,7 +149,11 @@ onUnmounted(() => store.reset());
             <StepPanels>
                 <template v-for="step in stepsConfig" :key="step.value">
                     <StepPanel :value="step.value">
-                        <component :is="step.panel" :ref="step.formRef" />
+                        <component
+                            :is="step.panel"
+                            :ref="step.formRef"
+                            @changeStep="(step) => (activeStep = step)"
+                        />
                         <div class="flex justify-between pt-6">
                             <Button
                                 :style="step.value == 1 && 'visibility: hidden'"

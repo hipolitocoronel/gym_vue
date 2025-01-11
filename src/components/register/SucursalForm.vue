@@ -16,7 +16,7 @@ const resolver = zodResolver(
 );
 
 const agregarSucursal = async () => {
-    const form = formRefs.value[formRefs.value.length - 1];
+    const form = formRefs.value[store.formData[3].length - 1];
     const { errors } = await form.validate();
 
     if (Object.keys(errors) == 0) {
@@ -49,7 +49,7 @@ defineExpose({ validate });
 </script>
 <template>
     <h2 class="pt-4 mb-2 text-xl font-bold"><span class="mr-2">3.</span> Sucursales</h2>
-    <div class="flex flex-col gap-5">
+    <div class="flex flex-col">
         <div v-for="(init, index) in store.formData[3]" :key="index" v-auto-animate>
             <Form
                 v-slot="$form"
@@ -59,7 +59,7 @@ defineExpose({ validate });
                 class="relative flex-1"
                 @submit="(e) => store.fillRegisterForm(3, e.values, index)"
             >
-                <div class="flex flex-col flex-1 gap-1 mb-4" v-auto-animate>
+                <div class="flex flex-col flex-1 gap-1" v-auto-animate>
                     <label for="nombre">Nombre <span class="text-red-400">*</span></label>
                     <InputText name="nombre" id="password" placeholder="Nombre" class="mb-2">
                     </InputText>
@@ -92,23 +92,24 @@ defineExpose({ validate });
                         {{ $form.direccion.error.message }}
                     </Message>
                 </div>
-
-                <div class="absolute right-0 -top-5" v-if="index > 0">
-                    <Button
-                        severity="danger"
-                        icon="pi pi-trash"
-                        rounded
-                        v-tooltip.top="'Quitar sucursal'"
-                        @click="quitarSucursal(index)"
-                    >
-                    </Button>
-                </div>
             </Form>
 
-            <Divider v-if="index < store.formData[3].length - 1" />
+            <div class="py-3" v-if="index < store.formData[3].length - 1">
+                <Divider />
+            </div>
         </div>
 
-        <div class="flex justify-end" v-if="store.formData[3].length <= 2">
+        <div class="flex justify-end gap-3 my-4" v-if="store.formData[3].length <= 2">
+            <Button
+                severity="danger"
+                icon="pi pi-trash"
+                rounded
+                v-tooltip.top="'Quitar sucursal'"
+                @click="quitarSucursal(index)"
+                v-if="store.formData[3].length > 1"
+            >
+            </Button>
+
             <Button
                 severity="success"
                 @click="agregarSucursal()"
