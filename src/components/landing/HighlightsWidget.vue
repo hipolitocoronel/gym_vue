@@ -13,10 +13,7 @@
         </div>
 
         <div class="grid grid-cols-12 gap-10">
-            <div
-                class="card mb-0 bg-slate-950 col-span-6"
-                v-animateonscroll="{ enterClass: 'animate-fadein' }"
-            >
+            <div class="card mb-0 bg-slate-950 col-span-6" data-aos="zoom-in">
                 <div class="flex flex-col items-center">
                     <div class="">
                         <img
@@ -37,10 +34,7 @@
                     </div>
                 </div>
             </div>
-            <div
-                class="card mb-0 bg-slate-950 overflow-hidden col-span-6"
-                v-animateonscroll="{ enterClass: 'animate-fadein' }"
-            >
+            <div class="card mb-0 bg-slate-950 overflow-hidden col-span-6" data-aos="zoom-in">
                 <div class="flex flex-col items-center">
                     <div class="-mr-20">
                         <img class="!rounded-s-2xl max-h-[260px]" src="" alt="" />
@@ -58,10 +52,7 @@
                 </div>
             </div>
 
-            <div
-                class="card mb-0 bg-slate-950 col-span-6"
-                v-animateonscroll="{ enterClass: 'animate-fadein' }"
-            >
+            <div class="card mb-0 bg-slate-950 col-span-6" data-aos="zoom-in">
                 <div class="flex flex-col items-center">
                     <div></div>
                     <div class="text-center mb-3 mt-5">
@@ -78,3 +69,5 @@
         </div>
     </div>
 </template>
+
+<script setup></script>

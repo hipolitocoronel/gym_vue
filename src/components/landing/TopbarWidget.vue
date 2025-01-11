@@ -16,7 +16,7 @@ const visible = ref(false);
 
 <template>
     <div
-        class="px-2 py-2 flex items-center justify-between bg-black/50 backdrop-blur-md fixed top-0 left-1/2 transform -translate-x-1/2 rounded-b-xl w-full md:w-[95%] lg:w-[90%] xl:w-[80%] z-50"
+        class="px-2 py-2 flex items-center justify-between bg-transparent backdrop-blur-lg fixed top-0 left-1/2 transform -translate-x-1/2 rounded-b-xl w-full md:w-[95%] lg:w-[90%] xl:w-[80%] z-50"
     >
         <div class="flex items-center gap-4">
             <Button class="lg:!hidden !text-white" size="large" text @click="visible = true"

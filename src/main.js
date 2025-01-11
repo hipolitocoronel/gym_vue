@@ -6,14 +6,13 @@ import '@/assets/styles.scss';
 import '@/assets/tailwind.css';
 import { autoAnimatePlugin } from '@formkit/auto-animate/vue';
 import Aura from '@primevue/themes/aura';
+
 import { createPinia } from 'pinia';
-import AnimateOnScroll from 'primevue/animateonscroll';
 import PrimeVue from 'primevue/config';
 import ConfirmationService from 'primevue/confirmationservice';
 import ToastService from 'primevue/toastservice';
 import Tooltip from 'primevue/tooltip';
 import vue3GoogleLogin from 'vue3-google-login';
-
 const googleOpc = {
     clientId: import.meta.env.VITE_GOOGLE_CLIENT_ID
 };
@@ -35,6 +34,5 @@ app.use(PrimeVue, {
 app.use(ToastService);
 app.use(ConfirmationService);
 app.use(autoAnimatePlugin);
-app.directive('animateonscroll', AnimateOnScroll);
 app.directive('tooltip', Tooltip);
 app.mount('#app');
