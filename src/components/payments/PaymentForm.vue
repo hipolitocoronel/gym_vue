@@ -174,6 +174,7 @@
                         name="schedule"
                         id="schedule"
                         timeOnly
+                        stepMinute="15"
                         placeholder="Ingrese el horario de asistencia"
                         autocomplete="off"
                         fluid
@@ -302,13 +303,21 @@ const resolver = zodResolver(
         })
         .superRefine((values, ctx) => {
             if (values.planSelected.horario === 'flexible') return;
-            if (values.schedule > new Date(storage.currentGym.horario_cierre)) {
+            if (
+                values.schedule.getHours() >=
+                    new Date(storage.currentGym.horario_cierre).getHours() &&
+                values.schedule.getMinutes() >=
+                    new Date(storage.currentGym.horario_cierre).getMinutes()
+            ) {
                 ctx.addIssue({
                     path: ['schedule'],
                     message: 'Debe ser anterior al horario de cierre'
                 });
             }
-            if (values.schedule < new Date(storage.currentGym.horario_apertura)) {
+            if (
+                values.schedule.getHours() <
+                new Date(storage.currentGym.horario_apertura).getHours()
+            ) {
                 ctx.addIssue({
                     path: ['schedule'],
                     message: 'Debe ser posterior al horario de apertura'

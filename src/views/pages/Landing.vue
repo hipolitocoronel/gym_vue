@@ -17,7 +17,7 @@ import AppConfigurator from '@/layout/AppConfigurator.vue';
             class="bg-gradient-to-b from-slate-950 to-black px-3 py-2 h-20 absolute w-full top-0 left-0 z-10"
         ></div>
 
-        <div id="home" class="landing-wrapper overflow-hidden max-w-[1600px] mx-auto">
+        <div id="home" class="landing-wrapper overflow-hidden max-w-[1600px] mx-auto anima">
             <TopbarWidget />
             <HeroWidget />
             <FeaturesWidget />

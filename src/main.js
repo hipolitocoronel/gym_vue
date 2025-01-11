@@ -7,6 +7,7 @@ import '@/assets/tailwind.css';
 import { autoAnimatePlugin } from '@formkit/auto-animate/vue';
 import Aura from '@primevue/themes/aura';
 import { createPinia } from 'pinia';
+import AnimateOnScroll from 'primevue/animateonscroll';
 import PrimeVue from 'primevue/config';
 import ConfirmationService from 'primevue/confirmationservice';
 import ToastService from 'primevue/toastservice';
@@ -34,5 +35,6 @@ app.use(PrimeVue, {
 app.use(ToastService);
 app.use(ConfirmationService);
 app.use(autoAnimatePlugin);
+app.directive('animateonscroll', AnimateOnScroll);
 app.directive('tooltip', Tooltip);
 app.mount('#app');
