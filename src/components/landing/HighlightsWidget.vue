@@ -1,5 +1,5 @@
 <template>
-    <div class="px-6 lg:px-12 mx-0 xl:mx-28">
+    <div class="px-6 lg:px-12 mx-0 xl:mx-12">
         <div class="col-span-12 text-center mt-20 mb-6">
             <h2
                 class="text-4xl md:text-5xl md:min-h-14 font-extrabold leading-tight bg-gradient-to-r from-white to-gray-700 bg-clip-text text-transparent"
@@ -30,7 +30,7 @@
                             >Estado de miembros</span
                         >
 
-                        <p class="text-gray-300 text-sm">
+                        <p class="text-gray-300">
                             Administre fácilmente la información de los miembros, realice un
                             seguimiento de las fechas de vencimiento y mantenga actualizado su
                             estado.
@@ -54,7 +54,7 @@
                             >Seguimiento de ingresos</span
                         >
 
-                        <p class="text-gray-300 text-sm">
+                        <p class="text-gray-300">
                             Realice un seguimiento de las tendencias de ingresos de su gimnasio en
                             tiempo real para tomar decisiones financieras.
                         </p>
@@ -77,10 +77,34 @@
                             >Gestiona tus cobros</span
                         >
 
-                        <p class="text-gray-300 text-sm">
+                        <p class="text-gray-300">
                             Registra y gestiona los pagos de las membresías de manera rápida y
                             eficiente. Lleva un control detallado de los pagos realizados por los
                             miembros.
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <div
+                class="card mb-0 bg-slate-950 overflow-hidden col-span-12 md:col-span-6"
+                data-aos="fade-up"
+                data-aos-duration="700"
+            >
+                <div class="flex flex-col items-center">
+                    <img
+                        src="@/assets/img/reports_landing.png"
+                        class="min-h-fit rounded-xl"
+                        alt=""
+                    />
+                    <div class="mb-3 mt-5">
+                        <span class="block text-center text-xl font-semibold mb-3"
+                            >Reportes Detallados</span
+                        >
+
+                        <p class="text-gray-300">
+                            Genera reportes completos para analizar el desempeño del gimnasio.
+                            Consulta Ingresos por pagos, y actividad de los miembros, todo en un
+                            formato claro y fácil de interpretar.
                         </p>
                     </div>
                 </div>
