@@ -15,10 +15,13 @@
             <p>Empieza ahora o solicita una demo para ver como podemos ayudarte</p>
         </div>
         <div class="flex gap-4 justify-center">
-            <Button class="font-bold mt-10 !p-3 !text-black"> Empezar Ahora </Button>
+            <Button class="font-bold mt-10 !p-3 !text-black" as="router-link" to="/auth/register">
+                Empezar Ahora
+            </Button>
 
             <Button
                 outlined
+                @click="smoothScroll('contact')"
                 class="mt-10 !p-3 !text-white font-bold rounded-md !border-white border hover:bg-primary-200"
             >
                 Solicita Una Demo
@@ -26,3 +29,6 @@
         </div>
     </div>
 </template>
+<script setup>
+import smoothScroll from '@/utils/smoothScroll';
+</script>
