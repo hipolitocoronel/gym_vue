@@ -13,55 +13,74 @@
         </div>
 
         <div class="grid grid-cols-12 gap-10">
-            <div class="card mb-0 bg-slate-950 col-span-6" data-aos="zoom-in">
+            <div
+                class="card mb-0 bg-slate-950 col-span-12 md:col-span-6"
+                data-aos="fade-up"
+                data-aos-duration="700"
+            >
                 <div class="flex flex-col items-center">
-                    <div class="">
-                        <img
-                            src="@/assets/img/members_landing.png"
-                            class="min-h-fit rounded-xl"
-                            alt=""
-                        />
-                    </div>
+                    <img
+                        src="@/assets/img/members_landing.png"
+                        class="min-h-fit rounded-xl"
+                        alt=""
+                    />
+
                     <div class="mb-3 mt-5">
                         <span class="block text-xl text-center font-semibold mb-3"
                             >Estado de miembros</span
                         >
 
                         <p class="text-gray-300 text-sm">
-                            Supervise los ingresos del gimnasio con análisis claros y fáciles de
-                            leer.
+                            Administre fácilmente la información de los miembros, realice un
+                            seguimiento de las fechas de vencimiento y mantenga actualizado su
+                            estado.
                         </p>
                     </div>
                 </div>
             </div>
-            <div class="card mb-0 bg-slate-950 overflow-hidden col-span-6" data-aos="zoom-in">
+            <div
+                class="card mb-0 bg-slate-950 overflow-hidden col-span-12 md:col-span-6"
+                data-aos="fade-up"
+                data-aos-duration="700"
+            >
                 <div class="flex flex-col items-center">
-                    <div class="-mr-20">
-                        <img class="!rounded-s-2xl max-h-[260px]" src="" alt="" />
-                    </div>
+                    <img
+                        src="@/assets/img/revenue_landing.png"
+                        class="min-h-fit rounded-xl"
+                        alt=""
+                    />
                     <div class="mb-3 mt-5">
                         <span class="block text-center text-xl font-semibold mb-3"
-                            >Administrar Miembros</span
+                            >Seguimiento de ingresos</span
                         >
 
                         <p class="text-gray-300 text-sm">
-                            Realizar un seguimiento de la actividad, las suscripciones y las
-                            renovaciones de los miembros.
+                            Realice un seguimiento de las tendencias de ingresos de su gimnasio en
+                            tiempo real para tomar decisiones financieras.
                         </p>
                     </div>
                 </div>
             </div>
-
-            <div class="card mb-0 bg-slate-950 col-span-6" data-aos="zoom-in">
+            <div
+                class="card mb-0 bg-slate-950 overflow-hidden col-span-12 md:col-span-6"
+                data-aos="fade-up"
+                data-aos-duration="700"
+            >
                 <div class="flex flex-col items-center">
-                    <div></div>
-                    <div class="text-center mb-3 mt-5">
-                        <span class="block text-xl font-semibold mb-3"
-                            >Gestión de Entrenadores</span
+                    <img
+                        src="@/assets/img/payments_landing.png"
+                        class="min-h-fit rounded-xl"
+                        alt=""
+                    />
+                    <div class="mb-3 mt-5">
+                        <span class="block text-center text-xl font-semibold mb-3"
+                            >Gestiona tus cobros</span
                         >
 
                         <p class="text-gray-300 text-sm">
-                            Administra y supervisa fácilmente a los instructores y sus sesiones.
+                            Registra y gestiona los pagos de las membresías de manera rápida y
+                            eficiente. Lleva un control detallado de los pagos realizados por los
+                            miembros.
                         </p>
                     </div>
                 </div>

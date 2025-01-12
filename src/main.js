@@ -6,7 +6,7 @@ import '@/assets/styles.scss';
 import '@/assets/tailwind.css';
 import { autoAnimatePlugin } from '@formkit/auto-animate/vue';
 import Aura from '@primevue/themes/aura';
-
+import 'aos/dist/aos.css';
 import { createPinia } from 'pinia';
 import PrimeVue from 'primevue/config';
 import ConfirmationService from 'primevue/confirmationservice';

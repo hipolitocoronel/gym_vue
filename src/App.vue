@@ -1,8 +1,8 @@
 <script setup>
 import { useLayout } from '@/layout/composables/layout';
+
 import { onMounted } from 'vue';
 import AppConfigurator from './layout/AppConfigurator.vue';
-
 const { toggleDarkMode } = useLayout();
 
 onMounted(() => {
