@@ -18,25 +18,25 @@ const visible = ref(false);
     <div
         class="px-2 py-2 flex items-center justify-between bg-transparent backdrop-blur-lg fixed top-0 left-1/2 transform -translate-x-1/2 rounded-b-xl w-full md:w-[95%] lg:w-[90%] xl:w-[80%] z-50"
     >
-        <div class="flex items-center gap-4">
+        <div class="flex items-center gap-4 animate-slide-in-left">
             <Button class="lg:!hidden !text-white" size="large" text @click="visible = true"
                 ><i class="pi pi-bars !text-2xl"></i
             ></Button>
-            <router-link to="/" class="layout-topbar-logo flex items-center" style="gap: 0.2rem">
+            <router-link to="/" class="flex items-center layout-topbar-logo" style="gap: 0.2rem">
                 <img src="/src/assets/img/logo-white.png" alt="logo" width="35px" />
                 <p class="font-extrabold text-white">
-                    Gym<span class="font-bold text-primary text-lg">Master</span>
+                    Gym<span class="text-lg font-bold text-primary">Master</span>
                 </p>
             </router-link>
         </div>
 
         <ul
-            class="list-none lg:flex items-center flex-row cursor-pointer gap-8 absolute left-1/2 hidden transform md:-translate-x-1/2"
+            class="absolute flex-row items-center hidden gap-8 list-none transform cursor-pointer lg:flex left-1/2 md:-translate-x-1/2 animate-fade-in animate-delay-300"
         >
             <li>
                 <a
                     @click="smoothScroll('hero')"
-                    class="px-0 py-4 text-white font-medium lg:text-lg"
+                    class="px-0 py-4 font-medium text-white lg:text-lg"
                 >
                     <span>Inicio</span>
                 </a>
@@ -44,7 +44,7 @@ const visible = ref(false);
             <li>
                 <a
                     @click="smoothScroll('features')"
-                    class="px-0 py-4 text-white font-medium lg:text-lg"
+                    class="px-0 py-4 font-medium text-white lg:text-lg"
                 >
                     <span>Características</span>
                 </a>
@@ -52,7 +52,7 @@ const visible = ref(false);
             <li>
                 <a
                     @click="smoothScroll('pricing')"
-                    class="px-0 py-4 text-white font-medium lg:text-lg"
+                    class="px-0 py-4 font-medium text-white lg:text-lg"
                 >
                     <span>Precios</span>
                 </a>
@@ -60,14 +60,14 @@ const visible = ref(false);
             <li>
                 <a
                     @click="smoothScroll('contact')"
-                    class="px-0 py-4 text-white font-medium lg:text-lg"
+                    class="px-0 py-4 font-medium text-white lg:text-lg"
                 >
                     <span>Contacto</span>
                 </a>
             </li>
         </ul>
 
-        <div class="lg:flex gap-2 hidden">
+        <div class="hidden gap-2 lg:flex animate-slide-in-right">
             <Button
                 label="Iniciar Sesión"
                 as="router-link"
@@ -91,7 +91,7 @@ const visible = ref(false);
                         <div class="flex items-center gap-4">
                             <img src="/src/assets/img/logo-white.png" alt="logo" width="35px" />
                             <p class="font-extrabold text-white">
-                                Gym<span class="font-bold text-primary text-lg">Master</span>
+                                Gym<span class="text-lg font-bold text-primary">Master</span>
                             </p>
                         </div>
                         <span>
@@ -105,14 +105,14 @@ const visible = ref(false);
                         </span>
                     </div>
                     <hr
-                        class="mt-4 mx-4 border-t border-0 border-surface-200 dark:border-surface-700"
+                        class="mx-4 mt-4 border-0 border-t border-surface-200 dark:border-surface-700"
                     />
                     <div class="px-6 mt-16">
-                        <ul class="flex flex-col cursor-pointer gap-4">
+                        <ul class="flex flex-col gap-4 cursor-pointer">
                             <li>
                                 <a
                                     @click="smoothScroll('hero', closeCallback)"
-                                    class="px-0 py-4 text-white font-medium text-xl"
+                                    class="px-0 py-4 text-xl font-medium text-white"
                                 >
                                     <span>Inicio</span>
                                 </a>
@@ -120,7 +120,7 @@ const visible = ref(false);
                             <li>
                                 <a
                                     @click="smoothScroll('features', closeCallback)"
-                                    class="px-0 py-4 text-white font-medium text-xl"
+                                    class="px-0 py-4 text-xl font-medium text-white"
                                 >
                                     <span>Características</span>
                                 </a>
@@ -128,7 +128,7 @@ const visible = ref(false);
                             <li>
                                 <a
                                     @click="smoothScroll('pricing', closeCallback)"
-                                    class="px-0 py-4 text-white font-medium text-xl"
+                                    class="px-0 py-4 text-xl font-medium text-white"
                                 >
                                     <span>Precios</span>
                                 </a>
@@ -136,7 +136,7 @@ const visible = ref(false);
                             <li>
                                 <a
                                     @click="smoothScroll('contact', closeCallback)"
-                                    class="px-0 py-4 text-white font-medium text-xl"
+                                    class="px-0 py-4 text-xl font-medium text-white"
                                 >
                                     <span>Contacto</span>
                                 </a>
