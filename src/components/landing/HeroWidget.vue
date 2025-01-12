@@ -1,16 +1,37 @@
 <template>
-    <div
-        id="hero"
-        class="flex flex-col pt-6 px-6 lg:px-20 overflow-hidden"
-        style="background: linear-gradient(0deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.2)), radial-gradient(77.36% 256.97% at 77.36% 57.52%, rgb(238, 239, 175) 0%, rgb(195, 227, 250) 100%); clip-path: ellipse(150% 87% at 93% 13%)"
-    >
-        <div class="mx-6 md:mx-20 mt-0 md:mt-6">
-            <h1 class="text-6xl font-bold text-gray-900 leading-tight"><span class="font-light block">Eu sem integer</span>eget magna fermentum</h1>
-            <p class="font-normal text-2xl leading-normal md:mt-4 text-gray-700">Sed blandit libero volutpat sed cras. Fames ac turpis egestas integer. Placerat in egestas erat...</p>
-            <Button label="Get Started" as="router-link" to="/" rounded class="!text-xl mt-8 !px-4"></Button>
+    <div id="hero" class="flex flex-col px-4 overflow-hidden bg-black lg:px-20">
+        <div></div>
+        <div class="max-w-3xl mx-auto mt-24 text-center md:mt-36">
+            <h1
+                class="text-[42px] sm:text-6xl md:text-7xl lg:text-8xl lg:min-h-52 font-extrabold leading-tight bg-gradient-to-r from-white to-gray-700 bg-clip-text text-transparent animate-blurred-fade-in animate-delay-300"
+            >
+                Simplifica Tu Negocio Fitness
+            </h1>
+            <p
+                class="max-w-2xl mx-auto mt-6 text-sm font-normal leading-normal text-gray-200 md:text-xl md:mt-10"
+            >
+                Optimiza tus operaciones, impulsa el crecimiento y mejora la experiencia de tus
+                clientes con nuestro sistema integral de gestión para gimnasios.
+            </p>
+            <div class="flex flex-col justify-center gap-4 md:flex-row">
+                <Button class="font-bold mt-10 !p-4 !text-black"> Solicita Una Demo </Button>
+
+                <Button
+                    outlined
+                    @click="smoothScroll('pricing')"
+                    class="md:mt-10 !p-4 !text-white font-bold rounded-md !border-white border hover:bg-primary-200"
+                >
+                    Ver Planes y Precios
+                </Button>
+            </div>
         </div>
-        <div class="flex justify-center md:justify-end">
-            <img src="/demo/images/landing/screen-1.png" alt="Hero Image" class="w-9/12 md:w-auto" />
-        </div>
+        <img
+            src="@/assets/img/captura_sistema.png"
+            class="mt-10 lg:mt-2 animate-fade-in-up animate-delay-500"
+            alt="Captura Sistema"
+        />
     </div>
 </template>
+<script setup>
+import smoothScroll from '@/utils/smoothScroll';
+</script>

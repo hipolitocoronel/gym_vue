@@ -15,6 +15,16 @@
         <template #empty> Sin registros. </template>
         <Column field="dni" header="DNI"> </Column>
         <Column field="nombre" header="Nombre"> </Column>
+        <Column header="Horario" v-if="storage?.currentGym?.gestionar_horarios" class="xl:max-w-20"
+            ><template #body="{ data }">
+                <Tag
+                    :value="data.horario ? dayjs(data.horario).format('HH:mm') : 'Libre'"
+                    :severity="data.horario ? 'warn' : 'info'"
+                    v-if="data.fecha_pago"
+                />
+                <Tag value="Sin plan" severity="danger" v-else />
+            </template>
+        </Column>
         <Column field="telefono" header="Telefono"> </Column>
         <Column field="sexo" header="Sexo"> </Column>
         <Column header="Plan">
@@ -25,9 +35,19 @@
                 />
             </template>
         </Column>
-        <Column header="Acciones" class="xl:max-w-20">
+        <Column class="xl:max-w-28">
+            <template #header> <p class="mx-auto font-semibold">Acciones</p> </template>
             <template #body="{ data }">
-                <div class="flex gap-2">
+                <div class="flex gap-2 justify-center">
+                    <Button
+                        icon="pi pi-eye"
+                        severity="secondary"
+                        variant="outlined"
+                        rounded
+                        v-tooltip.top="'Ver Miembro'"
+                        size="large"
+                        @click="$emit('watchMember', data)"
+                    />
                     <Button
                         icon="pi pi-pencil"
                         severity="secondary"
@@ -52,10 +72,13 @@
     </DataTable>
 </template>
 <script setup>
-import { ref, defineProps, onMounted, defineExpose } from 'vue';
-import { useToast } from 'primevue/usetoast';
-import getMembershipStatus from '@/utils/getMembershipStatus';
 import pb from '@/service/pocketbase.js';
+import { useIndexStore } from '@/storage';
+import getMembershipStatus from '@/utils/getMembershipStatus';
+import dayjs from 'dayjs/esm';
+import { useToast } from 'primevue/usetoast';
+import { defineExpose, onMounted, ref } from 'vue';
+const storage = useIndexStore();
 const members = ref([]);
 const first = ref(0);
 const loading = ref(false);
@@ -75,8 +98,10 @@ const getMembers = async (event) => {
         const result = await pb
             .collection('miembros_pagos')
             .getList(currentPage, rowsPerPage.value, {
-                sort: 'nombre',
-                filter: `nombre~'${search ?? ''}' || dni~'${search ?? ''}' || telefono~'${search ?? ''}'`
+                sort: '-created',
+                filter: `(nombre~'${search ?? ''}' || dni~'${search ?? ''}' || telefono~'${search ?? ''}') && deleted = null`,
+                fields: '*, expand.id_plan_plazo.duracion, expand.id_plan_plazo.precio, expand.id_plan_plazo.expand.id_plan.nombre',
+                expand: 'id_plan_plazo, id_plan_plazo.id_plan'
             });
         totalRecords.value = result.totalItems;
         members.value = result.items;

@@ -47,7 +47,7 @@
                 </Tag>
             </template>
         </Column>
-        <Column header="Acciones" class="xl:max-w-20">
+        <Column header="Acciones" class="xl:max-w-16">
             <template #body="{ data }">
                 <div class="flex gap-2 justify-center">
                     <Button
@@ -65,11 +65,11 @@
     </DataTable>
 </template>
 <script setup>
-import { ref, defineProps, onMounted, defineExpose } from 'vue';
-import { useToast } from 'primevue/usetoast';
-import dayjs from 'dayjs/esm';
-import formatCurrency from '@/utils/formatCurrency';
 import pb from '@/service/pocketbase.js';
+import formatCurrency from '@/utils/formatCurrency';
+import dayjs from 'dayjs/esm';
+import { useToast } from 'primevue/usetoast';
+import { defineExpose, onMounted, ref } from 'vue';
 const payments = ref([]);
 const first = ref(0);
 const loading = ref(false);
@@ -90,8 +90,10 @@ const getPayments = async (event) => {
         const result = await pb.collection('pagos').getList(currentPage, rowsPerPage.value, {
             sort: '-fecha_pago',
             expand: 'id_plan_plazo, id_miembro, id_plan_plazo.id_plan',
+            fields: 'fecha_pago,monto_total,medio_pago, fecha_vencimiento, expand.id_plan_plazo.duracion, expand.id_plan_plazo.precio, expand.id_plan_plazo.expand.id_plan.nombre, expand.id_miembro.nombre, expand.id_miembro.dni',
             filter: search ? `id_miembro.nombre ~ '${search}'` : ''
         });
+
         totalRecords.value = result.totalItems;
         payments.value = result.items;
     } catch (error) {

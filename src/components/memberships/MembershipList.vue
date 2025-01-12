@@ -78,20 +78,19 @@ const getMemberships = async (event) => {
         rowsPerPage.value = event.rows;
         loading.value = true;
         const search = event.search;
-        const filter = search ? `nombre ~ '${search}'` : '';
         const currentPage = Math.floor(first.value / rowsPerPage.value) + 1;
         const result = await pb.collection('planes').getList(currentPage, rowsPerPage.value, {
-            sort: 'nombre',
-            filter: filter
+            sort: '-created',
+            filter: `(nombre~'${search ?? ''}') && deleted = null`,
+            fields: 'id,nombre'
         });
 
         for (const plan of result.items) {
             const plazos = await pb.collection('planes_plazos').getFullList({
-                filter: `id_plan = '${plan.id}'`
+                filter: `id_plan = '${plan.id}' && deleted = null`
             });
             plan.plazos = plazos;
         }
-
         totalRecords.value = result.totalItems;
         memberships.value = result.items;
     } catch (error) {

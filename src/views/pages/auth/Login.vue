@@ -24,7 +24,7 @@ const initialValues = ref({
 const resolver = zodResolver(
     z.object({
         email: z.string().email({ message: 'Correo electrónico inválido' }),
-        password: z.string().min(3, { message: 'Mínmo 3 caracteres.' })
+        password: z.string().min(3, { message: 'Mínimo 3 caracteres.' })
     })
 );
 
@@ -99,18 +99,20 @@ const googleLogin = async () => {
                 "
             >
                 <div
-                    class="w-full px-8 py-20 bg-surface-0 dark:bg-surface-900 sm:px-20"
+                    class="w-full px-8 pt-16 pb-12 bg-surface-0 dark:bg-surface-900 sm:px-20"
                     style="border-radius: 53px"
                 >
                     <div class="mb-8 text-center">
-                        <div class="mb-4 text-3xl font-medium text-surface-900 dark:text-surface-0">
-                            Bienvenido de nuevo!
+                        <div
+                            class="mb-1 text-3xl font-semibold text-surface-900 dark:text-surface-0"
+                        >
+                            ¡Bienvenido de nuevo!
                         </div>
-                        <span class="font-medium text-muted-color">Ingrese para continuar</span>
+                        <span class="text-muted-color">Ingrese para continuar</span>
                     </div>
 
                     <Button
-                        class="w-full mb-6"
+                        class="w-full mb-3"
                         severity="secondary"
                         variant="outlined"
                         @click="googleLogin"
@@ -123,14 +125,16 @@ const googleLogin = async () => {
                         <span class="ml-1"> Continuar con Google </span>
                     </Button>
 
+                    <Divider><span class="text-sm text-muted-color">O también</span></Divider>
+
                     <Form v-slot="$form" :initialValues :resolver @submit="onFormSubmit">
-                        <label
-                            for="email"
-                            class="block mb-2 text-lg font-medium text-surface-900 dark:text-surface-0"
-                        >
-                            Correo
-                        </label>
-                        <div class="mb-8">
+                        <div class="mb-7" v-auto-animate>
+                            <label
+                                for="email"
+                                class="block mb-1 font-medium text-surface-900 dark:text-surface-0"
+                            >
+                                Correo
+                            </label>
                             <InputText
                                 name="email"
                                 id="email"
@@ -150,14 +154,13 @@ const googleLogin = async () => {
                             </Message>
                         </div>
 
-                        <label
-                            for="password"
-                            class="block mb-2 text-lg font-medium text-surface-900 dark:text-surface-0"
-                        >
-                            Contraseña
-                        </label>
-
-                        <div class="mb-4">
+                        <div class="mb-2" v-auto-animate>
+                            <label
+                                for="password"
+                                class="block mb-1 font-medium text-surface-900 dark:text-surface-0"
+                            >
+                                Contraseña
+                            </label>
                             <Password
                                 name="password"
                                 id="password"
@@ -180,21 +183,10 @@ const googleLogin = async () => {
                             </Message>
                         </div>
 
-                        <div class="flex items-center justify-between gap-8 mt-2 mb-8">
-                            <div class="flex items-center" style="visibility: hidden">
-                                <Checkbox
-                                    v-model="checked"
-                                    id="rememberme1"
-                                    binary
-                                    class="mr-2"
-                                ></Checkbox>
-                                <label for="rememberme1">Recordar</label>
-                            </div>
+                        <div class="flex justify-end mb-8 text-sm">
                             <router-link to="/auth/forgot-password">
-                                <span
-                                    class="ml-2 font-medium text-right no-underline cursor-pointer text-primary"
-                                >
-                                    Olvidaste tu contraseña?
+                                <span class="font-medium text-primary">
+                                    ¿Olvidaste tu contraseña?
                                 </span>
                             </router-link>
                         </div>
@@ -204,6 +196,16 @@ const googleLogin = async () => {
                             :loading="loading"
                             label="Iniciar sesión"
                         />
+
+                        <div class="py-2 mt-4 text-center text-muted-color">
+                            ¿No tienes una cuenta?
+
+                            <router-link to="/auth/register">
+                                <span class="ml-1 font-semibold underline text-primary">
+                                    Registrate ahora
+                                </span>
+                            </router-link>
+                        </div>
                     </Form>
                 </div>
             </div>

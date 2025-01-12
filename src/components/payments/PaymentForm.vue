@@ -16,6 +16,7 @@
                 'paymentMethodSelected',
                 'planSelected',
                 'plazoSelected',
+                'schedule',
                 $form?.memberSelected?.value ? '' : 'memberSelected'
             ]"
             @submit="onFormSubmit"
@@ -35,6 +36,7 @@
                     :emptyFilterMessage
                     :emptyMessage
                     v-auto-animate
+                    autoFilterFocus
                     @filter="onFilterMembers"
                 >
                     <template #value="slotProps">
@@ -84,8 +86,8 @@
                     {{ dayjs($form.memberSelected?.value?.fecha_vencimiento).format('DD/MM/YYYY') }}
                 </span>
             </div>
-            <Fluid class="grid grid-cols-2 gap-4">
-                <div class="flex flex-col gap-1" v-auto-animate>
+            <div class="flex gap-4">
+                <div class="flex flex-col w-[45%] gap-1" v-auto-animate>
                     <label>Medio de pago</label>
                     <Select
                         name="paymentMethodSelected"
@@ -102,7 +104,7 @@
                         >{{ $form.paymentMethodSelected.error.message }}
                     </Message>
                 </div>
-                <div class="flex flex-col gap-1" v-auto-animate>
+                <div class="flex flex-col grow gap-1" v-auto-animate>
                     <label>Plan</label>
                     <Select
                         name="planSelected"
@@ -122,10 +124,19 @@
                         >{{ $form.planSelected.error.message }}
                     </Message>
                 </div>
-            </Fluid>
+            </div>
 
-            <div v-auto-animate>
-                <div class="flex flex-col gap-1" v-if="plazos.length > 0" v-auto-animate>
+            <div v-auto-animate class="flex gap-4">
+                <div
+                    class="flex flex-col gap-1 w-[45%]"
+                    :class="{
+                        grow:
+                            $form.planSelected?.value.horario === 'flexible' ||
+                            !storage?.currentGym?.gestionar_horarios
+                    }"
+                    v-if="plazos.length > 0"
+                    v-auto-animate
+                >
                     <label>Plazo</label>
                     <Select
                         name="plazoSelected"
@@ -146,6 +157,36 @@
                         variant="simple"
                         >{{ $form.plazoSelected.error.message }}
                     </Message>
+                </div>
+
+                <div
+                    class="flex flex-col gap-1 grow"
+                    v-auto-animate
+                    v-if="
+                        plazos.length > 0 &&
+                        $form.planSelected?.value.horario === 'fijo' &&
+                        storage?.currentGym?.gestionar_horarios
+                    "
+                >
+                    <label for="schedule">Horario</label>
+
+                    <DatePicker
+                        name="schedule"
+                        id="schedule"
+                        timeOnly
+                        stepMinute="15"
+                        placeholder="Ingrese el horario de asistencia"
+                        autocomplete="off"
+                        fluid
+                    />
+
+                    <Message
+                        v-if="$form.schedule?.invalid"
+                        severity="error"
+                        size="small"
+                        variant="simple"
+                        >{{ $form.schedule.error?.message }}</Message
+                    >
                 </div>
             </div>
 
@@ -177,18 +218,20 @@
     />
 </template>
 <script setup>
-import { Form } from '@primevue/forms';
 import pb from '@/service/pocketbase.js';
-import { zodResolver } from '@primevue/forms/resolvers/zod';
-import { z } from 'zod';
-import dayjs from 'dayjs/esm';
-import getMembershipStatus from '@/utils/getMembershipStatus';
+import { useIndexStore } from '@/storage';
 import formatCurrency from '@/utils/formatCurrency';
+import getMembershipStatus from '@/utils/getMembershipStatus';
+import { Form } from '@primevue/forms';
+import { zodResolver } from '@primevue/forms/resolvers/zod';
 import { useDebounceFn } from '@vueuse/core';
+import dayjs from 'dayjs/esm';
 import { useToast } from 'primevue/usetoast';
-import { ref, defineProps, defineEmits, watch, computed, onMounted } from 'vue';
+import { computed, defineEmits, defineProps, onMounted, ref } from 'vue';
+import { z } from 'zod';
 const toast = useToast();
 const emit = defineEmits(['closeModal', 'newChanges']);
+const storage = useIndexStore();
 const loading = ref(false);
 const props = defineProps({
     visible: Boolean
@@ -202,7 +245,12 @@ const initialValues = ref({
     memberSelected: null,
     paymentMethodSelected: null,
     planSelected: null,
-    plazoSelected: null
+    plazoSelected: null,
+    schedule: (() => {
+        const now = new Date();
+        now.setMinutes(0, 0, 0);
+        return now;
+    })()
 });
 //Listas de select
 const members = ref([]);
@@ -211,56 +259,80 @@ const plans = ref([]);
 const plazos = ref([]);
 //Validaciones del formulario
 const resolver = zodResolver(
-    z.object({
-        memberSelected: z.object(
-            {
-                id: z.string()
-            },
-            {
-                invalid_type_error: 'El miembro es obligatorio'
-            }
-        ),
+    z
+        .object({
+            memberSelected: z.object(
+                {
+                    id: z.string()
+                },
+                {
+                    invalid_type_error: 'El miembro es obligatorio'
+                }
+            ),
 
-        paymentMethodSelected: z.object(
-            {
-                nombre: z.string()
-            },
-            {
-                invalid_type_error: 'El medio de pago es obligatorio'
-            }
-        ),
+            paymentMethodSelected: z.object(
+                {
+                    nombre: z.string()
+                },
+                {
+                    invalid_type_error: 'El medio de pago es obligatorio'
+                }
+            ),
 
-        planSelected: z.object(
-            {
-                id: z.string()
-            },
-            {
-                invalid_type_error: 'El plan es obligatorio'
-            }
-        ),
+            planSelected: z.object(
+                {
+                    id: z.string(),
+                    horario: z.string()
+                },
+                {
+                    invalid_type_error: 'El plan es obligatorio'
+                }
+            ),
 
-        plazoSelected: z.object(
-            {
-                id: z.string(),
-                precio: z.number(),
-                duracion: z.number()
-            },
-            {
-                invalid_type_error: 'El plazo es obligatorio'
+            plazoSelected: z.object(
+                {
+                    id: z.string(),
+                    precio: z.number(),
+                    duracion: z.number()
+                },
+                {
+                    invalid_type_error: 'El plazo es obligatorio'
+                }
+            ),
+            schedule: z.date().optional()
+        })
+        .superRefine((values, ctx) => {
+            if (values.planSelected.horario === 'flexible') return;
+            if (
+                values.schedule.getHours() > new Date(storage.currentGym.horario_cierre).getHours()
+            ) {
+                ctx.addIssue({
+                    path: ['schedule'],
+                    message: 'Debe ser anterior al horario de cierre'
+                });
             }
-        )
-    })
+            if (
+                values.schedule.getHours() <
+                new Date(storage.currentGym.horario_apertura).getHours()
+            ) {
+                ctx.addIssue({
+                    path: ['schedule'],
+                    message: 'Debe ser posterior al horario de apertura'
+                });
+            }
+        })
 );
 //Modal para agregar miembro
 const showMemberForm = ref(false);
-const updateMemberSelected = (mode, member) => {
+const updateMemberSelected = (_, member) => {
     initialValues.value.memberSelected = member;
 };
 //Obtiene los plazos asociados al plam seleccionado
 const onPlanChange = async (plan, form) => {
     plazos.value = await pb.collection('planes_plazos').getFullList({
-        filter: `id_plan='${plan.id}'`
+        filter: `id_plan='${plan.id}' && deleted = null`
     });
+
     form.plazoSelected ? (form.plazoSelected.value = null) : '';
 };
 //Obtiene los miembros filtrados
@@ -270,8 +342,8 @@ const onFilterMembers = (event) => {
 };
 const filtrarMiembros = useDebounceFn(async (value) => {
     const resultMembers = await pb.collection('miembros_pagos').getList(1, 5, {
-        sort: 'nombre',
-        filter: `nombre~'${value ?? ''}' || dni~'${value ?? ''}'`,
+        sort: '-created',
+        filter: `(nombre~'${value ?? ''}' || dni~'${value ?? ''}') && deleted = null`,
         fields: 'id,nombre,dni,fecha_vencimiento'
     });
     loadingFilterMember.value = false;
@@ -279,14 +351,8 @@ const filtrarMiembros = useDebounceFn(async (value) => {
 }, 400);
 
 const closeModal = () => {
-    initialValues.value = {
-        memberSelected: null,
-        paymentMethodSelected: null,
-        planSelected: null,
-        plazoSelected: null
-    };
     plazos.value = [];
-    members.value = [];
+    loadMembers();
     emit('closeModal', false);
 };
 const emptyFilterMessage = computed(() => {
@@ -297,15 +363,18 @@ const emptyMessage = computed(() => {
 });
 const onFormSubmit = async (e) => {
     if (e.valid) {
-        let expirationDate = new Date();
-        expirationDate.setMonth(expirationDate.getMonth() + e.values.plazoSelected.duracion);
+        let expirationDate = dayjs().add(e.values.plazoSelected.duracion, 'month');
         let payload = {
             id_plan_plazo: e.values.plazoSelected.id,
             id_miembro: e.values.memberSelected.id,
             medio_pago: e.values.paymentMethodSelected.nombre,
             monto_total: e.values.plazoSelected.precio,
             fecha_pago: new Date(),
-            fecha_vencimiento: expirationDate
+            fecha_vencimiento: expirationDate,
+            horario:
+                e.values.planSelected.horario == 'fijo' && storage.currentGym.gestionar_horarios
+                    ? e.values.schedule
+                    : null
         };
         try {
             loading.value = true;
@@ -330,17 +399,24 @@ const onFormSubmit = async (e) => {
         }
     }
 };
+const loadMembers = async () => {
+    const resultMembers = await pb.collection('miembros_pagos').getList(1, 5, {
+        sort: '-created',
+        fields: 'id,nombre,dni,fecha_vencimiento',
+        filter: 'deleted = null'
+    });
+    members.value = resultMembers.items;
+};
 //Carga los datos para utilizar en los select
 onMounted(async () => {
     try {
         loadingData.value = true;
         plans.value = await pb.collection('planes').getFullList({
-            sort: 'nombre'
+            fields: 'id,nombre, horario',
+            filter: 'deleted = null',
+            sort: '-created'
         });
-        const resultMembers = await pb.collection('miembros').getList(1, 5, {
-            sort: '-nombre'
-        });
-        members.value = resultMembers.items;
+        loadMembers();
     } catch (error) {
         toast.add({
             severity: 'error',

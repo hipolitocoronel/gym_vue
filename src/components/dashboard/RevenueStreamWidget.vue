@@ -1,96 +1,114 @@
+<template>
+    <div class="card">
+        <div class="flex justify-between">
+            <h1 class="mb-2 text-xl font-semibold">Flujo de ingresos</h1>
+            <SelectButton
+                v-model="period"
+                class="-mt-2"
+                :options="options"
+                @update:modelValue="setChartData"
+            />
+        </div>
+
+        <Chart type="line" :data="chartData" :options="chartOptions" class="h-[20rem]" />
+    </div>
+</template>
+
 <script setup>
-import { useLayout } from '@/layout/composables/layout';
-import { onMounted, ref, watch } from 'vue';
+import pb from '@/service/pocketbase';
+import 'chartjs-adapter-date-fns';
+import { es } from 'date-fns/locale';
+import dayjs from 'dayjs/esm';
+import { onMounted, ref } from 'vue';
+const options = ref(['Semanal', 'Mensual']);
+const period = ref('Semanal');
+const chartData = ref({});
+const chartOptions = ref({});
+const unit = ref(null);
+onMounted(() => {
+    setChartData('Semanal');
+    chartOptions.value = setChartOptions();
+});
+const setChartData = async (event) => {
+    const dateFormat = 'YYYY-MM-DD';
+    const filterDate = dayjs()
+        .subtract(event === 'Semanal' ? 7 : 1, event === 'Semanal' ? 'day' : 'month')
+        .format(dateFormat);
 
-const { getPrimary, getSurface, isDarkTheme } = useLayout();
-
-const chartData = ref(null);
-const chartOptions = ref(null);
-
-function setChartData() {
-    const documentStyle = getComputedStyle(document.documentElement);
-
-    return {
-        labels: ['Q1', 'Q2', 'Q3', 'Q4'],
+    const records = await pb.collection('ingresos_diarios').getFullList({
+        fields: 'total_monto, fecha_pago',
+        filter: `fecha_pago >= '${filterDate}'`
+    });
+    const dates = records.map((record) => dayjs(record.fecha_pago).format('YYYY-MM-DD'));
+    const data = records.map((record) => record.total_monto);
+    chartData.value = {
+        labels: dates,
         datasets: [
             {
-                type: 'bar',
-                label: 'Subscriptions',
-                backgroundColor: documentStyle.getPropertyValue('--p-primary-400'),
-                data: [4000, 10000, 15000, 4000],
-                barThickness: 32
-            },
-            {
-                type: 'bar',
-                label: 'Advertising',
-                backgroundColor: documentStyle.getPropertyValue('--p-primary-300'),
-                data: [2100, 8400, 2400, 7500],
-                barThickness: 32
-            },
-            {
-                type: 'bar',
-                label: 'Affiliate',
-                backgroundColor: documentStyle.getPropertyValue('--p-primary-200'),
-                data: [4100, 5200, 3400, 7400],
-                borderRadius: {
-                    topLeft: 8,
-                    topRight: 8
-                },
-                borderSkipped: true,
-                barThickness: 32
+                label: 'Cobros',
+                data: data,
+                fill: false,
+                backgroundColor: '#107acc',
+                borderColor: '#107acc',
+                tension: 0.4
             }
         ]
     };
-}
 
-function setChartOptions() {
+    chartOptions.value.scales.x.time.unit = event === 'Semanal' ? 'day' : 'week';
+};
+
+const setChartOptions = () => {
     const documentStyle = getComputedStyle(document.documentElement);
-    const borderColor = documentStyle.getPropertyValue('--surface-border');
-    const textMutedColor = documentStyle.getPropertyValue('--text-color-secondary');
-
+    const textColor = documentStyle.getPropertyValue('--p-text-color');
+    const textColorSecondary = documentStyle.getPropertyValue('--p-text-muted-color');
     return {
         maintainAspectRatio: false,
-        aspectRatio: 0.8,
+
+        plugins: {
+            tooltip: {
+                callbacks: {
+                    label: function (tooltipItem) {
+                        return `Ingresos: $${tooltipItem.formattedValue.toLocaleString()}`;
+                    }
+                }
+            },
+            legend: {
+                position: 'top',
+
+                labels: {
+                    usePointStyle: true,
+                    color: '#FFFFFF',
+                    backgroundColor: textColor
+                }
+            }
+        },
         scales: {
             x: {
-                stacked: true,
+                type: 'time',
+                time: {
+                    tooltipFormat: 'MMM dd, yyyy',
+                    unit: 'day'
+                },
+                adapters: {
+                    date: {
+                        locale: es
+                    }
+                },
                 ticks: {
-                    color: textMutedColor
+                    color: textColorSecondary
                 },
                 grid: {
-                    color: 'transparent',
-                    borderColor: 'transparent'
+                    display: false
                 }
             },
             y: {
-                stacked: true,
-                ticks: {
-                    color: textMutedColor
-                },
                 grid: {
-                    color: borderColor,
-                    borderColor: 'transparent',
-                    drawTicks: false
-                }
+                    display: false
+                },
+                beginAtZero: true
             }
         }
     };
-}
-
-watch([getPrimary, getSurface, isDarkTheme], () => {
-    chartData.value = setChartData();
-    chartOptions.value = setChartOptions();
-});
-
-onMounted(() => {
-    chartData.value = setChartData();
-    chartOptions.value = setChartOptions();
-});
+};
 </script>
-
-<template>
-    <div class="card">
-        <div class="font-semibold text-xl mb-4">Revenue Stream</div>
-        <Chart type="bar" :data="chartData" :options="chartOptions" class="h-80" />
-    </div>
-</template>

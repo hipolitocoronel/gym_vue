@@ -68,13 +68,8 @@ const deleteMembership = (membership) => {
         },
         accept: async () => {
             try {
-                let plazos = await pb.collection('planes_plazos').getFullList({
-                    filter: `id_plan="${membership.id}"`
-                });
-                for (const plazo of plazos) {
-                    await pb.collection('planes_plazos').delete(plazo.id);
-                }
-                await pb.collection('planes').delete(membership.id);
+                membership.deleted = new Date();
+                await pb.collection('planes').update(membership.id, membership);
                 membershipList.value.getMemberships({ first: 0, rows: 10 });
 
                 toast.add({

@@ -17,12 +17,12 @@
                         />
 
                         <Message
-                            v-if="errors.nombre || errorName"
+                            v-if="errors.nombre"
                             severity="error"
                             size="small"
                             variant="simple"
                         >
-                            {{ errorName ? 'Ya existe un plan con este nombre' : errors.nombre }}
+                            {{ errors.nombre }}
                         </Message>
                     </div>
                     <div class="flex flex-col gap-1 mt-2">
@@ -33,15 +33,32 @@
                             v-model="descripcion"
                             id="descripcion"
                             class="mb-1"
-                            rows="6"
+                            rows="5"
                         />
+                    </div>
+
+                    <div
+                        class="flex flex-col gap-2 mt-1"
+                        v-if="store?.currentGym?.gestionar_horarios"
+                    >
+                        <label for="flexible">Horarios</label>
+                        <RadioButtonGroup v-model="horarios" class="flex flex-wrap gap-4">
+                            <div class="flex items-center gap-2">
+                                <RadioButton inputId="flexible" value="flexible" />
+                                <label for="flexible">Flexible</label>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <RadioButton inputId="fijo" value="fijo" />
+                                <label for="fijo">Fijo</label>
+                            </div>
+                        </RadioButtonGroup>
                     </div>
                 </div>
                 <div class="card h-fit w-[54%]">
                     <h2 class="text-xl font-bold">Plazos</h2>
 
                     <div v-auto-animate>
-                        <div class="flex gap-3 mb-4" v-for="(plazo, index) in plazos" :key="index">
+                        <div class="flex gap-3 mb-6" v-for="(_, index) in plazos" :key="index">
                             <div class="flex flex-col gap-1 grow" v-auto-animate>
                                 <label v-if="index === 0" class="mt-2" for="duracion"
                                     >Duración en Meses</label
@@ -98,7 +115,7 @@
                         </div>
                         <Message
                             v-if="errorPlan"
-                            class="-mt-2"
+                            class="-mt-1"
                             severity="error"
                             size="small"
                             variant="simple"
@@ -137,19 +154,20 @@
     </div>
 </template>
 <script setup>
-import { useField, useForm } from 'vee-validate';
-import { toTypedSchema } from '@vee-validate/zod';
-import { useDebounceFn } from '@vueuse/core';
 import pb from '@/service/pocketbase.js';
+import { useIndexStore } from '@/storage';
+import { toTypedSchema } from '@vee-validate/zod';
 import { useToast } from 'primevue/usetoast';
-import { useRouter } from 'vue-router';
-import { useRoute } from 'vue-router';
-import { ref, computed, watch } from 'vue';
+import { useField, useForm } from 'vee-validate';
+import { computed, ref, watch } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
 import { z } from 'zod';
 const toast = useToast();
 const route = useRoute();
 const router = useRouter();
+const schedule = ref('flexible');
 const loading = ref(false);
+const store = useIndexStore();
 const isEditMode = computed(() => {
     return route.params?.id ? true : false;
 });
@@ -175,10 +193,11 @@ const fetchData = async () => {
             const plan = await pb.collection('planes').getOne(route.params.id);
             const plazosData = await pb
                 .collection('planes_plazos')
-                .getFullList({ filter: `id_plan="${route.params.id}"` });
+                .getFullList({ filter: `id_plan="${route.params.id}" && deleted = null` });
             errorFetch.value = false;
             nombre.value = plan.nombre;
             descripcion.value = plan.descripcion;
+            horarios.value = plan.horario;
             plazos.value = plazosData.map((plazo) => ({
                 duracion: plazo.duracion,
                 precio: plazo.precio,
@@ -203,14 +222,12 @@ watch(() => route.params?.id, fetchData, { immediate: true });
 
 const { value: nombre } = useField('nombre');
 const { value: descripcion } = useField('descripcion');
+const { value: horarios } = useField('horarios');
 const { value: plazos } = useField('plazos', [], {
     initialValue: [{ duracion: null, precio: null }]
 });
-
 //Indica si hubo un error al obtener los datos del plan
 const errorFetch = ref(false);
-//Indica si ya hay un plan con ese nombre
-const errorName = ref(false);
 //Indica si se supero el limite de planes
 const errorPlan = ref(false);
 //Almacena si hay errores en los plazos
@@ -247,16 +264,16 @@ const addNewVariant = () => {
     }
 };
 //Quita la duracion
+const removedVariants = [];
 const removeVariant = async (index) => {
     if (isEditMode.value && plazos.value[index].id !== undefined) {
-        await pb.collection('planes_plazos').delete(plazos.value[index].id);
+        removedVariants.push(plazos.value[index]);
     }
     plazos.value.splice(index, 1);
     errorPlazos.value.splice(index, 1);
     if (plazos.value.length < 4) {
         errorPlan.value = false;
     }
-    console.log(plazos.value[1]);
 };
 //Valida que la duraciones y precios sean correctos
 const validateForm = () => {
@@ -269,7 +286,8 @@ const validateForm = () => {
 const onFormSubmit = handleSubmit(async (values) => {
     const planData = {
         nombre: values.nombre,
-        descripcion: values.descripcion
+        descripcion: values.descripcion,
+        horarios: schedule.value
     };
     try {
         loading.value = true;
@@ -277,6 +295,12 @@ const onFormSubmit = handleSubmit(async (values) => {
             await pb.collection('planes').update(route.params.id, planData);
             let newPlazos = plazos.value.filter((plazo) => plazo.id === undefined);
             let oldPlazos = plazos.value.filter((plazo) => plazo.id !== undefined);
+            if (removedVariants.length > 0) {
+                removedVariants.forEach(async (plazo) => {
+                    plazo.deleted = new Date();
+                    await pb.collection('planes_plazos').update(plazo.id, plazo);
+                });
+            }
             //actualiza los plazos existentes
             for (const plazo of oldPlazos) {
                 await pb.collection('planes_plazos').update(plazo.id, {
@@ -308,19 +332,14 @@ const onFormSubmit = handleSubmit(async (values) => {
             detail: `Plan ${isEditMode.value ? 'Editado' : 'Agregado'}`,
             life: 3000
         });
-        errorName.value = false;
         router.push('/planes');
     } catch (error) {
-        if (error.response?.data?.nombre?.code === 'validation_not_unique') {
-            errorName.value = true;
-        } else {
-            toast.add({
-                severity: 'error',
-                summary: 'Operación fallida',
-                detail: 'Intentelo nuevamente',
-                life: 3000
-            });
-        }
+        toast.add({
+            severity: 'error',
+            summary: 'Operación fallida',
+            detail: 'Intentelo nuevamente',
+            life: 3000
+        });
     } finally {
         loading.value = false;
     }

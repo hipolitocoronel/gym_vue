@@ -29,6 +29,11 @@ const router = createRouter({
                     component: () => import('@/views/pages/Payments.vue')
                 },
                 {
+                    path: '/reportes',
+                    name: 'reportes',
+                    component: () => import('@/views/pages/Reports.vue')
+                },
+                {
                     path: '/planes',
                     children: [
                         {
@@ -48,6 +53,11 @@ const router = createRouter({
                             component: () => import('@/views/pages/MembershipsForm.vue')
                         }
                     ]
+                },
+                {
+                    path: '/configuracion',
+                    name: 'configuracion',
+                    component: () => import('@/views/pages/Settings.vue')
                 }
             ]
         },
@@ -68,6 +78,11 @@ const router = createRouter({
             component: () => import('@/views/pages/auth/Login.vue')
         },
         {
+            path: '/auth/register',
+            name: 'register',
+            component: () => import('@/views/pages/auth/Register.vue')
+        },
+        {
             path: '/auth/forgot-password',
             name: 'forgotPassword',
             component: () => import('@/views/pages/auth/ForgotPassword.vue')
@@ -81,6 +96,11 @@ const router = createRouter({
             path: '/auth/error',
             name: 'error',
             component: () => import('@/views/pages/auth/Error.vue')
+        },
+        {
+            path: '/auth/completar-registro',
+            name: 'completar-registro',
+            component: () => import('@/views/pages/auth/RegisterSteps.vue')
         }
     ]
 });

@@ -34,16 +34,12 @@
     </div>
 </template>
 <script setup>
+import PaymentDetails from '@/components/payments/PaymentDetails.vue';
 import PaymentForm from '@/components/payments/PaymentForm.vue';
 import PaymentList from '@/components/payments/PaymentList.vue';
-import PaymentDetails from '@/components/payments/PaymentDetails.vue';
-import pb from '@/service/pocketbase.js';
 import { useDebounceFn } from '@vueuse/core';
-import { useConfirm } from 'primevue/useconfirm';
-import { useToast } from 'primevue/usetoast';
 import { ref } from 'vue';
-const confirm = useConfirm();
-const toast = useToast();
+
 const paymentList = ref(null);
 const searchInput = ref('');
 //Indica visibilidad del detalle del pago

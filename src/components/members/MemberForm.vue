@@ -139,12 +139,12 @@
 </template>
 
 <script setup>
-import { Form } from '@primevue/forms';
 import pb from '@/service/pocketbase.js';
+import { Form } from '@primevue/forms';
 import { zodResolver } from '@primevue/forms/resolvers/zod';
-import { z } from 'zod';
 import { useToast } from 'primevue/usetoast';
-import { ref, defineProps, defineEmits, watch, computed } from 'vue';
+import { computed, defineEmits, defineProps, ref } from 'vue';
+import { z } from 'zod';
 const toast = useToast();
 
 const emit = defineEmits(['closeModal', 'newChanges']);
@@ -157,13 +157,7 @@ const props = defineProps({
 });
 const errorDni = ref(false);
 const loading = ref(false);
-const initialValues = ref({
-    nombre: '',
-    telefono: null,
-    direccion: '',
-    dni: null,
-    sexo: ''
-});
+
 const resolver = zodResolver(
     z.object({
         nombre: z
@@ -188,23 +182,17 @@ const resolver = zodResolver(
 const isEditMode = computed(() => {
     return props.memberData.length != 0 ? true : false;
 });
-watch(
-    () => props.memberData,
-    (newValue) => {
-        if (isEditMode.value) {
-            initialValues.value = { ...newValue };
-        } else {
-            initialValues.value = {
-                nombre: '',
-                telefono: null,
-                direccion: '',
-                dni: null,
-                sexo: ''
-            };
-        }
-    },
-    { immediate: true }
-);
+
+const initialValues = computed(() => {
+    return {
+        nombre: props.memberData?.nombre || '',
+        telefono: props.memberData?.telefono || null,
+        direccion: props.memberData?.direccion || '',
+        dni: props.memberData?.dni || null,
+        sexo: props.memberData?.sexo || ''
+    };
+});
+
 const closeModal = () => {
     errorDni.value = false;
     emit('closeModal');
@@ -221,7 +209,17 @@ const onFormSubmit = async (e) => {
             emit('newChanges', isEditMode.value, member);
         } catch (error) {
             if (error.response?.data?.dni?.code === 'validation_not_unique') {
-                errorDni.value = true;
+                const member = await pb
+                    .collection('miembros')
+                    .getFirstListItem(`dni="${e.values.dni}"`);
+                if (!member.deleted) {
+                    errorDni.value = true;
+                } else {
+                    member.deleted = null;
+                    await pb.collection('miembros').update(member.id, member);
+                    closeModal();
+                    emit('newChanges', isEditMode.value);
+                }
             } else {
                 toast.add({
                     severity: 'error',
