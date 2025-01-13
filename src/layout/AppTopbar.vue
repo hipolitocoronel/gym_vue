@@ -15,6 +15,7 @@ const { toggleDarkMode, isDarkTheme } = useLayout();
 
 onMounted(async () => {
     // Obtener gimnasio actual si no está definido
+
     if (!store.currentGym) {
         await getCurrentGym(store.userLogged.gimnasio_id);
     }
@@ -67,6 +68,7 @@ const getSucursales = async (gym_id) => {
 
 const logout = () => {
     pb.authStore.clear();
+    store.currentGym = null;
     router.push({ name: 'login' });
 };
 </script>

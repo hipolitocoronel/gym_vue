@@ -117,12 +117,14 @@ const router = createRouter({
         {
             path: '/auth/login',
             name: 'login',
-            component: () => import('@/views/pages/auth/Login.vue')
+            component: () => import('@/views/pages/auth/Login.vue'),
+            meta: { requiresUnauth: true }
         },
         {
             path: '/auth/register',
             name: 'register',
-            component: () => import('@/views/pages/auth/Register.vue')
+            component: () => import('@/views/pages/auth/Register.vue'),
+            meta: { requiresUnauth: true }
         },
         {
             path: '/auth/forgot-password',
@@ -142,7 +144,8 @@ const router = createRouter({
         {
             path: '/auth/completar-registro',
             name: 'completar-registro',
-            component: () => import('@/views/pages/auth/RegisterSteps.vue')
+            component: () => import('@/views/pages/auth/RegisterSteps.vue'),
+            meta: { requiresUnauth: true }
         }
     ]
 });
@@ -155,6 +158,10 @@ router.beforeEach(async (to, from, next) => {
     // Obtener informacion del usuario
     if (!store.userLogged) {
         await getUserLogged();
+    }
+    //Si el usuario esta autenticado y la ruta es de autenticacion redirigir al dashboard
+    if (to.meta.requiresUnauth && pb.authStore.isValid) {
+        return next({ name: 'dashboard' });
     }
     if (to.meta.requiredPermission) {
         const hasRequired = hasPermission(
