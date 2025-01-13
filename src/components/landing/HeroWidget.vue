@@ -28,7 +28,7 @@
             </div>
         </div>
         <img
-            src="@/assets/img/captura_sistema.png"
+            src="@/assets/img/captura_sistema.webp"
             class="mt-10 lg:mt-2 animate-fade-in-up animate-delay-700"
             alt="Captura Sistema"
         />
