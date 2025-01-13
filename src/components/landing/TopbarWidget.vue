@@ -77,7 +77,8 @@ const visible = ref(false);
             ></Button>
             <Button
                 label="Registrarse"
-                to="/auth/login"
+                as="router-link"
+                to="/auth/register"
                 class="!rounded-xl !py-4 !border-none !text-black"
             ></Button>
         </div>
@@ -143,7 +144,6 @@ const visible = ref(false);
                             </li>
                         </ul>
                     </div>
-                    <div class="mt-auto"></div>
                 </div>
             </template>
         </Drawer>
