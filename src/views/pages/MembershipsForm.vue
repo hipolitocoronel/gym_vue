@@ -284,15 +284,16 @@ const validateForm = () => {
 };
 //Solo envia el formulario si no hay errores
 const onFormSubmit = handleSubmit(async (values) => {
-    const planData = {
+    const payload = {
         nombre: values.nombre,
         descripcion: values.descripcion,
-        horarios: schedule.value
+        horarios: schedule.value,
+        sucursal_id: store.currentSucursal.id
     };
     try {
         loading.value = true;
         if (isEditMode.value) {
-            await pb.collection('planes').update(route.params.id, planData);
+            await pb.collection('planes').update(route.params.id, payload);
             let newPlazos = plazos.value.filter((plazo) => plazo.id === undefined);
             let oldPlazos = plazos.value.filter((plazo) => plazo.id !== undefined);
             if (removedVariants.length > 0) {
@@ -317,7 +318,7 @@ const onFormSubmit = handleSubmit(async (values) => {
                 });
             }
         } else {
-            const planAdded = await pb.collection('planes').create(planData);
+            const planAdded = await pb.collection('planes').create(payload);
             for (const plazo of plazos.value) {
                 await pb.collection('planes_plazos').create({
                     duracion: plazo.duracion,

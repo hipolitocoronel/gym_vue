@@ -112,7 +112,7 @@ const getMembers = async (event) => {
             .collection('miembros_pagos')
             .getList(currentPage, rowsPerPage.value, {
                 sort: '-created',
-                filter: `(nombre~'${search ?? ''}' || dni~'${search ?? ''}' || telefono~'${search ?? ''}') && deleted = null`,
+                filter: `(nombre~'${search ?? ''}' || dni~'${search ?? ''}' || telefono~'${search ?? ''}') && deleted = null && sucursal_id = '${store.currentSucursal.id}'`,
                 fields: '*, expand.id_plan_plazo.duracion, expand.id_plan_plazo.precio, expand.id_plan_plazo.expand.id_plan.nombre',
                 expand: 'id_plan_plazo, id_plan_plazo.id_plan'
             });

@@ -303,17 +303,14 @@ const resolver = zodResolver(
         })
         .superRefine((values, ctx) => {
             if (values.planSelected.horario === 'flexible') return;
-            if (
-                values.schedule.getHours() > new Date(store.currentGym.horario_cierre).getHours()
-            ) {
+            if (values.schedule.getHours() > new Date(store.currentGym.horario_cierre).getHours()) {
                 ctx.addIssue({
                     path: ['schedule'],
                     message: 'Debe ser anterior al horario de cierre'
                 });
             }
             if (
-                values.schedule.getHours() <
-                new Date(store.currentGym.horario_apertura).getHours()
+                values.schedule.getHours() < new Date(store.currentGym.horario_apertura).getHours()
             ) {
                 ctx.addIssue({
                     path: ['schedule'],
@@ -343,7 +340,7 @@ const onFilterMembers = (event) => {
 const filtrarMiembros = useDebounceFn(async (value) => {
     const resultMembers = await pb.collection('miembros_pagos').getList(1, 5, {
         sort: '-created',
-        filter: `(nombre~'${value ?? ''}' || dni~'${value ?? ''}') && deleted = null`,
+        filter: `(nombre~'${value ?? ''}' || dni~'${value ?? ''}') && deleted = null && sucursal_id = '${store.currentSucursal.id}' `,
         fields: 'id,nombre,dni,fecha_vencimiento'
     });
     loadingFilterMember.value = false;
@@ -365,6 +362,7 @@ const onFormSubmit = async (e) => {
     if (e.valid) {
         let expirationDate = dayjs().add(e.values.plazoSelected.duracion, 'month');
         let payload = {
+            sucursal_id: store.currentSucursal.id,
             id_plan_plazo: e.values.plazoSelected.id,
             id_miembro: e.values.memberSelected.id,
             medio_pago: e.values.paymentMethodSelected.nombre,
@@ -403,7 +401,7 @@ const loadMembers = async () => {
     const resultMembers = await pb.collection('miembros_pagos').getList(1, 5, {
         sort: '-created',
         fields: 'id,nombre,dni,fecha_vencimiento',
-        filter: 'deleted = null'
+        filter: `deleted = null && sucursal_id = '${store.currentSucursal.id}' `
     });
     members.value = resultMembers.items;
 };
@@ -413,7 +411,7 @@ onMounted(async () => {
         loadingData.value = true;
         plans.value = await pb.collection('planes').getFullList({
             fields: 'id,nombre, horario',
-            filter: 'deleted = null',
+            filter: `deleted = null && sucursal_id = '${store.currentSucursal.id}' `,
             sort: '-created'
         });
         loadMembers();

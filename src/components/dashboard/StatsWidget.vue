@@ -61,7 +61,7 @@
         <div class="card">
             <div class="flex justify-between">
                 <div>
-                    <span class="block text-muted-color font-semibold">Tasa De Retención</span>
+                    <span class="block text-muted-color font-semibold">Tasa De Retención <i class="pi pi-info-circle pl-2 cursor-pointer" v-tooltip.top="'Indica cuantos miembros tienen un plan vigente'"/></span>
                     <ProgressSpinner
                         v-if="loading"
                         class="float-left !mt-2"

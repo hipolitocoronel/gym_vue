@@ -70,12 +70,12 @@
     </DataTable>
 </template>
 <script setup>
-import { ref, onMounted, defineExpose } from 'vue';
-import { useToast } from 'primevue/usetoast';
-import { useIndexStore } from '@/storage';
-import {hasPermission} from '@/utils/hasPermission';
-import formatCurrency from '@/utils/formatCurrency';
 import pb from '@/service/pocketbase.js';
+import { useIndexStore } from '@/storage';
+import formatCurrency from '@/utils/formatCurrency';
+import { hasPermission } from '@/utils/hasPermission';
+import { useToast } from 'primevue/usetoast';
+import { defineExpose, onMounted, ref } from 'vue';
 const memberships = ref([]);
 const first = ref(0);
 const loading = ref(false);
@@ -95,7 +95,7 @@ const getMemberships = async (event) => {
         const currentPage = Math.floor(first.value / rowsPerPage.value) + 1;
         const result = await pb.collection('planes').getList(currentPage, rowsPerPage.value, {
             sort: '-created',
-            filter: `(nombre~'${search ?? ''}') && deleted = null`,
+            filter: `(nombre~'${search ?? ''}') && deleted = null && sucursal_id = '${store.currentSucursal.id}'`,
             fields: 'id,nombre'
         });
 

@@ -45,6 +45,7 @@
 </template>
 <script setup>
 import pb from '@/service/pocketbase.js';
+import { useIndexStore } from '@/storage';
 import formatCurrency from '@/utils/formatCurrency';
 import dayjs from 'dayjs/esm';
 import { useToast } from 'primevue/usetoast';
@@ -61,14 +62,14 @@ const loading = ref(false);
 const totalRecords = ref(0);
 const rowsPerPage = ref(10); // tamaño de la tabla
 const toast = useToast();
-
+const store = useIndexStore();
 const exportCSV = async () => {
     try {
         const result = await pb.collection('pagos').getFullList({
             sort: '-fecha_pago',
             expand: 'id_plan_plazo, id_miembro, id_plan_plazo.id_plan',
             fields: 'fecha_pago,monto_total,medio_pago,expand.id_plan_plazo.duracion,expand.id_plan_plazo.expand.id_plan.nombre,expand.id_miembro.nombre',
-            filter: `fecha_pago > '${dayjs(props.startDate).subtract(1, 'day').format('YYYY-MM-DD')}' && fecha_pago < '${dayjs(props.endDate).add(1, 'day').format('YYYY-MM-DD')}'  ${filters.value ? '&& ' + filters.value : ''}`
+            filter: `sucursal_id = '${store.currentSucursal.id}' && fecha_pago > '${dayjs(props.startDate).subtract(1, 'day').format('YYYY-MM-DD')}' && fecha_pago < '${dayjs(props.endDate).add(1, 'day').format('YYYY-MM-DD')}'  ${filters.value ? '&& ' + filters.value : ''}`
         });
 
         const csvContent = [
@@ -116,7 +117,7 @@ const getPayments = async (event) => {
             sort: '-fecha_pago',
             expand: 'id_plan_plazo, id_miembro, id_plan_plazo.id_plan',
             fields: 'fecha_pago,monto_total,medio_pago, fecha_vencimiento, expand.id_plan_plazo.duracion, expand.id_plan_plazo.precio, expand.id_plan_plazo.expand.id_plan.nombre, expand.id_miembro.nombre, expand.id_miembro.dni',
-            filter: `fecha_pago > '${dayjs(props.startDate).subtract(1, 'day').format('YYYY-MM-DD')}' && fecha_pago < '${dayjs(props.endDate).add(1, 'day').format('YYYY-MM-DD')}'  ${filters.value ? '&& ' + filters.value : ''}`
+            filter: `sucursal_id = '${store.currentSucursal.id}' && fecha_pago > '${dayjs(props.startDate).subtract(1, 'day').format('YYYY-MM-DD')}' && fecha_pago < '${dayjs(props.endDate).add(1, 'day').format('YYYY-MM-DD')}'  ${filters.value ? '&& ' + filters.value : ''}`
         });
 
         totalRecords.value = result.totalItems;
