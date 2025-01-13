@@ -1,5 +1,7 @@
 <script setup>
 import pb from '@/service/pocketbase';
+import { useIndexStore } from '@/storage';
+import { hasPermission } from '@/utils/hasPermission';
 import { useToast } from 'primevue/usetoast';
 import { onMounted, ref } from 'vue';
 const toast = useToast();
@@ -10,7 +12,7 @@ const first = ref(0); // corresponde al current page
 const loading = ref(false);
 const totalRecords = ref(0);
 const rowsPerPage = ref(10); // tamaño de la tabla
-
+const store = useIndexStore();
 onMounted(() => getUsers({ first: first.value, rows: rowsPerPage.value }));
 
 const getUsers = async (event) => {
@@ -24,7 +26,8 @@ const getUsers = async (event) => {
         loading.value = true;
         const result = await pb.collection('users').getList(currentPage, rowsPerPage.value, {
             sort: '-created',
-            filter: `name~'${event.query ?? ''}' || email~'${event.query ?? ''}' || phone~'${event.query ?? ''}'`
+            filter: `name~'${event.query ?? ''}' || email~'${event.query ?? ''}' || phone~'${event.query ?? ''}'`,
+            expand: 'role'
         });
         totalRecords.value = result.totalItems;
         users.value = result.items;
@@ -61,12 +64,13 @@ defineExpose({ getUsers });
         <template #empty> Sin registros. </template>
         <Column field="name" header="Nombre"></Column>
         <Column field="email" header="Correo"></Column>
+        <Column field="expand.role.nombre" header="Rol"></Column>
         <Column field="phone" header="Teléfono">
             <template #body="slotProps">
                 {{ slotProps.data.phone ? slotProps.data.phone : '-' }}
             </template>
         </Column>
-        <Column header="Acciones">
+        <Column header="Acciones" class="xl:max-w-24">
             <template #body="{ data }">
                 <div class="flex gap-2">
                     <Button
@@ -75,6 +79,12 @@ defineExpose({ getUsers });
                         severity="secondary"
                         variant="outlined"
                         rounded
+                        v-if="
+                            hasPermission(
+                                store.userLogged?.expand.role.expand.permisos,
+                                'users.update'
+                            )
+                        "
                         v-tooltip.top="'Editar usuario'"
                     />
                     <Button
@@ -84,6 +94,12 @@ defineExpose({ getUsers });
                         variant="outlined"
                         rounded
                         v-tooltip.top="'Eliminar usuario'"
+                        v-if="
+                            hasPermission(
+                                store.userLogged?.expand.role.expand.permisos,
+                                'users.delete'
+                            )
+                        "
                     />
                 </div>
             </template>

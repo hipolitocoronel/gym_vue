@@ -43,7 +43,10 @@ const getUserLogged = async () => {
     try {
         loading.value = true;
 
-        const user = await pb.collection('users').getOne(pb.authStore.record.id);
+        const user = await pb.collection('users').getOne(pb.authStore.record.id, {
+            expand: 'role, role.permisos',
+            fields: '*, expand.role.expand.permisos.permiso, expand.role.nombre, expand.role.id'
+        });
 
         // guardando informacion de usuario
         store.setUserLogged(user);

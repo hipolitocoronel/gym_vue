@@ -34,7 +34,10 @@ const onFormSubmit = async (e) => {
             loading.value = true;
             const authData = await pb
                 .collection('users')
-                .authWithPassword(e.values.email, e.values.password);
+                .authWithPassword(e.values.email, e.values.password, {
+                    expand: 'role, role.permisos',
+                    fields: '*, expand.role.expand.permisos.permiso, expand.role.nombre, expand.role.id'
+                });
 
             // guardando informacion de usuario
             store.setUserLogged(authData.record);

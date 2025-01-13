@@ -55,6 +55,11 @@
                         severity="secondary"
                         variant="outlined"
                         rounded
+                        v-if="
+                            hasPermission(
+                                store.userLogged?.expand.role.expand.permisos,
+                                'payments.details'
+                        )"
                         @click="$emit('viewPayment', data)"
                         v-tooltip.top="'Ver Detalle'"
                         size="large"
@@ -68,6 +73,8 @@
 import pb from '@/service/pocketbase.js';
 import formatCurrency from '@/utils/formatCurrency';
 import dayjs from 'dayjs/esm';
+import { hasPermission } from '@/utils/hasPermission';
+import {useIndexStore} from '@/storage';
 import { useToast } from 'primevue/usetoast';
 import { defineExpose, onMounted, ref } from 'vue';
 const payments = ref([]);
@@ -76,7 +83,7 @@ const loading = ref(false);
 const totalRecords = ref(0);
 const rowsPerPage = ref(10); // tamaño de la tabla
 const toast = useToast();
-
+const store = useIndexStore();
 onMounted(() => getPayments({ first: first.value, rows: rowsPerPage.value }));
 
 const getPayments = async (event) => {

@@ -6,7 +6,8 @@ export const useIndexStore = defineStore('index', {
             userLogged: null,
             currentGym: null,
             sucursales: [{ direccion: '' }],
-            currentSucursal: null
+            currentSucursal: null,
+            activeConfigTab: 'tu-informacion'
         };
     },
     getters: {
@@ -34,6 +35,9 @@ export const useIndexStore = defineStore('index', {
         },
         setCurrentSucursal(sucursal) {
             this.currentSucursal = sucursal;
+        },
+        setActiveConfigTab(tab) {
+            this.activeConfigTab = tab;
         }
     }
 });

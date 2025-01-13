@@ -132,7 +132,7 @@
                     :class="{
                         grow:
                             $form.planSelected?.value.horario === 'flexible' ||
-                            !storage?.currentGym?.gestionar_horarios
+                            !store?.currentGym?.gestionar_horarios
                     }"
                     v-if="plazos.length > 0"
                     v-auto-animate
@@ -165,7 +165,7 @@
                     v-if="
                         plazos.length > 0 &&
                         $form.planSelected?.value.horario === 'fijo' &&
-                        storage?.currentGym?.gestionar_horarios
+                        store?.currentGym?.gestionar_horarios
                     "
                 >
                     <label for="schedule">Horario</label>
@@ -174,7 +174,7 @@
                         name="schedule"
                         id="schedule"
                         timeOnly
-                        stepMinute="15"
+                        :stepMinute="15"
                         placeholder="Ingrese el horario de asistencia"
                         autocomplete="off"
                         fluid
@@ -231,7 +231,7 @@ import { computed, defineEmits, defineProps, onMounted, ref } from 'vue';
 import { z } from 'zod';
 const toast = useToast();
 const emit = defineEmits(['closeModal', 'newChanges']);
-const storage = useIndexStore();
+const store = useIndexStore();
 const loading = ref(false);
 const props = defineProps({
     visible: Boolean
@@ -304,7 +304,7 @@ const resolver = zodResolver(
         .superRefine((values, ctx) => {
             if (values.planSelected.horario === 'flexible') return;
             if (
-                values.schedule.getHours() > new Date(storage.currentGym.horario_cierre).getHours()
+                values.schedule.getHours() > new Date(store.currentGym.horario_cierre).getHours()
             ) {
                 ctx.addIssue({
                     path: ['schedule'],
@@ -313,7 +313,7 @@ const resolver = zodResolver(
             }
             if (
                 values.schedule.getHours() <
-                new Date(storage.currentGym.horario_apertura).getHours()
+                new Date(store.currentGym.horario_apertura).getHours()
             ) {
                 ctx.addIssue({
                     path: ['schedule'],
@@ -372,7 +372,7 @@ const onFormSubmit = async (e) => {
             fecha_pago: new Date(),
             fecha_vencimiento: expirationDate,
             horario:
-                e.values.planSelected.horario == 'fijo' && storage.currentGym.gestionar_horarios
+                e.values.planSelected.horario == 'fijo' && store.currentGym.gestionar_horarios
                     ? e.values.schedule
                     : null
         };

@@ -41,6 +41,12 @@
                         v-tooltip.top="'Editar Plan'"
                         size="large"
                         as="router-link"
+                        v-if="
+                            hasPermission(
+                                store.userLogged?.expand.role.expand.permisos,
+                                'plan.update'
+                            )
+                        "
                         :to="`/planes/editar-plan/${data.id}`"
                     />
                     <Button
@@ -49,6 +55,12 @@
                         severity="danger"
                         variant="outlined"
                         rounded
+                        v-if="
+                            hasPermission(
+                                store.userLogged?.expand.role.expand.permisos,
+                                'plan.delete'
+                            )
+                        "
                         v-tooltip.top="'Eliminar Plan'"
                         size="large"
                     />
@@ -58,8 +70,10 @@
     </DataTable>
 </template>
 <script setup>
-import { ref, defineProps, onMounted, defineExpose } from 'vue';
+import { ref, onMounted, defineExpose } from 'vue';
 import { useToast } from 'primevue/usetoast';
+import { useIndexStore } from '@/storage';
+import {hasPermission} from '@/utils/hasPermission';
 import formatCurrency from '@/utils/formatCurrency';
 import pb from '@/service/pocketbase.js';
 const memberships = ref([]);
@@ -68,14 +82,14 @@ const loading = ref(false);
 const totalRecords = ref(0);
 const rowsPerPage = ref(10); // tamaño de la tabla
 const toast = useToast();
-
+const store = useIndexStore();
 onMounted(() => getMemberships({ first: first.value, rows: rowsPerPage.value }));
 
 const getMemberships = async (event) => {
     try {
         // Parámetros de la consulta
         first.value = event.first;
-        rowsPerPage.value = event.rows;
+        rowsPerPage.value = event.rows ?? rowsPerPage.value;
         loading.value = true;
         const search = event.search;
         const currentPage = Math.floor(first.value / rowsPerPage.value) + 1;

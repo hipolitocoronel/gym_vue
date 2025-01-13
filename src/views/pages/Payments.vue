@@ -18,6 +18,9 @@
                 @click="addPaymentModal = true"
                 label="Registrar Pago"
                 icon="pi pi-dollar"
+                v-if="
+                    hasPermission(store.userLogged?.expand.role.expand.permisos, 'payments.create')
+                "
             />
         </div>
         <PaymentList @viewPayment="viewPayment" ref="paymentList" />
@@ -37,9 +40,12 @@
 import PaymentDetails from '@/components/payments/PaymentDetails.vue';
 import PaymentForm from '@/components/payments/PaymentForm.vue';
 import PaymentList from '@/components/payments/PaymentList.vue';
+import { useIndexStore } from '@/storage';
+import { hasPermission } from '@/utils/hasPermission';
 import { useDebounceFn } from '@vueuse/core';
 import { ref } from 'vue';
 
+const store = useIndexStore();
 const paymentList = ref(null);
 const searchInput = ref('');
 //Indica visibilidad del detalle del pago

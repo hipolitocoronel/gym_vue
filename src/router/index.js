@@ -56,8 +56,24 @@ const router = createRouter({
                 },
                 {
                     path: '/configuracion',
-                    name: 'configuracion',
-                    component: () => import('@/views/pages/Settings.vue')
+                    children: [
+                        {
+                            path: '',
+                            name: 'configuracion',
+                            component: () => import('@/views/pages/Settings.vue')
+                        },
+                        {
+                            path: 'agregar-rol',
+                            name: 'agregar-rol',
+                            component: () => import('@/views/pages/RoleForm.vue')
+                        },
+                        {
+                            path: 'editar-rol/:id',
+                            name: 'editar-rol',
+                            sensitive: true,
+                            component: () => import('@/views/pages/RoleForm.vue')
+                        }
+                    ]
                 }
             ]
         },

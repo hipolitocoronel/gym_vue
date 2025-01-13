@@ -15,7 +15,7 @@
         <template #empty> Sin registros. </template>
         <Column field="dni" header="DNI"> </Column>
         <Column field="nombre" header="Nombre"> </Column>
-        <Column header="Horario" v-if="storage?.currentGym?.gestionar_horarios" class="xl:max-w-20"
+        <Column header="Horario" v-if="store?.currentGym?.gestionar_horarios" class="xl:max-w-20"
             ><template #body="{ data }">
                 <Tag
                     :value="data.horario ? dayjs(data.horario).format('HH:mm') : 'Libre'"
@@ -55,6 +55,12 @@
                         rounded
                         v-tooltip.top="'Editar Miembro'"
                         size="large"
+                        v-if="
+                            hasPermission(
+                                store.userLogged?.expand.role.expand.permisos,
+                                'members.update'
+                            )
+                        "
                         @click="$emit('editMember', data)"
                     />
                     <Button
@@ -63,6 +69,12 @@
                         severity="danger"
                         variant="outlined"
                         rounded
+                        v-if="
+                            hasPermission(
+                                store.userLogged?.expand.role.expand.permisos,
+                                'members.delete'
+                            )
+                        "
                         v-tooltip.top="'Eliminar Miembro'"
                         size="large"
                     />
@@ -75,10 +87,11 @@
 import pb from '@/service/pocketbase.js';
 import { useIndexStore } from '@/storage';
 import getMembershipStatus from '@/utils/getMembershipStatus';
+import { hasPermission } from '@/utils/hasPermission';
 import dayjs from 'dayjs/esm';
 import { useToast } from 'primevue/usetoast';
 import { defineExpose, onMounted, ref } from 'vue';
-const storage = useIndexStore();
+const store = useIndexStore();
 const members = ref([]);
 const first = ref(0);
 const loading = ref(false);
@@ -91,7 +104,7 @@ const getMembers = async (event) => {
     try {
         // Parámetros de la consulta
         first.value = event.first;
-        rowsPerPage.value = event.rows;
+        rowsPerPage.value = event.rows ?? rowsPerPage.value;
         loading.value = true;
         const search = event.search;
         const currentPage = Math.floor(first.value / rowsPerPage.value) + 1;

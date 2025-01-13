@@ -192,7 +192,7 @@ const onFormSubmit = async (e) => {
                             id="horarioApertura"
                             v-tooltip.left="'Horario de apertura'"
                             name="horario_apertura"
-                            stepMinute="15"
+                            :stepMinute="15"
                             timeOnly
                             fluid
                         />
@@ -212,7 +212,7 @@ const onFormSubmit = async (e) => {
                         <DatePicker
                             placeholder="Ingrese horario de cierre"
                             name="horario_cierre"
-                            stepMinute="15"
+                            :stepMinute="15"
                             v-tooltip.right="'Horario de cierre'"
                             timeOnly
                             fluid
