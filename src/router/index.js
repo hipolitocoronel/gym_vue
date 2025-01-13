@@ -58,6 +58,11 @@ const router = createRouter({
                     path: '/configuracion',
                     name: 'configuracion',
                     component: () => import('@/views/pages/Settings.vue')
+                },
+                {
+                    path: '/cambiar-plan',
+                    name: 'cambiar-plan',
+                    component: () => import('@/views/pages/ChangePlan.vue')
                 }
             ]
         },
