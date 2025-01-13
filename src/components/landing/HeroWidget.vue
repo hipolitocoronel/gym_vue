@@ -8,12 +8,14 @@
                 Simplifica Tu Negocio Fitness
             </h1>
             <p
-                class="max-w-2xl mx-auto mt-6 text-sm font-normal leading-normal text-gray-200 md:text-xl md:mt-10"
+                class="max-w-2xl mx-auto mt-6 text-sm font-normal leading-normal text-gray-200 md:text-xl md:mt-10 animate-blurred-fade-in animate-delay-400"
             >
                 Optimiza tus operaciones, impulsa el crecimiento y mejora la experiencia de tus
                 clientes con nuestro sistema integral de gestión para gimnasios.
             </p>
-            <div class="flex flex-col justify-center gap-4 md:flex-row">
+            <div
+                class="flex flex-col justify-center gap-4 md:flex-row animate-blurred-fade-in animate-delay-400"
+            >
                 <Button class="font-bold mt-10 !p-4 !text-black"> Solicita Una Demo </Button>
 
                 <Button
@@ -27,7 +29,7 @@
         </div>
         <img
             src="@/assets/img/captura_sistema.png"
-            class="mt-10 lg:mt-2 animate-fade-in-up animate-delay-500"
+            class="mt-10 lg:mt-2 animate-fade-in-up animate-delay-700"
             alt="Captura Sistema"
         />
     </div>
