@@ -1,6 +1,8 @@
 import AppLayout from '@/layout/AppLayout.vue';
+import pb from '@/service/pocketbase';
+import { useIndexStore } from '@/storage';
+import { hasPermission } from '@/utils/hasPermission';
 import { createRouter, createWebHistory } from 'vue-router';
-
 const router = createRouter({
     history: createWebHistory(),
     routes: [
@@ -16,22 +18,34 @@ const router = createRouter({
                 {
                     path: '/miembros',
                     name: 'miembros',
-                    component: () => import('@/views/members/Members.vue')
+                    component: () => import('@/views/members/Members.vue'),
+                    meta: {
+                        requiredPermission: 'members.index'
+                    }
                 },
                 {
                     path: '/usuarios',
                     name: 'usuarios',
-                    component: () => import('@/views/pages/Users.vue')
+                    component: () => import('@/views/pages/Users.vue'),
+                    meta: {
+                        requiredPermission: 'users.index'
+                    }
                 },
                 {
                     path: '/pagos',
                     name: 'pagos',
-                    component: () => import('@/views/pages/Payments.vue')
+                    component: () => import('@/views/pages/Payments.vue'),
+                    meta: {
+                        requiredPermission: 'payments.index'
+                    }
                 },
                 {
                     path: '/reportes',
                     name: 'reportes',
-                    component: () => import('@/views/pages/Reports.vue')
+                    component: () => import('@/views/pages/Reports.vue'),
+                    meta: {
+                        requiredPermission: 'reports.index'
+                    }
                 },
                 {
                     path: '/planes',
@@ -52,13 +66,19 @@ const router = createRouter({
                             sensitive: true,
                             component: () => import('@/views/pages/MembershipsForm.vue')
                         }
-                    ]
+                    ],
+                    meta: {
+                        requiredPermission: 'plan.index'
+                    }
                 },
                 {
                     path: '/configuracion',
-                    name: 'configuracion',
-                    component: () => import('@/views/pages/Settings.vue'),
                     children: [
+                        {
+                            path: '',
+                            name: 'configuracion',
+                            component: () => import('@/views/pages/Settings.vue')
+                        },
                         {
                             path: 'agregar-rol',
                             name: 'agregar-rol',
@@ -70,14 +90,18 @@ const router = createRouter({
                             sensitive: true,
                             component: () => import('@/views/pages/RoleForm.vue')
                         }
-                    ]
+                    ],
+                    meta: {
+                        requiredPermission: 'settings.index'
+                    }
                 },
                 {
                     path: '/cambiar-plan',
                     name: 'cambiar-plan',
                     component: () => import('@/views/pages/ChangePlan.vue')
                 }
-            ]
+            ],
+            meta: { requiresAuth: true }
         },
         {
             path: '/landing',
@@ -122,5 +146,41 @@ const router = createRouter({
         }
     ]
 });
+router.beforeEach(async (to, from, next) => {
+    const store = useIndexStore();
+    //Si el usuario no esta autenticado y la ruta requiere autenticacion
+    if (to.meta.requiresAuth && !pb.authStore.isValid) {
+        return next({ name: 'login' });
+    }
+    // Obtener informacion del usuario
+    if (!store.userLogged) {
+        await getUserLogged();
+    }
+    if (to.meta.requiredPermission) {
+        const hasRequired = hasPermission(
+            store.userLogged?.expand?.role?.expand?.permisos,
+            to.meta.requiredPermission
+        );
 
+        if (!hasRequired) {
+            return next({ name: 'accessDenied' });
+        }
+    }
+
+    next();
+});
+const getUserLogged = async () => {
+    try {
+        const store = useIndexStore();
+        const user = await pb.collection('users').getOne(pb.authStore.record.id, {
+            expand: 'role, role.permisos',
+            fields: '*, expand.role.expand.permisos.permiso, expand.role.nombre, expand.role.id'
+        });
+
+        // guardando informacion de usuario
+        store.setUserLogged(user);
+    } catch (error) {
+        console.log(error);
+    }
+};
 export default router;

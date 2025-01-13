@@ -102,7 +102,7 @@ const googleLogin = async () => {
                 "
             >
                 <div
-                    class="w-full px-8 pt-16 pb-12 bg-surface-0 dark:bg-surface-900 sm:px-20"
+                    class="w-full px-20 pt-16 pb-12 bg-surface-0 dark:bg-surface-900"
                     style="border-radius: 53px"
                 >
                     <div class="mb-8 text-center">
