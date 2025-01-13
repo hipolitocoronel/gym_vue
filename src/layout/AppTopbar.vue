@@ -62,7 +62,7 @@ const getCurrentGym = async (id) => {
     try {
         loading.value = true;
 
-        const gym = await pb.collection('gimnasios').getOne(id);
+        const gym = await pb.collection('gimnasios').getOne(id, { expand: 'servicio_id' });
 
         // guardando informacion de usuario
         store.setCurrentGym(gym);
@@ -162,6 +162,17 @@ const logout = () => {
         </div>
 
         <div class="layout-topbar-actions">
+            <div v-if="store.currentGym?.expand?.servicio_id?.precio == 0">
+                <Button
+                    rounded
+                    size="small"
+                    label="Explorar premium"
+                    severity="contrast"
+                    as="router-link"
+                    to="/cambiar-plan"
+                ></Button>
+            </div>
+
             <div class="layout-config-menu">
                 <button type="button" class="layout-topbar-action" @click="toggleDarkMode">
                     <i :class="['pi', { 'pi-moon': isDarkTheme, 'pi-sun': !isDarkTheme }]"></i>

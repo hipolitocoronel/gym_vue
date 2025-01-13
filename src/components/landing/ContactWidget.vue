@@ -1,19 +1,16 @@
 <template>
-    <div class="grid grid-cols-12 py-16 xl:mx-32 mt-8" id="contact">
-        <div class="col-span-12 md:col-span-6 mt-10 hidden lg:block">
-            <img
-                src="https://www.pngplay.com/wp-content/uploads/6/Fitness-PNG-HD-Quality.png"
-                alt=""
-            />
+    <div class="grid grid-cols-12 py-16 mt-8 xl:mx-32" id="contact">
+        <div class="hidden col-span-12 mt-10 md:col-span-6 lg:block">
+            <img src="@/assets/img/persona-fitness.webp" alt="Persona fitness" />
         </div>
         <div class="col-span-12 lg:col-span-6 mt-14 md:mt-20">
-            <h2 class="text-center font-bold text-4xl sm:text-5xl mb-4">Contáctanos</h2>
+            <h2 class="mb-4 text-4xl font-bold text-center sm:text-5xl">Contáctanos</h2>
             <Form
                 v-slot="$form"
                 :initialValues
                 :resolver
                 @submit="onFormSubmit"
-                class="p-8 flex flex-col gap-4"
+                class="flex flex-col gap-4 p-8"
             >
                 <div class="flex flex-col gap-1" v-auto-animate>
                     <label for="name">Nombre Completo</label>

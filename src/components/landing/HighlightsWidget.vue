@@ -1,12 +1,12 @@
 <template>
-    <div class="px-6 lg:px-12 mx-0 xl:mx-12">
-        <div class="col-span-12 text-center mt-20 mb-6">
+    <div class="px-6 mx-0 lg:px-12 xl:mx-12">
+        <div class="col-span-12 mt-20 mb-6 text-center">
             <h2
-                class="text-4xl md:text-5xl md:min-h-14 font-extrabold leading-tight bg-gradient-to-r from-white to-gray-700 bg-clip-text text-transparent"
+                class="text-4xl font-extrabold leading-tight text-transparent md:text-5xl md:min-h-14 bg-gradient-to-r from-white to-gray-700 bg-clip-text"
             >
                 Impulsa el éxito de tu gimnasio
             </h2>
-            <p class="text-muted-color max-w-2xl mx-auto mt-4">
+            <p class="max-w-2xl mx-auto mt-4 text-muted-color">
                 Herramientas y funciones para mantener su negocio de fitness funcionando sin
                 problemas y de manera eficiente.
             </p>
@@ -14,19 +14,19 @@
 
         <div class="grid grid-cols-12 gap-10">
             <div
-                class="card mb-0 bg-slate-950 col-span-12 md:col-span-6"
+                class="col-span-12 mb-0 card bg-slate-950 md:col-span-6"
                 data-aos="fade-up"
                 data-aos-duration="700"
             >
                 <div class="flex flex-col items-center">
                     <img
-                        src="@/assets/img/members_landing.png"
+                        src="@/assets/img/members_landing.webp"
                         class="min-h-fit rounded-xl"
                         alt=""
                     />
 
-                    <div class="mb-3 mt-5">
-                        <span class="block text-xl text-center font-semibold mb-3"
+                    <div class="mt-5 mb-3">
+                        <span class="block mb-3 text-xl font-semibold text-center"
                             >Estado de miembros</span
                         >
 
@@ -39,18 +39,18 @@
                 </div>
             </div>
             <div
-                class="card mb-0 bg-slate-950 overflow-hidden col-span-12 md:col-span-6"
+                class="col-span-12 mb-0 overflow-hidden card bg-slate-950 md:col-span-6"
                 data-aos="fade-up"
                 data-aos-duration="700"
             >
                 <div class="flex flex-col items-center">
                     <img
-                        src="@/assets/img/revenue_landing.png"
+                        src="@/assets/img/revenue_landing.webp"
                         class="min-h-fit rounded-xl"
                         alt=""
                     />
-                    <div class="mb-3 mt-5">
-                        <span class="block text-center text-xl font-semibold mb-3"
+                    <div class="mt-5 mb-3">
+                        <span class="block mb-3 text-xl font-semibold text-center"
                             >Seguimiento de ingresos</span
                         >
 
@@ -62,18 +62,18 @@
                 </div>
             </div>
             <div
-                class="card mb-0 bg-slate-950 overflow-hidden col-span-12 md:col-span-6"
+                class="col-span-12 mb-0 overflow-hidden card bg-slate-950 md:col-span-6"
                 data-aos="fade-up"
                 data-aos-duration="700"
             >
                 <div class="flex flex-col items-center">
                     <img
-                        src="@/assets/img/payments_landing.png"
+                        src="@/assets/img/payments_landing.webp"
                         class="min-h-fit rounded-xl"
                         alt=""
                     />
-                    <div class="mb-3 mt-5">
-                        <span class="block text-center text-xl font-semibold mb-3"
+                    <div class="mt-5 mb-3">
+                        <span class="block mb-3 text-xl font-semibold text-center"
                             >Gestiona tus cobros</span
                         >
 
@@ -86,18 +86,18 @@
                 </div>
             </div>
             <div
-                class="card mb-0 bg-slate-950 overflow-hidden col-span-12 md:col-span-6"
+                class="col-span-12 mb-0 overflow-hidden card bg-slate-950 md:col-span-6"
                 data-aos="fade-up"
                 data-aos-duration="700"
             >
                 <div class="flex flex-col items-center">
                     <img
-                        src="@/assets/img/reports_landing.png"
+                        src="@/assets/img/reports_landing.webp"
                         class="min-h-fit rounded-xl"
                         alt=""
                     />
-                    <div class="mb-3 mt-5">
-                        <span class="block text-center text-xl font-semibold mb-3"
+                    <div class="mt-5 mb-3">
+                        <span class="block mb-3 text-xl font-semibold text-center"
                             >Reportes Detallados</span
                         >
 
