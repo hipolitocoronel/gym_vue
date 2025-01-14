@@ -24,7 +24,7 @@ const toggleSucursales = (event) => {
 };
 const changeSucursal = (sucursal, index) => {
     store.setCurrentSucursal(sucursal);
-    store.setCurrentSucursalIndex(index);
+    localStorage.setItem('currentSucursalIndex', index.toString());
     router.push({ name: 'dashboard' });
 };
 const logout = () => {

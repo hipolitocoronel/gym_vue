@@ -189,6 +189,7 @@ const onFormSubmit = async (e) => {
                     :options="store.sucursales"
                     filter
                     fluid
+                    empty-filter-message="No se encontraron sucursales"
                     option-value="id"
                     optionLabel="direccion"
                     placeholder="Selecciona la sucursal"
