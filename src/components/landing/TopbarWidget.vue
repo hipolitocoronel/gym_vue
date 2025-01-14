@@ -25,7 +25,7 @@ const visible = ref(false);
             <router-link to="/" class="flex items-center layout-topbar-logo" style="gap: 0.2rem">
                 <img src="/src/assets/img/logo-white.png" alt="logo" width="35px" />
                 <p class="font-extrabold text-white">
-                    Gym<span class="text-lg font-bold text-primary">Master</span>
+                    Gym<span class="text-lg font-bold text-primary">Admin</span>
                 </p>
             </router-link>
         </div>
@@ -77,6 +77,7 @@ const visible = ref(false);
             ></Button>
             <Button
                 label="Registrarse"
+                as="router-link"
                 to="/auth/register"
                 class="!rounded-xl !py-4 !border-none !text-black"
             ></Button>
@@ -143,7 +144,6 @@ const visible = ref(false);
                             </li>
                         </ul>
                     </div>
-                    <div class="mt-auto"></div>
                 </div>
             </template>
         </Drawer>

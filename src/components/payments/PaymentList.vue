@@ -76,7 +76,6 @@ const loading = ref(false);
 const totalRecords = ref(0);
 const rowsPerPage = ref(10); // tamaño de la tabla
 const toast = useToast();
-
 onMounted(() => getPayments({ first: first.value, rows: rowsPerPage.value }));
 
 const getPayments = async (event) => {

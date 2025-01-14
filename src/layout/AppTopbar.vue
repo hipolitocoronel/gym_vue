@@ -14,18 +14,8 @@ const router = useRouter();
 const { toggleDarkMode, isDarkTheme } = useLayout();
 
 onMounted(async () => {
-    // Verificar autenticación del usuario
-    if (!pb.authStore.isValid) {
-        router.push({ name: 'login' });
-        return; // Detener ejecución si no está autenticado
-    }
-
-    // Obtener usuario logueado si no está cargado
-    if (!store.userLogged) {
-        await getUserLogged();
-    }
-
     // Obtener gimnasio actual si no está definido
+
     if (!store.currentGym) {
         await getCurrentGym(store.userLogged.gimnasio_id);
     }
@@ -37,22 +27,6 @@ const toggle = (event) => {
 
 const toggleSucursales = (event) => {
     menuSucursales.value.toggle(event);
-};
-
-const getUserLogged = async () => {
-    try {
-        loading.value = true;
-
-        const user = await pb.collection('users').getOne(pb.authStore.record.id);
-
-        // guardando informacion de usuario
-        store.setUserLogged(user);
-    } catch (error) {
-        router.push({ name: 'login' });
-        console.log(error);
-    } finally {
-        loading.value = false;
-    }
 };
 
 const getCurrentGym = async (id) => {
@@ -94,6 +68,7 @@ const getSucursales = async (gym_id) => {
 
 const logout = () => {
     pb.authStore.clear();
+    store.currentGym = null;
     router.push({ name: 'login' });
 };
 </script>
@@ -115,7 +90,7 @@ const logout = () => {
                     width="35px"
                 />
 
-                <p class="font-extrabold">Gym<span class="font-bold text-primary">Master</span></p>
+                <p class="font-extrabold">Gym<span class="font-bold text-primary">Admin</span></p>
             </router-link>
         </div>
         <div class="flex items-center gap-2">

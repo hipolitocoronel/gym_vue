@@ -32,7 +32,10 @@ const onFormSubmit = async (e) => {
             loading.value = true;
             const authData = await pb
                 .collection('users')
-                .authWithPassword(e.values.email, e.values.password);
+                .authWithPassword(e.values.email, e.values.password, {
+                    expand: 'role, role.permisos',
+                    fields: '*, expand.role.expand.permisos.permiso, expand.role.nombre, expand.role.id'
+                });
 
             // guardando informacion de usuario
             store.setUserLogged(authData.record);
@@ -100,7 +103,7 @@ const googleLogin = async () => {
                 "
             >
                 <div
-                    class="w-full px-8 pt-16 pb-12 bg-surface-0 dark:bg-surface-900 sm:px-20"
+                    class="w-full px-20 pt-16 pb-12 bg-surface-0 dark:bg-surface-900"
                     style="border-radius: 53px"
                 >
                     <div class="mb-8 text-center">
