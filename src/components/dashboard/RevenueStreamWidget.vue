@@ -16,17 +16,17 @@
 
 <script setup>
 import pb from '@/service/pocketbase';
+import { useIndexStore } from '@/storage';
 import 'chartjs-adapter-date-fns';
 import { es } from 'date-fns/locale';
 import dayjs from 'dayjs/esm';
-import { onMounted, ref } from 'vue';
+import { onMounted, ref, watch } from 'vue';
 const options = ref(['Semanal', 'Mensual']);
 const period = ref('Semanal');
 const chartData = ref({});
 const chartOptions = ref({});
-const unit = ref(null);
+const store = useIndexStore();
 onMounted(() => {
-    setChartData('Semanal');
     chartOptions.value = setChartOptions();
 });
 const setChartData = async (event) => {
@@ -37,7 +37,7 @@ const setChartData = async (event) => {
 
     const records = await pb.collection('ingresos_diarios').getFullList({
         fields: 'total_monto, fecha_pago',
-        filter: `fecha_pago >= '${filterDate}'`
+        filter: `fecha_pago >= '${filterDate}' && id = '${store.currentSucursal.id}'`
     });
     const dates = records.map((record) => dayjs(record.fecha_pago).format('YYYY-MM-DD'));
     const data = records.map((record) => record.total_monto);
@@ -57,7 +57,11 @@ const setChartData = async (event) => {
 
     chartOptions.value.scales.x.time.unit = event === 'Semanal' ? 'day' : 'week';
 };
-
+watch(
+    () => store.currentSucursal,
+    () => setChartData(period.value),
+    { immediate: true }
+);
 const setChartOptions = () => {
     const documentStyle = getComputedStyle(document.documentElement);
     const textColor = documentStyle.getPropertyValue('--p-text-color');

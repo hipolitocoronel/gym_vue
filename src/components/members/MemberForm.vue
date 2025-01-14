@@ -140,13 +140,14 @@
 
 <script setup>
 import pb from '@/service/pocketbase.js';
+import { useIndexStore } from '@/storage';
 import { Form } from '@primevue/forms';
 import { zodResolver } from '@primevue/forms/resolvers/zod';
 import { useToast } from 'primevue/usetoast';
 import { computed, defineEmits, defineProps, ref } from 'vue';
 import { z } from 'zod';
 const toast = useToast();
-
+const store = useIndexStore();
 const emit = defineEmits(['closeModal', 'newChanges']);
 const props = defineProps({
     visible: Boolean,
@@ -200,19 +201,20 @@ const closeModal = () => {
 };
 const onFormSubmit = async (e) => {
     if (e.valid) {
+        const payload = { ...e.values, sucursal_id: store.currentSucursal.id };
         try {
             let member;
             loading.value = true;
             isEditMode.value
-                ? (member = await pb.collection('miembros').update(e.values.id, e.values))
-                : (member = await pb.collection('miembros').create(e.values));
+                ? (member = await pb.collection('miembros').update(payload.id, payload))
+                : (member = await pb.collection('miembros').create(payload));
             closeModal();
             emit('newChanges', isEditMode.value, member);
         } catch (error) {
             if (error.response?.data?.dni?.code === 'validation_not_unique') {
                 const member = await pb
                     .collection('miembros')
-                    .getFirstListItem(`dni="${e.values.dni}"`);
+                    .getFirstListItem(`dni="${payload.dni}"`);
                 if (!member.deleted) {
                     errorDni.value = true;
                 } else {

@@ -10,7 +10,6 @@ const model = computed(() => {
     if (!store.userLogged?.expand?.role?.expand?.permisos) {
         return [];
     }
-    const permissions = store.userLogged?.expand?.role?.expand?.permisos;
     return [
         {
             label: 'Acciones',
@@ -24,19 +23,19 @@ const model = computed(() => {
                     label: 'Pagos',
                     icon: 'pi pi-fw pi-dollar',
                     to: '/admin/pagos',
-                    visible: hasPermission(permissions, 'payments.index')
+                    visible: hasPermission('payments.index')
                 },
                 {
                     label: 'Miembros',
                     icon: 'pi pi-fw pi-user',
                     to: '/admin/miembros',
-                    visible: hasPermission(permissions, 'members.index')
+                    visible: hasPermission('members.index')
                 },
                 {
                     label: 'Reportes',
                     icon: 'pi pi-fw pi-chart-bar',
                     to: '/admin/reportes',
-                    visible: hasPermission(permissions, 'reports.index')
+                    visible: hasPermission('reports.index')
                 },
                 {
                     label: 'Configuración',
@@ -45,17 +44,17 @@ const model = computed(() => {
                         {
                             label: 'General',
                             to: '/admin/configuracion',
-                            visible: hasPermission(permissions, 'settings.index')
+                            visible: hasPermission('settings.index')
                         },
                         {
                             label: 'Planes',
                             to: '/admin/planes',
-                            visible: hasPermission(permissions, 'plan.index')
+                            visible: hasPermission('plan.index')
                         },
                         {
                             label: 'Usuarios',
                             to: '/admin/usuarios',
-                            visible: hasPermission(permissions, 'users.index')
+                            visible: hasPermission('users.index')
                         }
                     ]
                 }

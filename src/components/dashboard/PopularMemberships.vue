@@ -7,13 +7,19 @@
 
 <script setup>
 import pb from '@/service/pocketbase';
-import { onMounted, ref } from 'vue';
-const data = ref([]);
+import { useIndexStore } from '@/storage';
+import { onMounted, ref, watch } from 'vue';
+const store = useIndexStore();
 onMounted(async () => {
     chartOptions.value = setChartOptions();
+});
+const chartData = ref();
+const chartOptions = ref();
+const setChartData = async () => {
     const documentStyle = getComputedStyle(document.body);
     const records = await pb.collection('planes_populares').getList(1, 3, {
-        fields: 'nombre, total_miembros'
+        fields: 'nombre, total_miembros',
+        filter: 'id = "' + store.currentSucursal.id + '"'
     });
 
     const planNames = records.items.map((record) => record.nombre);
@@ -39,10 +45,8 @@ onMounted(async () => {
             }
         ]
     };
-});
-const chartData = ref();
-const chartOptions = ref();
-
+};
+watch(() => store.currentSucursal, setChartData, { immediate: true });
 const setChartOptions = () => {
     const documentStyle = getComputedStyle(document.documentElement);
     const textColor = documentStyle.getPropertyValue('--p-text-color');

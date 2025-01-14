@@ -61,7 +61,12 @@
         <div class="card">
             <div class="flex justify-between">
                 <div>
-                    <span class="block text-muted-color font-semibold">Tasa De Retención</span>
+                    <span class="block text-muted-color font-semibold"
+                        >Tasa De Retención
+                        <i
+                            class="pi pi-info-circle pl-2 cursor-pointer"
+                            v-tooltip.top="'Indica cuantos miembros tienen un plan vigente'"
+                    /></span>
                     <ProgressSpinner
                         v-if="loading"
                         class="float-left !mt-2"
@@ -87,17 +92,29 @@
 </template>
 <script setup>
 import pb from '@/service/pocketbase';
-import { ref, onMounted } from 'vue';
-import { useToast } from 'primevue/usetoast';
+import { useIndexStore } from '@/storage';
 import formatCurrency from '@/utils/formatCurrency';
+import { useToast } from 'primevue/usetoast';
+import { ref, watch } from 'vue';
 const toast = useToast();
 const stats = ref([]);
 const loading = ref(false);
-onMounted(async () => {
+const store = useIndexStore();
+const getStats = async () => {
     try {
         loading.value = true;
-        const result = await pb.collection('dashboard').getFullList();
-        stats.value = result[0];
+        const result = await pb
+            .collection('dashboard')
+            .getFullList({ filter: `id = '${store.currentSucursal.id}'` });
+        if (result.length === 0) {
+            stats.value = {
+                total_recaudado_mensual: 0,
+                total_miembros_activos: 0,
+                tasa_retencion: 0
+            };
+        } else {
+            stats.value = result[0];
+        }
     } catch (error) {
         toast.add({
             severity: 'error',
@@ -108,5 +125,6 @@ onMounted(async () => {
     } finally {
         loading.value = false;
     }
-});
+};
+watch(() => store.currentSucursal, getStats, { immediate: true });
 </script>

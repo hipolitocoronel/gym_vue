@@ -66,6 +66,7 @@
 </template>
 <script setup>
 import pb from '@/service/pocketbase.js';
+import { useIndexStore } from '@/storage';
 import formatCurrency from '@/utils/formatCurrency';
 import dayjs from 'dayjs/esm';
 import { useToast } from 'primevue/usetoast';
@@ -76,6 +77,7 @@ const loading = ref(false);
 const totalRecords = ref(0);
 const rowsPerPage = ref(10); // tamaño de la tabla
 const toast = useToast();
+const store = useIndexStore();
 onMounted(() => getPayments({ first: first.value, rows: rowsPerPage.value }));
 
 const getPayments = async (event) => {
@@ -84,13 +86,12 @@ const getPayments = async (event) => {
         first.value = event.first;
         rowsPerPage.value = event.rows;
         loading.value = true;
-        const search = event.search;
         const currentPage = Math.floor(first.value / rowsPerPage.value) + 1;
         const result = await pb.collection('pagos').getList(currentPage, rowsPerPage.value, {
             sort: '-fecha_pago',
             expand: 'id_plan_plazo, id_miembro, id_plan_plazo.id_plan',
             fields: 'fecha_pago,monto_total,medio_pago, fecha_vencimiento, expand.id_plan_plazo.duracion, expand.id_plan_plazo.precio, expand.id_plan_plazo.expand.id_plan.nombre, expand.id_miembro.nombre, expand.id_miembro.dni',
-            filter: search ? `id_miembro.nombre ~ '${search}'` : ''
+            filter: `id_miembro.nombre ~ '${event.search ?? ''}' && sucursal_id = '${store.currentSucursal.id}' `
         });
 
         totalRecords.value = result.totalItems;

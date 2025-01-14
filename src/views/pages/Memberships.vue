@@ -19,18 +19,17 @@
                 label="Agregar Plan"
                 icon="pi pi-plus"
                 as="router-link"
-                v-if="hasPermission(store.userLogged?.expand.role.expand.permisos, 'plan.create')"
-
+                v-if="hasPermission('plan.create')"
             />
         </div>
         <MembershipList ref="membershipList" @delete-membership="deleteMembership" />
     </div>
-</template> 
+</template>
 <script setup>
 import MembershipList from '@/components/memberships/MembershipList.vue';
 import pb from '@/service/pocketbase.js';
-import { hasPermission } from '@/utils/hasPermission';
 import { useIndexStore } from '@/storage';
+import { hasPermission } from '@/utils/hasPermission';
 import { useDebounceFn } from '@vueuse/core';
 import { useConfirm } from 'primevue/useconfirm';
 import { useToast } from 'primevue/usetoast';

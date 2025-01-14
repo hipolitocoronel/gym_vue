@@ -138,7 +138,7 @@
             <div class="flex gap-4 justify-end mt-6">
                 <Button
                     as="router-link"
-                    to="/planes"
+                    to="/admin/planes"
                     label="Cancelar"
                     severity="secondary"
                 ></Button>
@@ -222,7 +222,9 @@ watch(() => route.params?.id, fetchData, { immediate: true });
 
 const { value: nombre } = useField('nombre');
 const { value: descripcion } = useField('descripcion');
-const { value: horarios } = useField('horarios');
+const { value: horarios } = useField('horarios', [], {
+    initialValue: 'flexible'
+});
 const { value: plazos } = useField('plazos', [], {
     initialValue: [{ duracion: null, precio: null }]
 });
@@ -284,15 +286,16 @@ const validateForm = () => {
 };
 //Solo envia el formulario si no hay errores
 const onFormSubmit = handleSubmit(async (values) => {
-    const planData = {
+    const payload = {
         nombre: values.nombre,
         descripcion: values.descripcion,
-        horarios: schedule.value
+        horario: horarios.value,
+        sucursal_id: store.currentSucursal.id
     };
     try {
         loading.value = true;
         if (isEditMode.value) {
-            await pb.collection('planes').update(route.params.id, planData);
+            await pb.collection('planes').update(route.params.id, payload);
             let newPlazos = plazos.value.filter((plazo) => plazo.id === undefined);
             let oldPlazos = plazos.value.filter((plazo) => plazo.id !== undefined);
             if (removedVariants.length > 0) {
@@ -317,7 +320,7 @@ const onFormSubmit = handleSubmit(async (values) => {
                 });
             }
         } else {
-            const planAdded = await pb.collection('planes').create(planData);
+            const planAdded = await pb.collection('planes').create(payload);
             for (const plazo of plazos.value) {
                 await pb.collection('planes_plazos').create({
                     duracion: plazo.duracion,
@@ -332,7 +335,7 @@ const onFormSubmit = handleSubmit(async (values) => {
             detail: `Plan ${isEditMode.value ? 'Editado' : 'Agregado'}`,
             life: 3000
         });
-        router.push('/planes');
+        router.push('/admin/planes');
     } catch (error) {
         toast.add({
             severity: 'error',
