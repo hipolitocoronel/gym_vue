@@ -17,17 +17,16 @@
                 class="flex flex-col justify-center gap-4 md:flex-row animate-blurred-fade-in animate-delay-400"
             >
                 <Button
-                    class="font-bold mt-10 !p-4 dark:!text-black"
+                    class="!font-bold mt-10 !rounded-xl !p-4 dark:!text-black"
                     as="router-link"
                     to="/auth/register"
-                >
-                    Comenzar Gratis
+                    >Comenzar Gratis
                 </Button>
 
                 <Button
                     outlined
                     @click="smoothScroll('pricing')"
-                    class="md:mt-10 !p-4 !text-white font-bold rounded-md !border-white border hover:bg-primary-200"
+                    class="md:mt-10 !p-4 !text-white font-bold !border-white border hover:bg-primary-200 !rounded-xl"
                 >
                     Ver Planes y Precios
                 </Button>

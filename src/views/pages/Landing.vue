@@ -14,15 +14,15 @@ import AppConfigurator from '@/layout/AppConfigurator.vue';
     <div class="bg-black">
         <AppConfigurator />
         <div
-            class="bg-gradient-to-b from-slate-950 to-black px-3 py-2 h-20 absolute w-full top-0 left-0 z-10"
+            class="absolute top-0 left-0 z-10 w-full h-20 px-3 py-2 bg-gradient-to-b from-slate-950 to-black"
         ></div>
 
         <div id="home" class="landing-wrapper overflow-hidden max-w-[1600px] mx-auto anima">
             <TopbarWidget />
             <HeroWidget />
-            <FeaturesWidget />
-            <HighlightsWidget />
-            <PricingWidget />
+            <FeaturesWidget class="mt-40 mb-60" />
+            <HighlightsWidget class="border-red-400 mb-60" />
+            <PricingWidget class="mb-44" />
             <ContactWidget />
         </div>
         <PreFooterWidget />

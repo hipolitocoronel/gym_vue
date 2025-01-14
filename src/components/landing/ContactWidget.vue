@@ -94,7 +94,7 @@
                 </div>
 
                 <div class="flex justify-end mt-1">
-                    <Button class="!font-semibold" type="submit">Enviar</Button>
+                    <Button class="!font-semibold !px-5" type="submit">Enviar</Button>
                 </div>
             </Form>
         </div>
