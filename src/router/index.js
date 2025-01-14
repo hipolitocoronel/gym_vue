@@ -8,7 +8,7 @@ const router = createRouter({
     routes: [
         {
             path: '/',
-            name: 'landing',
+            name: 'home',
             component: () => import('@/views/pages/Landing.vue')
         },
         {
@@ -77,7 +77,7 @@ const router = createRouter({
                     }
                 },
                 {
-                    path: '/configuracion',
+                    path: 'configuracion',
                     children: [
                         {
                             path: '',

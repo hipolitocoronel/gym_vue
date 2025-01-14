@@ -18,24 +18,24 @@ const model = computed(() => {
                 {
                     label: 'Dashboard',
                     icon: 'pi pi-fw pi-home',
-                    to: '/'
+                    to: '/admin/dashboard'
                 },
                 {
                     label: 'Pagos',
                     icon: 'pi pi-fw pi-dollar',
-                    to: '/pagos',
+                    to: '/admin/pagos',
                     visible: hasPermission(permissions, 'payments.index')
                 },
                 {
                     label: 'Miembros',
                     icon: 'pi pi-fw pi-user',
-                    to: '/miembros',
+                    to: '/admin/miembros',
                     visible: hasPermission(permissions, 'members.index')
                 },
                 {
                     label: 'Reportes',
                     icon: 'pi pi-fw pi-chart-bar',
-                    to: '/reportes',
+                    to: '/admin/reportes',
                     visible: hasPermission(permissions, 'reports.index')
                 },
                 {
@@ -44,17 +44,17 @@ const model = computed(() => {
                     items: [
                         {
                             label: 'General',
-                            to: '/configuracion',
+                            to: '/admin/configuracion',
                             visible: hasPermission(permissions, 'settings.index')
                         },
                         {
                             label: 'Planes',
-                            to: '/planes',
+                            to: '/admin/planes',
                             visible: hasPermission(permissions, 'plan.index')
                         },
                         {
                             label: 'Usuarios',
-                            to: '/usuarios',
+                            to: '/admin/usuarios',
                             visible: hasPermission(permissions, 'users.index')
                         }
                     ]

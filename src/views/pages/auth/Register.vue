@@ -1,5 +1,6 @@
 <script setup>
 import FloatingConfigurator from '@/components/FloatingConfigurator.vue';
+import TopbarWidget from '@/components/landing/TopbarWidget.vue';
 import { useRegisterStore } from '@/storage/register.js';
 import { Form } from '@primevue/forms';
 import { zodResolver } from '@primevue/forms/resolvers/zod';
@@ -7,6 +8,7 @@ import axios from 'axios';
 import { useToast } from 'primevue/usetoast';
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
+
 import { z } from 'zod';
 
 const store = useRegisterStore();
@@ -61,10 +63,13 @@ const googleCallback = (res) => {
 
 <template>
     <FloatingConfigurator />
+    <TopbarWidget />
     <div
         class="bg-surface-50 dark:bg-surface-950 flex items-center justify-center min-h-screen min-w-[100vw] overflow-hidden"
     >
-        <div class="flex flex-col items-center justify-center">
+        <div
+            class="flex flex-col items-center justify-center animate-blurred-fade-in animate-delay-300"
+        >
             <div
                 style="
                     border-radius: 56px;
