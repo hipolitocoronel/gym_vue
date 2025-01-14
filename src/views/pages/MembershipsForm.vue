@@ -222,7 +222,9 @@ watch(() => route.params?.id, fetchData, { immediate: true });
 
 const { value: nombre } = useField('nombre');
 const { value: descripcion } = useField('descripcion');
-const { value: horarios } = useField('horarios');
+const { value: horarios } = useField('horarios', [], {
+    initialValue: 'flexible'
+});
 const { value: plazos } = useField('plazos', [], {
     initialValue: [{ duracion: null, precio: null }]
 });
@@ -287,7 +289,7 @@ const onFormSubmit = handleSubmit(async (values) => {
     const payload = {
         nombre: values.nombre,
         descripcion: values.descripcion,
-        horarios: schedule.value,
+        horario: horarios.value,
         sucursal_id: store.currentSucursal.id
     };
     try {

@@ -73,7 +73,6 @@
                     inputId="endDate"
                     dateFormat="dd/mm/yy"
                     :minDate="startDate"
-                    :maxDate="new Date()"
                     fluid
                     @update:modelValue="refreshReports"
                     iconDisplay="input"
@@ -107,6 +106,7 @@
 <script setup>
 import ReportsList from '@/components/dashboard/ReportsList.vue';
 import pb from '@/service/pocketbase';
+import { useIndexStore } from '@/storage';
 import { useToast } from 'primevue/usetoast';
 import { computed, onMounted, ref } from 'vue';
 const toast = useToast();
@@ -117,7 +117,7 @@ const loadingPeriods = ref(false);
 const loadingExport = ref(false);
 const startDate = ref(new Date(today.setMonth(today.getMonth() - 1)));
 const endDate = ref(new Date());
-
+const store = useIndexStore();
 //Indica cuales son los items seleccionados
 const selectedPaymentMethod = ref(null);
 const selectedPlan = ref(null);
@@ -176,7 +176,7 @@ onMounted(async () => {
         loadingData.value = true;
         plans.value = await pb.collection('planes').getFullList({
             fields: 'id,nombre',
-            filter: 'deleted = null',
+            filter: `deleted = null && sucursal_id = '${store.currentSucursal.id}' `,
             sort: '-created'
         });
     } catch (error) {

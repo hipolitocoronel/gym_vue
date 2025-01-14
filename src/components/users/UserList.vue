@@ -26,7 +26,7 @@ const getUsers = async (event) => {
         loading.value = true;
         const result = await pb.collection('users').getList(currentPage, rowsPerPage.value, {
             sort: '-created',
-            filter: `name~'${event.query ?? ''}' || email~'${event.query ?? ''}' || phone~'${event.query ?? ''}'`,
+            filter: `(name~'${event.query ?? ''}' || email~'${event.query ?? ''}' || phone~'${event.query ?? ''}') && sucursal_id~'${store.currentSucursal.id}' `,
             expand: 'role'
         });
         totalRecords.value = result.totalItems;

@@ -61,7 +61,12 @@
         <div class="card">
             <div class="flex justify-between">
                 <div>
-                    <span class="block text-muted-color font-semibold">Tasa De Retención <i class="pi pi-info-circle pl-2 cursor-pointer" v-tooltip.top="'Indica cuantos miembros tienen un plan vigente'"/></span>
+                    <span class="block text-muted-color font-semibold"
+                        >Tasa De Retención
+                        <i
+                            class="pi pi-info-circle pl-2 cursor-pointer"
+                            v-tooltip.top="'Indica cuantos miembros tienen un plan vigente'"
+                    /></span>
                     <ProgressSpinner
                         v-if="loading"
                         class="float-left !mt-2"
@@ -87,16 +92,20 @@
 </template>
 <script setup>
 import pb from '@/service/pocketbase';
-import { ref, onMounted } from 'vue';
-import { useToast } from 'primevue/usetoast';
+import { useIndexStore } from '@/storage';
 import formatCurrency from '@/utils/formatCurrency';
+import { useToast } from 'primevue/usetoast';
+import { onMounted, ref } from 'vue';
 const toast = useToast();
 const stats = ref([]);
 const loading = ref(false);
+const store = useIndexStore();
 onMounted(async () => {
     try {
         loading.value = true;
-        const result = await pb.collection('dashboard').getFullList();
+        const result = await pb
+            .collection('dashboard')
+            .getFullList({ filter: `id = '${store.currentSucursal.id}'` });
         stats.value = result[0];
     } catch (error) {
         toast.add({

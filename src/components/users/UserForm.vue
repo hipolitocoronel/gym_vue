@@ -80,12 +80,11 @@ onMounted(() => {
     getRoles();
 });
 const onFormSubmit = async (e) => {
-    console.log(e);
     if (e.valid) {
         try {
             loading.value = true;
 
-            let payload = { ...e.values };
+            let payload = { ...e.values, sucursal_id: store.currentSucursal.id };
             if (isEditMode.value) {
                 delete payload.password;
                 delete payload.passwordConfirm;

@@ -7,13 +7,15 @@
 
 <script setup>
 import pb from '@/service/pocketbase';
+import { useIndexStore } from '@/storage';
 import { onMounted, ref } from 'vue';
-const data = ref([]);
+const store = useIndexStore();
 onMounted(async () => {
     chartOptions.value = setChartOptions();
     const documentStyle = getComputedStyle(document.body);
     const records = await pb.collection('planes_populares').getList(1, 3, {
-        fields: 'nombre, total_miembros'
+        fields: 'nombre, total_miembros',
+        filter: 'id = "' + store.currentSucursal.id + '"'
     });
 
     const planNames = records.items.map((record) => record.nombre);

@@ -136,13 +136,13 @@ const logout = () => {
         <div class="layout-topbar-actions">
             <div v-if="store.currentGym?.expand?.servicio_id?.precio == 0">
                 <Button
-                    rounded
                     size="small"
-                    label="Explorar premium"
                     severity="contrast"
                     as="router-link"
+                    class="!font-bold !rounded-xl !px-4"
                     to="/cambiar-plan"
-                ></Button>
+                    >Explorar premium</Button
+                >
             </div>
 
             <div class="layout-config-menu">
