@@ -41,13 +41,8 @@
                         v-tooltip.top="'Editar Plan'"
                         size="large"
                         as="router-link"
-                        v-if="
-                            hasPermission(
-                                store.userLogged?.expand.role.expand.permisos,
-                                'plan.update'
-                            )
-                        "
-                        :to="`/planes/editar-plan/${data.id}`"
+                        v-if="hasPermission('plan.update')"
+                        :to="`/admin/planes/editar-plan/${data.id}`"
                     />
                     <Button
                         icon="pi pi-trash"
@@ -55,12 +50,7 @@
                         severity="danger"
                         variant="outlined"
                         rounded
-                        v-if="
-                            hasPermission(
-                                store.userLogged?.expand.role.expand.permisos,
-                                'plan.delete'
-                            )
-                        "
+                        v-if="hasPermission('plan.delete')"
                         v-tooltip.top="'Eliminar Plan'"
                         size="large"
                     />

@@ -1,3 +1,7 @@
-export function hasPermission(userPermisions = [], requiredPermission) {
-    return userPermisions.some((p) => p.permiso.includes(requiredPermission));
+import { useIndexStore } from '@/storage';
+export function hasPermission(requiredPermission) {
+    const store = useIndexStore();
+    return store.userLogged?.expand?.role?.expand?.permisos.some((p) =>
+        p.permiso.includes(requiredPermission)
+    );
 }

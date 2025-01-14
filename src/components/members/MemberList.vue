@@ -55,12 +55,7 @@
                         rounded
                         v-tooltip.top="'Editar Miembro'"
                         size="large"
-                        v-if="
-                            hasPermission(
-                                store.userLogged?.expand.role.expand.permisos,
-                                'members.update'
-                            )
-                        "
+                        v-if="hasPermission('members.update')"
                         @click="$emit('editMember', data)"
                     />
                     <Button
@@ -69,12 +64,7 @@
                         severity="danger"
                         variant="outlined"
                         rounded
-                        v-if="
-                            hasPermission(
-                                store.userLogged?.expand.role.expand.permisos,
-                                'members.delete'
-                            )
-                        "
+                        v-if="hasPermission('members.delete')"
                         v-tooltip.top="'Eliminar Miembro'"
                         size="large"
                     />

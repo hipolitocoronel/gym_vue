@@ -48,7 +48,7 @@ import FloatingConfigurator from '@/components/FloatingConfigurator.vue';
                             <Button
                                 as="router-link"
                                 label="Volver al Inicio"
-                                to="/"
+                                to="/admin/dashboard"
                                 severity="warn"
                             />
                         </div>

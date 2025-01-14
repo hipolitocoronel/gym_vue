@@ -18,9 +18,7 @@
                 @click="addPaymentModal = true"
                 label="Registrar Pago"
                 icon="pi pi-dollar"
-                v-if="
-                    hasPermission(store.userLogged?.expand.role.expand.permisos, 'payments.create')
-                "
+                v-if="hasPermission('payments.create')"
             />
         </div>
         <PaymentList @viewPayment="viewPayment" ref="paymentList" />

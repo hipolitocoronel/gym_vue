@@ -61,12 +61,11 @@ import { useIndexStore } from '@/storage';
 import formatCurrency from '@/utils/formatCurrency';
 import dayjs from 'dayjs/esm';
 import { useToast } from 'primevue/usetoast';
-import { onMounted, ref } from 'vue';
+import { ref, watch } from 'vue';
 const payments = ref([]);
 const loading = ref(false);
 const toast = useToast();
 const store = useIndexStore();
-onMounted(() => getPayments());
 
 const getPayments = async () => {
     try {
@@ -89,4 +88,5 @@ const getPayments = async () => {
         loading.value = false;
     }
 };
+watch(() => store.currentSucursal, getPayments, { immediate: true });
 </script>

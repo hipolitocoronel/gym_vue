@@ -3,6 +3,7 @@ import pb from '@/service/pocketbase';
 import { useIndexStore } from '@/storage';
 import { hasPermission } from '@/utils/hasPermission';
 import { createRouter, createWebHistory } from 'vue-router';
+import loadInitialData from './guards/authGuard';
 const router = createRouter({
     history: createWebHistory(),
     routes: [
@@ -105,7 +106,10 @@ const router = createRouter({
                     name: 'cambiar-plan',
                     component: () => import('@/views/pages/ChangePlan.vue')
                 }
-            ]
+            ],
+            meta: {
+                requiresAuth: true
+            }
         },
         {
             path: '/pages/notfound',
@@ -148,43 +152,35 @@ const router = createRouter({
 });
 router.beforeEach(async (to, from, next) => {
     const store = useIndexStore();
-    //Si el usuario no esta autenticado y la ruta requiere autenticacion
+
+    // Si el usuario no está autenticado y la ruta requiere autenticación
     if (to.meta.requiresAuth && !pb.authStore.isValid) {
-        return next({ name: 'login' });
+        if (to.name !== 'login') {
+            return next({ name: 'login' });
+        }
+        return;
     }
-    // Obtener informacion del usuario
-    if (!store.userLogged) {
-        await getUserLogged();
+
+    // Cargar datos iniciales si el usuario esta autenticado
+    if (pb.authStore.isValid && !store.currentGym) {
+        const isDataLoaded = await loadInitialData();
+        if (!isDataLoaded) {
+            return next({ name: 'login' });
+        }
     }
-    //Si el usuario esta autenticado y la ruta es de autenticacion redirigir al dashboard
-    if (to.meta.requiresUnauth && pb.authStore.isValid) {
+    // Si en usuario ya esta autenticado no pueda acceder al login
+    if (to.meta.requiresUnauth && store.userLogged) {
         return next({ name: 'dashboard' });
     }
     if (to.meta.requiredPermission) {
-        const hasRequired = hasPermission(
-            store.userLogged?.expand?.role?.expand?.permisos,
-            to.meta.requiredPermission
-        );
+        const hasRequiredPermission = hasPermission(to.meta.requiredPermission);
 
-        if (!hasRequired) {
+        if (!hasRequiredPermission) {
             return next({ name: 'accessDenied' });
         }
     }
 
     next();
 });
-const getUserLogged = async () => {
-    try {
-        const store = useIndexStore();
-        const user = await pb.collection('users').getOne(pb.authStore.record.id, {
-            expand: 'role, role.permisos',
-            fields: '*, expand.role.expand.permisos.permiso, expand.role.nombre, expand.role.id'
-        });
 
-        // guardando informacion de usuario
-        store.setUserLogged(user);
-    } catch (error) {
-        console.log(error);
-    }
-};
 export default router;

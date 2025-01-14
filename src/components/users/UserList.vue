@@ -79,12 +79,7 @@ defineExpose({ getUsers });
                         severity="secondary"
                         variant="outlined"
                         rounded
-                        v-if="
-                            hasPermission(
-                                store.userLogged?.expand.role.expand.permisos,
-                                'users.update'
-                            )
-                        "
+                        v-if="hasPermission('users.update')"
                         v-tooltip.top="'Editar usuario'"
                     />
                     <Button
@@ -94,12 +89,7 @@ defineExpose({ getUsers });
                         variant="outlined"
                         rounded
                         v-tooltip.top="'Eliminar usuario'"
-                        v-if="
-                            hasPermission(
-                                store.userLogged?.expand.role.expand.permisos,
-                                'users.delete'
-                            )
-                        "
+                        v-if="hasPermission('users.delete')"
                     />
                 </div>
             </template>

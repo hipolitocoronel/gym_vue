@@ -73,6 +73,7 @@
                     inputId="endDate"
                     dateFormat="dd/mm/yy"
                     :minDate="startDate"
+                    :maxDate="new Date()"
                     fluid
                     @update:modelValue="refreshReports"
                     iconDisplay="input"
@@ -99,7 +100,13 @@
             </div>
         </div>
 
-        <ReportsList :startDate :endDate ref="reportsList" />
+        <ReportsList
+            :startDate="
+                dayjs(startDate).startOf('day').add(3, 'hours').format('YYYY-MM-DD HH:mm:ss')
+            "
+            :endDate="dayjs(endDate).endOf('day').add(3, 'hours').format('YYYY-MM-DD HH:mm:ss')"
+            ref="reportsList"
+        />
     </div>
 </template>
 
@@ -107,6 +114,7 @@
 import ReportsList from '@/components/dashboard/ReportsList.vue';
 import pb from '@/service/pocketbase';
 import { useIndexStore } from '@/storage';
+import dayjs from 'dayjs/esm';
 import { useToast } from 'primevue/usetoast';
 import { computed, onMounted, ref } from 'vue';
 const toast = useToast();

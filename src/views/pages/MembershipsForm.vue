@@ -138,7 +138,7 @@
             <div class="flex gap-4 justify-end mt-6">
                 <Button
                     as="router-link"
-                    to="/planes"
+                    to="/admin/planes"
                     label="Cancelar"
                     severity="secondary"
                 ></Button>
@@ -335,7 +335,7 @@ const onFormSubmit = handleSubmit(async (values) => {
             detail: `Plan ${isEditMode.value ? 'Editado' : 'Agregado'}`,
             life: 3000
         });
-        router.push('/planes');
+        router.push('/admin/planes');
     } catch (error) {
         toast.add({
             severity: 'error',
