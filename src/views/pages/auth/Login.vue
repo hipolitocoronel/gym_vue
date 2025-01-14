@@ -14,8 +14,6 @@ const loading = ref(false);
 const toast = useToast();
 const router = useRouter();
 
-const checked = ref(false);
-
 const initialValues = ref({
     email: '',
     password: ''
@@ -86,10 +84,13 @@ const googleLogin = async () => {
 
 <template>
     <FloatingConfigurator />
+    <TopbarWidget />
     <div
         class="bg-surface-50 dark:bg-surface-950 flex items-center justify-center min-h-screen min-w-[100vw] overflow-hidden"
     >
-        <div class="flex flex-col items-center justify-center">
+        <div
+            class="flex flex-col items-center justify-center animate-blurred-fade-in animate-delay-300"
+        >
             <div
                 style="
                     border-radius: 56px;

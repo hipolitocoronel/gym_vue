@@ -1,4 +1,6 @@
 <script setup>
+import logoBlack from '@/assets/img/logo-black.png';
+import logoWhite from '@/assets/img/logo-white.png';
 import { useLayout } from '@/layout/composables/layout';
 import pb from '@/service/pocketbase';
 import { useIndexStore } from '@/storage';
@@ -79,16 +81,8 @@ const logout = () => {
             <!-- <button class="layout-menu-button layout-topbar-action" @click="toggleMenu">
                 <i class="pi pi-bars"></i>
             </button> -->
-            <router-link to="/" class="layout-topbar-logo" style="gap: 0.2rem">
-                <img
-                    :src="
-                        isDarkTheme
-                            ? '/src/assets/img/logo-white.png'
-                            : '/src/assets/img/logo-black.png'
-                    "
-                    alt="logo"
-                    width="35px"
-                />
+            <router-link to="/admin/dashboard" class="layout-topbar-logo" style="gap: 0.2rem">
+                <img :src="isDarkTheme ? logoWhite : logoBlack" alt="logo" width="35px" />
 
                 <p class="font-extrabold">Gym<span class="font-bold text-primary">Admin</span></p>
             </router-link>

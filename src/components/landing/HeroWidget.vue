@@ -16,7 +16,13 @@
             <div
                 class="flex flex-col justify-center gap-4 md:flex-row animate-blurred-fade-in animate-delay-400"
             >
-                <Button class="font-bold mt-10 !p-4 !text-black"> Solicita Una Demo </Button>
+                <Button
+                    class="font-bold mt-10 !p-4 dark:!text-black"
+                    as="router-link"
+                    to="/auth/register"
+                >
+                    Comenzar Gratis
+                </Button>
 
                 <Button
                     outlined
@@ -27,11 +33,14 @@
                 </Button>
             </div>
         </div>
-        <img
-            src="@/assets/img/captura_sistema.webp"
-            class="mt-10 lg:mt-2 animate-fade-in-up animate-delay-700"
-            alt="Captura Sistema"
-        />
+
+        <div class="w-full aspect-video">
+            <img
+                src="@/assets/img/captura_sistema.webp"
+                class="mt-10 lg:mt-2 animate-fade-in-up animate-delay-700"
+                alt="Captura Sistema"
+            />
+        </div>
     </div>
 </template>
 <script setup>
