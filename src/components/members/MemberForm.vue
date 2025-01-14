@@ -185,6 +185,7 @@ const isEditMode = computed(() => {
 
 const initialValues = computed(() => {
     return {
+        id: props.memberData?.id || '',
         nombre: props.memberData?.nombre || '',
         telefono: props.memberData?.telefono || null,
         direccion: props.memberData?.direccion || '',

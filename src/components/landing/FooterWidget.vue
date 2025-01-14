@@ -7,7 +7,7 @@
                 >
                     <img src="/src/assets/img/logo-white.png" alt="logo" width="70px" />
                     <p class="font-extrabold text-white">
-                        Gym<span class="font-bold text-primary text-lg">Master</span>
+                        Gym<span class="font-bold text-primary text-lg">Admin</span>
                     </p>
                 </a>
             </div>
@@ -46,7 +46,7 @@
         <div
             class="flex justify-between flex-col sm:flex-row gap-3 items-center sm:mb-2 mt-4 sm:mt-7 text-gray-300"
         >
-            <p class="text-sm sm:text-base">© 2024 GymMaster. Todos los derechos reservados</p>
+            <p class="text-sm sm:text-base">© 2024 GymAdmin. Todos los derechos reservados</p>
             <div class="flex gap-4">
                 <a href="https://www.facebook.com/" target="_blank">
                     <i class="pi pi-facebook sm:!text-lg"></i>

@@ -18,6 +18,9 @@
                 @click="showModal = true"
                 label="Agregar Miembro"
                 icon="pi pi-user-plus"
+                v-if="
+                    hasPermission(store.userLogged?.expand.role.expand.permisos, 'members.create')
+                "
             />
         </div>
         <MemberList
@@ -40,12 +43,15 @@ import MemberDetails from '@/components/members/MemberDetails.vue';
 import MemberForm from '@/components/members/MemberForm.vue';
 import MemberList from '@/components/members/MemberList.vue';
 import pb from '@/service/pocketbase.js';
+import { useIndexStore } from '@/storage';
+import { hasPermission } from '@/utils/hasPermission';
 import { useDebounceFn } from '@vueuse/core';
 import { useConfirm } from 'primevue/useconfirm';
 import { useToast } from 'primevue/usetoast';
 import { ref } from 'vue';
 const confirm = useConfirm();
 const toast = useToast();
+const store = useIndexStore();
 //Modal de creacion y edicion
 const showModal = ref(false);
 //Modal de detalles
@@ -71,7 +77,7 @@ const watchMember = (member) => {
 //Actualizar la tabla despues de agregar o editar un miembrp
 const updateTable = (isEditMode) => {
     searchInput.value = '';
-    memberList.value.getMembers({ first: 0, rows: 10 });
+    memberList.value.getMembers({ first: 0, rows: null });
     toast.add({
         severity: 'success',
         summary: 'Confirmado',
@@ -80,7 +86,7 @@ const updateTable = (isEditMode) => {
     });
 };
 const searchMembers = useDebounceFn(() => {
-    memberList.value.getMembers({ first: 0, rows: 10, search: searchInput.value });
+    memberList.value.getMembers({ first: 0, rows: null, search: searchInput.value });
 }, 400);
 
 //Modal de eliminacion de miembro
@@ -103,7 +109,7 @@ const deleteMember = (member) => {
                 member.deleted = new Date();
                 await pb.collection('miembros').update(member.id, member);
                 searchInput.value = '';
-                memberList.value.getMembers({ first: 0, rows: 10 });
+                memberList.value.getMembers({ first: 0, rows: null });
                 toast.add({
                     severity: 'success',
                     summary: 'Confirmado',

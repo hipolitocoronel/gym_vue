@@ -21,8 +21,8 @@ const app = createApp(App);
 const pinia = createPinia();
 
 app.use(vue3GoogleLogin, googleOpc);
-app.use(router);
 app.use(pinia);
+app.use(router);
 app.use(PrimeVue, {
     theme: {
         preset: Aura,

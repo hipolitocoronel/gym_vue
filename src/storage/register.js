@@ -6,6 +6,7 @@ const defaultForm = {
         email: '',
         phone: null,
         password: '',
+        role: '1zrdxpzbsx25ndb',
         passwordConfirm: '',
         emailVisibility: true
     },

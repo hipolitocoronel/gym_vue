@@ -2,7 +2,10 @@
 import { useLayout } from '@/layout/composables/layout';
 import smoothScroll from '@/utils/smoothScroll';
 import { onMounted, ref } from 'vue';
+import { useRoute } from 'vue-router';
 const { toggleDarkMode, isDarkTheme } = useLayout();
+
+const route = useRoute();
 
 onMounted(() => {
     // Habilitar dark mode si no está habilitado
@@ -16,7 +19,7 @@ const visible = ref(false);
 
 <template>
     <div
-        class="px-2 py-2 flex items-center justify-between bg-transparent backdrop-blur-lg fixed top-0 left-1/2 transform -translate-x-1/2 rounded-b-xl w-full md:w-[95%] lg:w-[90%] xl:w-[80%] z-50"
+        class="px-2 py-3 flex items-center justify-between bg-transparent backdrop-blur-lg fixed top-0 left-1/2 transform -translate-x-1/2 rounded-b-xl w-full md:w-[95%] lg:w-[90%] xl:w-[80%] z-50"
     >
         <div class="flex items-center gap-4 animate-slide-in-left">
             <Button class="lg:!hidden !text-white" size="large" text @click="visible = true"
@@ -25,13 +28,14 @@ const visible = ref(false);
             <router-link to="/" class="flex items-center layout-topbar-logo" style="gap: 0.2rem">
                 <img src="/src/assets/img/logo-white.png" alt="logo" width="35px" />
                 <p class="font-extrabold text-white">
-                    Gym<span class="text-lg font-bold text-primary">Master</span>
+                    Gym<span class="text-lg font-bold text-primary">Admin</span>
                 </p>
             </router-link>
         </div>
 
         <ul
             class="absolute flex-row items-center hidden gap-8 list-none transform cursor-pointer lg:flex left-1/2 md:-translate-x-1/2 animate-fade-in animate-delay-300"
+            :class="route.name !== 'home' ? 'invisible' : ''"
         >
             <li>
                 <a
@@ -67,18 +71,21 @@ const visible = ref(false);
             </li>
         </ul>
 
-        <div class="hidden gap-2 lg:flex animate-slide-in-right">
+        <div class="hidden gap-3 lg:flex animate-slide-in-right">
             <Button
                 label="Iniciar Sesión"
                 as="router-link"
                 text
                 to="/auth/login"
-                class="!rounded-xl !border-gray-200 !text-white"
+                size="small"
+                class="!rounded-xl !border-gray-200 !px-3 !text-white"
             ></Button>
             <Button
                 label="Registrarse"
-                to="/auth/login"
-                class="!rounded-xl !py-4 !border-none !text-black"
+                as="router-link"
+                to="/auth/register"
+                class="!rounded-xl !py-3 !px-3 !border-none !text-black"
+                size="small"
             ></Button>
         </div>
         <Drawer
@@ -143,7 +150,6 @@ const visible = ref(false);
                             </li>
                         </ul>
                     </div>
-                    <div class="mt-auto"></div>
                 </div>
             </template>
         </Drawer>

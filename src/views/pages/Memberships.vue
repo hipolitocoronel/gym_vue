@@ -19,14 +19,18 @@
                 label="Agregar Plan"
                 icon="pi pi-plus"
                 as="router-link"
+                v-if="hasPermission(store.userLogged?.expand.role.expand.permisos, 'plan.create')"
+
             />
         </div>
         <MembershipList ref="membershipList" @delete-membership="deleteMembership" />
     </div>
-</template>
+</template> 
 <script setup>
 import MembershipList from '@/components/memberships/MembershipList.vue';
 import pb from '@/service/pocketbase.js';
+import { hasPermission } from '@/utils/hasPermission';
+import { useIndexStore } from '@/storage';
 import { useDebounceFn } from '@vueuse/core';
 import { useConfirm } from 'primevue/useconfirm';
 import { useToast } from 'primevue/usetoast';
@@ -35,20 +39,10 @@ const confirm = useConfirm();
 const toast = useToast();
 const searchInput = ref('');
 const membershipList = ref(null);
+const store = useIndexStore();
 
-//Actualizar la tabla despues de agregar o editar un plan
-const updateTable = (isEditMode) => {
-    searchInput.value = '';
-    membershipList.value.getMemberships({ first: 0, rows: 10 });
-    toast.add({
-        severity: 'success',
-        summary: 'Confirmado',
-        detail: `Plan ${isEditMode ? 'Editado' : 'Agregado'}`,
-        life: 3000
-    });
-};
 const searchMemberships = useDebounceFn(() => {
-    membershipList.value.getMemberships({ first: 0, rows: 10, search: searchInput.value });
+    membershipList.value.getMemberships({ first: 0, rows: null, search: searchInput.value });
 }, 300);
 
 //Modal de eliminacion de plan
@@ -70,7 +64,7 @@ const deleteMembership = (membership) => {
             try {
                 membership.deleted = new Date();
                 await pb.collection('planes').update(membership.id, membership);
-                membershipList.value.getMemberships({ first: 0, rows: 10 });
+                membershipList.value.getMemberships({ first: 0, rows: null });
 
                 toast.add({
                     severity: 'success',

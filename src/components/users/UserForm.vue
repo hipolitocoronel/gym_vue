@@ -1,14 +1,16 @@
 <script setup>
 import pb from '@/service/pocketbase.js';
+import { useIndexStore } from '@/storage';
 import { Form } from '@primevue/forms';
 import { zodResolver } from '@primevue/forms/resolvers/zod';
 import { useToast } from 'primevue/usetoast';
-import { computed, defineEmits, defineProps, ref } from 'vue';
+import { computed, defineEmits, defineProps, onMounted, ref } from 'vue';
 import { z } from 'zod';
 
 const emit = defineEmits(['closeModal', 'reloadData']);
 const toast = useToast();
-
+const roles = ref([]);
+const store = useIndexStore();
 const props = defineProps({
     visible: Boolean,
     data: Object
@@ -23,7 +25,8 @@ const initialValues = computed(() => {
         email: props.data?.email ?? '',
         phone: props.data?.phone ?? null,
         password: isEditMode.value ? 'password' : '',
-        passwordConfirm: isEditMode.value ? 'password' : ''
+        passwordConfirm: isEditMode.value ? 'password' : '',
+        role: props.data?.role ?? ''
     };
 });
 
@@ -46,14 +49,36 @@ const resolver = zodResolver(
                 .string()
                 .min(3, { message: 'Mínimo 3 caracteres.' })
                 .max(20, { message: 'No debe exceder 20 caracteres.' }),
-            passwordConfirm: z.string().min(3, { message: 'Mínimo 3 caracteres.' })
+            passwordConfirm: z.string().min(3, { message: 'Mínimo 3 caracteres.' }),
+            role: z.string().nonempty({ message: 'El rol es obligatorio.' })
         })
         .refine((data) => data.password === data.passwordConfirm, {
             message: 'Las contraseñas no coinciden.',
             path: ['passwordConfirm']
         })
 );
-
+const getRoles = async () => {
+    try {
+        const result = await pb.collection('roles').getFullList({
+            sort: '-created',
+            filter: `(id_gimnasio = null || id_gimnasio = '${store?.currentGym?.id}') && deleted = null`
+        });
+        roles.value = result;
+    } catch (error) {
+        console.log(error);
+        toast.add({
+            severity: 'error',
+            summary: 'Operación fallida',
+            detail: 'No se pudo obtener los roles',
+            life: 3000
+        });
+    } finally {
+        loading.value = false;
+    }
+};
+onMounted(() => {
+    getRoles();
+});
 const onFormSubmit = async (e) => {
     console.log(e);
     if (e.valid) {
@@ -156,7 +181,21 @@ const onFormSubmit = async (e) => {
                     {{ $form.phone.error.message }}
                 </Message>
             </div>
-
+            <div class="flex flex-col gap-1" v-auto-animate>
+                <label for="role">Rol</label>
+                <Select
+                    id="role"
+                    :options="roles"
+                    name="role"
+                    optionLabel="nombre"
+                    optionValue="id"
+                    fluid
+                    placeholder="Ingrese el rol del usuario"
+                />
+                <Message v-if="$form.role?.invalid" severity="error" size="small" variant="simple">
+                    {{ $form.role.error.message }}
+                </Message>
+            </div>
             <div class="flex gap-4" :style="isEditMode ? 'display: none' : ''">
                 <div class="flex flex-col gap-1" v-auto-animate>
                     <label for="password">Contraseña</label>
