@@ -2,12 +2,12 @@
 import UserForm from '@/components/users/UserForm.vue';
 import UserList from '@/components/users/UserList.vue';
 import pb from '@/service/pocketbase';
+import { useIndexStore } from '@/storage';
+import { hasPermission } from '@/utils/hasPermission';
 import { useDebounceFn } from '@vueuse/core';
 import { useConfirm } from 'primevue/useconfirm';
 import { useToast } from 'primevue/usetoast';
 import { ref } from 'vue';
-import {useIndexStore} from '@/storage';
-import { hasPermission } from '@/utils/hasPermission';
 const confirm = useConfirm();
 const toast = useToast();
 const showModal = ref(false);
@@ -89,7 +89,11 @@ const deleteUser = (user) => {
                 />
             </IconField>
 
-            <Button severity="contrast" @click="showModal = true" v-if="hasPermission(store.userLogged?.expand.role.expand.permisos, 'users.create')">
+            <Button
+                severity="contrast"
+                @click="showModal = true"
+                v-if="hasPermission('users.create')"
+            >
                 <i class="pi pi-plus"></i>
                 <span>Nuevo usuario</span>
             </Button>

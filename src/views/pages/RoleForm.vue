@@ -47,7 +47,7 @@
                     severity="secondary"
                     as="router-link"
                     :disabled="loadingButton"
-                    to="/configuracion"
+                    to="/admin/configuracion"
                     class="mt-8"
                 />
                 <Button label="Guardar" :loading="loadingButton" type="submit" class="mt-8" />
@@ -117,7 +117,6 @@ const fetchData = async () => {
     if (isEditMode.value) {
         try {
             const rol = await pb.collection('roles').getOne(route.params.id);
-
             nombre.value = rol.nombre;
             permisosSeleccionados.value = rol.permisos;
         } catch (error) {
@@ -176,9 +175,8 @@ const onFormSubmit = handleSubmit(async (values) => {
             await pb.collection('roles').create(payload);
         }
         showToast('success', 'Confirmado', `Rol ${isEditMode.value ? 'actualizado' : 'creado'}.`);
-        router.push('/configuracion');
+        router.push('/admin/configuracion');
     } catch (error) {
-        console.log(error);
         showToast('error', 'Operación fallida', 'Intentelo nuevamente.');
     } finally {
         loadingButton.value = false;

@@ -56,22 +56,23 @@
     </div>
 </template>
 <script setup>
-import { ref, onMounted } from 'vue';
-import { useToast } from 'primevue/usetoast';
-import dayjs from 'dayjs/esm';
-import formatCurrency from '@/utils/formatCurrency';
 import pb from '@/service/pocketbase.js';
+import { useIndexStore } from '@/storage';
+import formatCurrency from '@/utils/formatCurrency';
+import dayjs from 'dayjs/esm';
+import { useToast } from 'primevue/usetoast';
+import { ref, watch } from 'vue';
 const payments = ref([]);
 const loading = ref(false);
 const toast = useToast();
-
-onMounted(() => getPayments());
+const store = useIndexStore();
 
 const getPayments = async () => {
     try {
         loading.value = true;
         const result = await pb.collection('pagos').getList(1, 5, {
             sort: '-fecha_pago',
+            filter: `sucursal_id = '${store.currentSucursal.id}'`,
             expand: 'id_plan_plazo, id_miembro, id_plan_plazo.id_plan',
             fields: 'fecha_pago,monto_total,medio_pago, fecha_vencimiento, expand.id_plan_plazo.duracion, expand.id_plan_plazo.precio, expand.id_plan_plazo.expand.id_plan.nombre, expand.id_miembro.nombre, expand.id_miembro.dni'
         });
@@ -87,4 +88,5 @@ const getPayments = async () => {
         loading.value = false;
     }
 };
+watch(() => store.currentSucursal, getPayments, { immediate: true });
 </script>

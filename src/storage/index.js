@@ -7,6 +7,7 @@ export const useIndexStore = defineStore('index', {
             currentGym: null,
             sucursales: [{ direccion: '' }],
             currentSucursal: null,
+            currentSucursalIndex: 0,
             activeConfigTab: 'tu-informacion'
         };
     },
@@ -38,6 +39,10 @@ export const useIndexStore = defineStore('index', {
         },
         setActiveConfigTab(tab) {
             this.activeConfigTab = tab;
+        },
+        setCurrentSucursalIndex(index) {
+            this.currentSucursalIndex = index;
+            localStorage.setItem('currentSucursalIndex', index.toString());
         }
     }
 });

@@ -33,8 +33,8 @@ const onFormSubmit = async (e) => {
             const authData = await pb
                 .collection('users')
                 .authWithPassword(e.values.email, e.values.password, {
-                    expand: 'role, role.permisos',
-                    fields: '*, expand.role.expand.permisos.permiso, expand.role.nombre, expand.role.id'
+                    expand: 'role, role.permisos, sucursal_id',
+                    fields: '*, expand.role.expand.permisos.permiso, expand.role.nombre, expand.role.id, expand.sucursal_id'
                 });
 
             // guardando informacion de usuario

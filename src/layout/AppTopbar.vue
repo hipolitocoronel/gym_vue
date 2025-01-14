@@ -4,7 +4,7 @@ import logoWhite from '@/assets/img/logo-white.png';
 import { useLayout } from '@/layout/composables/layout';
 import pb from '@/service/pocketbase';
 import { useIndexStore } from '@/storage';
-import { onMounted, ref } from 'vue';
+import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 
 const store = useIndexStore();
@@ -15,14 +15,6 @@ const router = useRouter();
 
 const { toggleDarkMode, isDarkTheme } = useLayout();
 
-onMounted(async () => {
-    // Obtener gimnasio actual si no está definido
-
-    if (!store.currentGym) {
-        await getCurrentGym(store.userLogged.gimnasio_id);
-    }
-});
-
 const toggle = (event) => {
     op.value.toggle(event);
 };
@@ -30,46 +22,14 @@ const toggle = (event) => {
 const toggleSucursales = (event) => {
     menuSucursales.value.toggle(event);
 };
-
-const getCurrentGym = async (id) => {
-    try {
-        loading.value = true;
-
-        const gym = await pb.collection('gimnasios').getOne(id, { expand: 'servicio_id' });
-
-        // guardando informacion de usuario
-        store.setCurrentGym(gym);
-
-        // Obteniendo sucursales
-        getSucursales(gym.id);
-    } catch (error) {
-        console.log(error);
-    } finally {
-        loading.value = false;
-    }
+const changeSucursal = (sucursal, index) => {
+    store.setCurrentSucursal(sucursal);
+    store.setCurrentSucursalIndex(index);
+    router.push({ name: 'dashboard' });
 };
-
-const getSucursales = async (gym_id) => {
-    try {
-        loading.value = true;
-
-        const sucursales = await pb
-            .collection('sucursales')
-            .getFullList({ filter: `gimnasio_id = "${gym_id}"` });
-
-        // guardando informacion de usuario
-        store.setSucursales(sucursales);
-
-        store.setCurrentSucursal(sucursales[0]);
-    } catch (error) {
-        console.log(error);
-    } finally {
-        loading.value = false;
-    }
-};
-
 const logout = () => {
     pb.authStore.clear();
+    store.setUserLogged(null);
     store.currentGym = null;
     router.push({ name: 'login' });
 };
@@ -114,7 +74,7 @@ const logout = () => {
                         <span class="mr-2"> Sucursal: </span>
 
                         <span class="font-medium">
-                            {{ store.sucursales[0].direccion }}
+                            {{ store.currentSucursal.direccion }}
                         </span>
                     </div>
                     <i class="ml-1 pi {pi-fw} pi-arrows-v"></i>
@@ -130,13 +90,13 @@ const logout = () => {
         <div class="layout-topbar-actions">
             <div v-if="store.currentGym?.expand?.servicio_id?.precio == 0">
                 <Button
-                    rounded
                     size="small"
-                    label="Explorar premium"
                     severity="contrast"
                     as="router-link"
-                    to="/cambiar-plan"
-                ></Button>
+                    class="!font-bold !rounded-xl !px-4"
+                    to="cambiar-plan"
+                    >Explorar premium</Button
+                >
             </div>
 
             <div class="layout-config-menu">
@@ -181,9 +141,10 @@ const logout = () => {
     <Popover ref="menuSucursales">
         <div class="flex flex-col gap-2 w-[22rem]">
             <p class="p-1 mb-1 font-semibold">Listado de sucursales</p>
-            <div v-for="sucursal in store.sucursales">
+            <div v-for="(sucursal, index) in store.sucursales">
                 <Button
                     fluid
+                    @click="changeSucursal(sucursal, index)"
                     severity="secondary"
                     :variant="store.currentSucursal.id == sucursal.id ? 'secondary' : 'text'"
                 >

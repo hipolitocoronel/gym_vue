@@ -18,9 +18,7 @@
                 @click="showModal = true"
                 label="Agregar Miembro"
                 icon="pi pi-user-plus"
-                v-if="
-                    hasPermission(store.userLogged?.expand.role.expand.permisos, 'members.create')
-                "
+                v-if="hasPermission('members.create')"
             />
         </div>
         <MemberList

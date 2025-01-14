@@ -26,7 +26,8 @@ const initialValues = computed(() => {
         phone: props.data?.phone ?? null,
         password: isEditMode.value ? 'password' : '',
         passwordConfirm: isEditMode.value ? 'password' : '',
-        role: props.data?.role ?? ''
+        role: props.data?.role ?? '',
+        sucursal_id: props.data?.sucursal_id ?? []
     };
 });
 
@@ -50,7 +51,8 @@ const resolver = zodResolver(
                 .min(3, { message: 'Mínimo 3 caracteres.' })
                 .max(20, { message: 'No debe exceder 20 caracteres.' }),
             passwordConfirm: z.string().min(3, { message: 'Mínimo 3 caracteres.' }),
-            role: z.string().nonempty({ message: 'El rol es obligatorio.' })
+            role: z.string().nonempty({ message: 'El rol es obligatorio.' }),
+            sucursal_id: z.array(z.string()).nonempty({ message: 'La sucursal es obligatoria.' })
         })
         .refine((data) => data.password === data.passwordConfirm, {
             message: 'Las contraseñas no coinciden.',
@@ -80,7 +82,6 @@ onMounted(() => {
     getRoles();
 });
 const onFormSubmit = async (e) => {
-    console.log(e);
     if (e.valid) {
         try {
             loading.value = true;
@@ -182,6 +183,27 @@ const onFormSubmit = async (e) => {
                 </Message>
             </div>
             <div class="flex flex-col gap-1" v-auto-animate>
+                <label for="sucursal">Sucursales</label>
+                <MultiSelect
+                    name="sucursal_id"
+                    :options="store.sucursales"
+                    filter
+                    fluid
+                    option-value="id"
+                    optionLabel="direccion"
+                    placeholder="Selecciona la sucursal"
+                />
+                <Message
+                    v-if="$form.sucursal_id?.invalid"
+                    severity="error"
+                    size="small"
+                    variant="simple"
+                >
+                    {{ $form.sucursal_id.error.message }}
+                </Message>
+            </div>
+
+            <div class="flex flex-col gap-1" v-auto-animate>
                 <label for="role">Rol</label>
                 <Select
                     id="role"
@@ -196,6 +218,7 @@ const onFormSubmit = async (e) => {
                     {{ $form.role.error.message }}
                 </Message>
             </div>
+
             <div class="flex gap-4" :style="isEditMode ? 'display: none' : ''">
                 <div class="flex flex-col gap-1" v-auto-animate>
                     <label for="password">Contraseña</label>

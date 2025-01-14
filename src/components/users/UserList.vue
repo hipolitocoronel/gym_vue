@@ -26,7 +26,7 @@ const getUsers = async (event) => {
         loading.value = true;
         const result = await pb.collection('users').getList(currentPage, rowsPerPage.value, {
             sort: '-created',
-            filter: `name~'${event.query ?? ''}' || email~'${event.query ?? ''}' || phone~'${event.query ?? ''}'`,
+            filter: `(name~'${event.query ?? ''}' || email~'${event.query ?? ''}' || phone~'${event.query ?? ''}') && sucursal_id~'${store.currentSucursal.id}' `,
             expand: 'role'
         });
         totalRecords.value = result.totalItems;
@@ -79,12 +79,7 @@ defineExpose({ getUsers });
                         severity="secondary"
                         variant="outlined"
                         rounded
-                        v-if="
-                            hasPermission(
-                                store.userLogged?.expand.role.expand.permisos,
-                                'users.update'
-                            )
-                        "
+                        v-if="hasPermission('users.update')"
                         v-tooltip.top="'Editar usuario'"
                     />
                     <Button
@@ -94,12 +89,7 @@ defineExpose({ getUsers });
                         variant="outlined"
                         rounded
                         v-tooltip.top="'Eliminar usuario'"
-                        v-if="
-                            hasPermission(
-                                store.userLogged?.expand.role.expand.permisos,
-                                'users.delete'
-                            )
-                        "
+                        v-if="hasPermission('users.delete')"
                     />
                 </div>
             </template>
