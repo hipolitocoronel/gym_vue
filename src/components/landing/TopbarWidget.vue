@@ -77,7 +77,7 @@ const visible = ref(false);
             ></Button>
             <Button
                 label="Registrarse"
-                to="/auth/login"
+                to="/auth/register"
                 class="!rounded-xl !py-4 !border-none !text-black"
             ></Button>
         </div>

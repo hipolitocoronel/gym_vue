@@ -6,35 +6,40 @@ const router = createRouter({
     routes: [
         {
             path: '/',
+            name: 'landing',
+            component: () => import('@/views/pages/Landing.vue')
+        },
+        {
+            path: '/admin',
             component: AppLayout,
             children: [
                 {
-                    path: '/',
+                    path: 'dashboard',
                     name: 'dashboard',
                     component: () => import('@/views/Dashboard.vue')
                 },
                 {
-                    path: '/miembros',
+                    path: 'miembros',
                     name: 'miembros',
                     component: () => import('@/views/members/Members.vue')
                 },
                 {
-                    path: '/usuarios',
+                    path: 'usuarios',
                     name: 'usuarios',
                     component: () => import('@/views/pages/Users.vue')
                 },
                 {
-                    path: '/pagos',
+                    path: 'pagos',
                     name: 'pagos',
                     component: () => import('@/views/pages/Payments.vue')
                 },
                 {
-                    path: '/reportes',
+                    path: 'reportes',
                     name: 'reportes',
                     component: () => import('@/views/pages/Reports.vue')
                 },
                 {
-                    path: '/planes',
+                    path: 'planes',
                     children: [
                         {
                             path: '',
@@ -55,21 +60,16 @@ const router = createRouter({
                     ]
                 },
                 {
-                    path: '/configuracion',
+                    path: 'configuracion',
                     name: 'configuracion',
                     component: () => import('@/views/pages/Settings.vue')
                 },
                 {
-                    path: '/cambiar-plan',
+                    path: 'cambiar-plan',
                     name: 'cambiar-plan',
                     component: () => import('@/views/pages/ChangePlan.vue')
                 }
             ]
-        },
-        {
-            path: '/landing',
-            name: 'landing',
-            component: () => import('@/views/pages/Landing.vue')
         },
         {
             path: '/pages/notfound',
