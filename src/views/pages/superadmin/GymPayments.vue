@@ -79,16 +79,22 @@
                             severity="secondary"
                             variant="outlined"
                             rounded
-                            v-tooltip.top="'Ver Gimnasio'"
+                            @click="
+                                visible = true;
+                                paymentData = data;
+                            "
+                            v-tooltip.top="'Ver Detalle'"
                             size="large"
                         />
                     </div>
                 </template>
             </Column>
         </DataTable>
+        <GymPaymentsDetails :visible @closeModal="visible = false" :paymentData />
     </div>
 </template>
 <script setup>
+import GymPaymentsDetails from '@/components/superadmin/GymPaymentsDetails.vue';
 import pb from '@/service/pocketbase';
 import formatCurrency from '@/utils/formatCurrency';
 import getPaymentStatus from '@/utils/getPaymentStatus';
@@ -103,7 +109,8 @@ const totalRecords = ref(0);
 const rowsPerPage = ref(10); // tamaño de la tabla
 const toast = useToast();
 const searchInput = ref('');
-
+const visible = ref(false);
+const paymentData = ref({});
 onMounted(() => getPayments({ first: first.value, rows: rowsPerPage.value }));
 
 const searchPayments = useDebounceFn(() => {
@@ -124,7 +131,7 @@ const getPayments = async (event) => {
             .collection('servicios_pagos')
             .getList(currentPage, rowsPerPage.value, {
                 sort: '-created',
-                fields: '*, expand.gimnasio_id.nombre, expand.gimnasio_id.logo, expand.gimnasio_id.id, expand.gimnasio_id.collectionId ,  expand.servicio_id.nombre',
+                fields: '*, expand.gimnasio_id.nombre, expand.gimnasio_id.logo, expand.gimnasio_id.correo, expand.gimnasio_id.telefono, expand.gimnasio_id.id, expand.gimnasio_id.collectionId ,  expand.servicio_id.nombre',
                 filter: `gimnasio_id.nombre~'${search ?? ''}'`,
                 expand: 'gimnasio_id, servicio_id'
             });

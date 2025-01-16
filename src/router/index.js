@@ -2,6 +2,7 @@ import AppLayout from '@/layout/AppLayout.vue';
 import pb from '@/service/pocketbase';
 import { useIndexStore } from '@/storage';
 import { hasPermission } from '@/utils/hasPermission';
+import isSuperAdmin from '@/utils/isSuperAdmin';
 import { createRouter, createWebHistory } from 'vue-router';
 import loadInitialData from './guards/authGuard';
 const router = createRouter({
@@ -104,17 +105,34 @@ const router = createRouter({
                 {
                     path: 'gimnasios',
                     name: 'gimnasios',
-                    component: () => import('@/views/pages/superadmin/Gyms.vue')
+                    component: () => import('@/views/pages/superadmin/Gyms.vue'),
+                    meta: {
+                        requiresSuperAdmin: true
+                    }
                 },
                 {
                     path: 'pagos-gimnasios',
                     name: 'pagos-gimnasios',
-                    component: () => import('@/views/pages/superadmin/GymPayments.vue')
+                    component: () => import('@/views/pages/superadmin/GymPayments.vue'),
+                    meta: {
+                        requiresSuperAdmin: true
+                    }
                 },
                 {
                     path: 'reportes-gimnasios',
                     name: 'reportes-gimnasios',
-                    component: () => import('@/views/pages/superadmin/GymReports.vue')
+                    component: () => import('@/views/pages/superadmin/GymReports.vue'),
+                    meta: {
+                        requiresSuperAdmin: true
+                    }
+                },
+                {
+                    path: 'consultas',
+                    name: 'consultas',
+                    component: () => import('@/views/pages/superadmin/Inquiries.vue'),
+                    meta: {
+                        requiresSuperAdmin: true
+                    }
                 },
                 {
                     path: 'cambiar-plan',
@@ -182,6 +200,9 @@ router.beforeEach(async (to, from, next) => {
         if (!isDataLoaded) {
             return next({ name: 'login' });
         }
+    }
+    if (to.meta.requiresSuperAdmin && !isSuperAdmin()) {
+        return next({ name: 'accessDenied' });
     }
     // Si en usuario ya esta autenticado no pueda acceder al login
     if (to.meta.requiresUnauth && store.userLogged) {

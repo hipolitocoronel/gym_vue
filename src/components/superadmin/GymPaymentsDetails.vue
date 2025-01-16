@@ -8,15 +8,19 @@
     >
         <div class="flex flex-col gap-4">
             <div>
-                <p class="text-gray-700 dark:text-gray-300 text-lg">Información del Miembro</p>
+                <p class="text-gray-700 dark:text-gray-300 text-lg">Información del Gimnasio</p>
                 <div class="mt-3 grid grid-cols-2">
-                    <p class="sub-header">DNI</p>
                     <p class="sub-header">NOMBRE</p>
+                    <p class="sub-header">CORREO</p>
                     <p class="main-info">
-                        {{ paymentData.expand.id_miembro.dni }}
+                        {{ paymentData.expand.gimnasio_id.nombre }}
                     </p>
+                    <p class="main-info">{{ paymentData.expand.gimnasio_id.correo }}</p>
+                </div>
+                <div class="mt-3 flex flex-col">
+                    <p class="sub-header">TELEFONO</p>
                     <p class="main-info">
-                        {{ paymentData.expand.id_miembro.nombre }}
+                        {{ paymentData.expand.gimnasio_id.telefono }}
                     </p>
                 </div>
             </div>
@@ -28,28 +32,31 @@
                             <p class="sub-header">FECHA</p>
                             <p class="sub-header">PLAN</p>
                             <p class="main-info">
-                                {{ dayjs(paymentData.fecha_pago).format('DD/MM/YYYY') }}
+                                {{ dayjs(paymentData.payment_date).format('DD/MM/YYYY') }}
                             </p>
+                            <p class="main-info">{{ paymentData.expand.servicio_id.nombre }}</p>
+                        </div>
+                        <div class="grid grid-cols-2">
+                            <p class="sub-header">ESTADO</p>
+                            <p class="sub-header">VENCIMIENTO</p>
                             <p class="main-info">
                                 {{
-                                    `${paymentData.expand.id_plan_plazo.expand.id_plan.nombre} ${paymentData.expand.id_plan_plazo.duracion} ${paymentData.expand.id_plan_plazo.duracion > 1 ? 'meses' : 'mes'}`
+                                    paymentData.estado.charAt(0).toUpperCase() +
+                                    paymentData.estado.slice(1)
                                 }}
+                            </p>
+                            <p class="main-info">
+                                {{ dayjs(paymentData.due_date).format('DD/MM/YYYY') }}
                             </p>
                         </div>
                         <div class="grid grid-cols-2">
-                            <p class="sub-header">MÉTODO DE PAGO</p>
-                            <p class="sub-header">VENCIMIENTO</p>
+                            <p class="sub-header">MONTO COBRADO</p>
+                            <p class="sub-header">MONTO RECIBIDO</p>
                             <p class="main-info">
-                                {{ paymentData.medio_pago }}
+                                {{ formatCurrency(paymentData.monto_recibido) }}
                             </p>
-                            <p class="main-info">
-                                {{ dayjs(paymentData.fecha_vencimiento).format('DD/MM/YYYY') }}
-                            </p>
-                        </div>
-                        <div>
-                            <p class="sub-header">MONTO TOTAL</p>
                             <p class="font-bold text-2xl">
-                                {{ formatCurrency(paymentData.monto_total) }}
+                                {{ formatCurrency(paymentData.monto_cobrado) }}
                             </p>
                         </div>
                     </div>
@@ -70,7 +77,6 @@
 import formatCurrency from '@/utils/formatCurrency';
 import dayjs from 'dayjs/esm';
 import { defineProps } from 'vue';
-
 const props = defineProps({
     visible: Boolean,
     paymentData: Object

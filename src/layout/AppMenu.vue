@@ -35,6 +35,11 @@ const model = computed(() => {
                         label: 'Reportes',
                         icon: 'pi pi-fw pi-chart-bar',
                         to: '/admin/reportes-gimnasios'
+                    },
+                    {
+                        label: 'Consultas',
+                        icon: 'pi pi-fw pi-inbox',
+                        to: '/admin/consultas'
                     }
                 ]
             }
