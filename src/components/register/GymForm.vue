@@ -14,11 +14,7 @@ const form = ref(null);
 const resolver = zodResolver(
     z.object({
         nombre: z.string().min(3, { message: 'Mínimo 4 caracteres.' }),
-        correo: z
-            .string()
-            .email({ message: 'Correo electrónico inválido' })
-            .optional()
-            .or(z.literal('')),
+        correo: z.string().email({ message: 'Correo electrónico inválido' }),
         telefono: z
             .number({ message: 'El teléfono es obligatorio.' })
             .min(1, { message: 'El teléfono es obligatorio.' })
@@ -125,7 +121,7 @@ defineExpose({ validate });
             </div>
 
             <div class="flex flex-col flex-1 gap-1 mb-4" v-auto-animate>
-                <label for="correo">Correo electrónico</label>
+                <label for="correo">Correo electrónico <span class="text-red-400">*</span></label>
                 <InputText
                     name="correo"
                     id="correo"

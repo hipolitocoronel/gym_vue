@@ -2,7 +2,6 @@
 import UserForm from '@/components/users/UserForm.vue';
 import UserList from '@/components/users/UserList.vue';
 import pb from '@/service/pocketbase';
-import { useIndexStore } from '@/storage';
 import { hasPermission } from '@/utils/hasPermission';
 import { useDebounceFn } from '@vueuse/core';
 import { useConfirm } from 'primevue/useconfirm';
@@ -14,7 +13,7 @@ const showModal = ref(false);
 const querySearch = ref('');
 const userList = ref(null);
 const userData = ref({});
-const store = useIndexStore();
+
 const closeModal = () => {
     showModal.value = false;
     userData.value = {};
