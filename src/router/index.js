@@ -112,6 +112,11 @@ const router = createRouter({
                     component: () => import('@/views/pages/superadmin/GymPayments.vue')
                 },
                 {
+                    path: 'reportes-gimnasios',
+                    name: 'reportes-gimnasios',
+                    component: () => import('@/views/pages/superadmin/GymReports.vue')
+                },
+                {
                     path: 'cambiar-plan',
                     name: 'cambiar-plan',
                     component: () => import('@/views/pages/ChangePlan.vue')

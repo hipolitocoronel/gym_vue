@@ -47,16 +47,23 @@
                     </div>
                 </template>
             </Column>
-
-            <Column header="Servicio">
+            <Column header="Estado">
                 <template #body="{ data }">
-                    <Tag :value="data.expand.servicio_id.nombre" severity="info" />
+                    <Tag
+                        :value="`${data.estado.charAt(0).toUpperCase()}${data.estado.slice(1)}`"
+                        :severity="getPaymentStatus(data.estado)"
+                    />
                 </template>
             </Column>
             <Column
                 :field="(data) => dayjs(data.payment_date).format('DD/MM/YYYY')"
                 header="Fecha de Pago"
             >
+            </Column>
+            <Column header="Servicio">
+                <template #body="{ data }">
+                    <Tag :value="data.expand.servicio_id.nombre" severity="info" />
+                </template>
             </Column>
 
             <Column :field="(data) => formatCurrency(data.monto_cobrado)" header="Monto Cobrado">
@@ -84,6 +91,7 @@
 <script setup>
 import pb from '@/service/pocketbase';
 import formatCurrency from '@/utils/formatCurrency';
+import getPaymentStatus from '@/utils/getPaymentStatus';
 import { useDebounceFn } from '@vueuse/core';
 import dayjs from 'dayjs/esm';
 import { useToast } from 'primevue/usetoast';

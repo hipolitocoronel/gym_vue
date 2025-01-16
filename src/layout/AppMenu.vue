@@ -34,7 +34,7 @@ const model = computed(() => {
                     {
                         label: 'Reportes',
                         icon: 'pi pi-fw pi-chart-bar',
-                        to: '/admin/reportes'
+                        to: '/admin/reportes-gimnasios'
                     }
                 ]
             }
