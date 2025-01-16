@@ -60,16 +60,18 @@ const stepsManager = async () => {
 
 const createAccount = () => {
     loading.value = true;
+    const sucursalesID = [];
     pb.collection('gimnasios')
         .create(store.formData[2])
         .then(async (newGym) => {
             for (const sucursal of store.formData[3]) {
                 const payload = { ...sucursal, gimnasio_id: newGym.id };
-                await pb.collection('sucursales').create(payload);
+                const result = await pb.collection('sucursales').create(payload);
+                sucursalesID.push(result.id);
             }
 
             pb.collection('users')
-                .create({ ...store.formData[1], gimnasio_id: newGym.id })
+                .create({ ...store.formData[1], sucursal_id: sucursalesID })
                 .then(() => {
                     router.push({ name: 'login' });
                     toast.add({

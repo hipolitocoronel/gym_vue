@@ -102,6 +102,16 @@ const router = createRouter({
                     }
                 },
                 {
+                    path: 'gimnasios',
+                    name: 'gimnasios',
+                    component: () => import('@/views/pages/superadmin/Gyms.vue')
+                },
+                {
+                    path: 'pagos-gimnasios',
+                    name: 'pagos-gimnasios',
+                    component: () => import('@/views/pages/superadmin/GymPayments.vue')
+                },
+                {
                     path: 'cambiar-plan',
                     name: 'cambiar-plan',
                     component: () => import('@/views/pages/ChangePlan.vue')

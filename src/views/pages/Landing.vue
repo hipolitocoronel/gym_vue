@@ -17,12 +17,12 @@ import AppConfigurator from '@/layout/AppConfigurator.vue';
             class="absolute top-0 left-0 z-10 w-full h-20 px-3 py-2 bg-gradient-to-b from-slate-950 to-black"
         ></div>
 
-        <div id="home" class="landing-wrapper overflow-hidden max-w-[1600px] mx-auto anima">
+        <div id="home" class="landing-wrapper overflow-hidden max-w-[1600px] mx-auto">
             <TopbarWidget />
             <HeroWidget />
-            <FeaturesWidget class="mt-40 mb-60" />
-            <HighlightsWidget class="border-red-400 mb-60" />
-            <PricingWidget class="mb-44" />
+            <FeaturesWidget class="mt-28 mb-44" />
+            <HighlightsWidget class="border-red-400 mb-32" />
+            <PricingWidget class="mb-24" />
             <ContactWidget />
         </div>
         <PreFooterWidget />

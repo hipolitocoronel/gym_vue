@@ -121,7 +121,6 @@ const googleCallback = (res) => {
                                 type="text"
                                 placeholder="Correo electrónico"
                                 class="w-full md:w-[30rem] mb-2"
-                                v-model="email"
                             />
 
                             <Message
@@ -144,7 +143,6 @@ const googleCallback = (res) => {
                             <Password
                                 name="password"
                                 id="password"
-                                v-model="password"
                                 placeholder="Contraseña"
                                 :toggleMask="true"
                                 class="mb-2"

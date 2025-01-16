@@ -1,6 +1,7 @@
 <script setup>
 import { useIndexStore } from '@/storage';
 import { hasPermission } from '@/utils/hasPermission';
+import isSuperAdmin from '@/utils/isSuperAdmin';
 import { computed } from 'vue';
 import AppMenuItem from './AppMenuItem.vue';
 
@@ -10,57 +11,87 @@ const model = computed(() => {
     if (!store.userLogged?.expand?.role?.expand?.permisos) {
         return [];
     }
-    return [
-        {
-            label: 'Acciones',
-            items: [
-                {
-                    label: 'Dashboard',
-                    icon: 'pi pi-fw pi-home',
-                    to: '/admin/dashboard'
-                },
-                {
-                    label: 'Pagos',
-                    icon: 'pi pi-fw pi-dollar',
-                    to: '/admin/pagos',
-                    visible: hasPermission('payments.index')
-                },
-                {
-                    label: 'Miembros',
-                    icon: 'pi pi-fw pi-user',
-                    to: '/admin/miembros',
-                    visible: hasPermission('members.index')
-                },
-                {
-                    label: 'Reportes',
-                    icon: 'pi pi-fw pi-chart-bar',
-                    to: '/admin/reportes',
-                    visible: hasPermission('reports.index')
-                },
-                {
-                    label: 'Configuración',
-                    icon: 'pi pi-fw pi-cog',
-                    items: [
-                        {
-                            label: 'General',
-                            to: '/admin/configuracion',
-                            visible: hasPermission('settings.index')
-                        },
-                        {
-                            label: 'Planes',
-                            to: '/admin/planes',
-                            visible: hasPermission('plan.index')
-                        },
-                        {
-                            label: 'Usuarios',
-                            to: '/admin/usuarios',
-                            visible: hasPermission('users.index')
-                        }
-                    ]
-                }
-            ]
-        }
-    ];
+    if (isSuperAdmin()) {
+        return [
+            {
+                label: 'Acciones',
+                items: [
+                    {
+                        label: 'Dashboard',
+                        icon: 'pi pi-fw pi-home',
+                        to: '/admin/dashboard'
+                    },
+                    {
+                        label: 'Pagos',
+                        icon: 'pi pi-fw pi-dollar',
+                        to: '/admin/pagos-gimnasios'
+                    },
+                    {
+                        label: 'Gimnasios',
+                        icon: 'fas fa-dumbbell',
+                        to: '/admin/gimnasios'
+                    },
+                    {
+                        label: 'Reportes',
+                        icon: 'pi pi-fw pi-chart-bar',
+                        to: '/admin/reportes'
+                    }
+                ]
+            }
+        ];
+    } else {
+        return [
+            {
+                label: 'Acciones',
+                items: [
+                    {
+                        label: 'Dashboard',
+                        icon: 'pi pi-fw pi-home',
+                        to: '/admin/dashboard'
+                    },
+                    {
+                        label: 'Pagos',
+                        icon: 'pi pi-fw pi-dollar',
+                        to: '/admin/pagos',
+                        visible: hasPermission('payments.index')
+                    },
+                    {
+                        label: 'Miembros',
+                        icon: 'pi pi-fw pi-user',
+                        to: '/admin/miembros',
+                        visible: hasPermission('members.index')
+                    },
+                    {
+                        label: 'Reportes',
+                        icon: 'pi pi-fw pi-chart-bar',
+                        to: '/admin/reportes',
+                        visible: hasPermission('reports.index')
+                    },
+                    {
+                        label: 'Configuración',
+                        icon: 'pi pi-fw pi-cog',
+                        items: [
+                            {
+                                label: 'General',
+                                to: '/admin/configuracion',
+                                visible: hasPermission('settings.index')
+                            },
+                            {
+                                label: 'Planes',
+                                to: '/admin/planes',
+                                visible: hasPermission('plan.index')
+                            },
+                            {
+                                label: 'Usuarios',
+                                to: '/admin/usuarios',
+                                visible: hasPermission('users.index')
+                            }
+                        ]
+                    }
+                ]
+            }
+        ];
+    }
 });
 </script>
 

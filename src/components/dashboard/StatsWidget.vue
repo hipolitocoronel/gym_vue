@@ -32,7 +32,9 @@
         <div class="card mb-0">
             <div class="flex justify-between">
                 <div>
-                    <span class="block text-muted-color font-semibold">Miembros Activos</span>
+                    <span class="block text-muted-color font-semibold"
+                        >{{ isSuperAdmin() ? 'Gimnasios' : 'Miembros' }} Activos</span
+                    >
                     <ProgressSpinner
                         v-if="loading"
                         class="float-left !mt-2"
@@ -43,7 +45,11 @@
                         v-else
                         class="text-surface-900 dark:text-surface-0 font-semibold text-2xl mt-6"
                     >
-                        {{ stats.total_miembros_activos }}
+                        {{
+                            isSuperAdmin()
+                                ? stats.total_gimnasios_activos
+                                : stats.total_miembros_activos
+                        }}
                     </div>
                 </div>
                 <div
@@ -65,7 +71,11 @@
                         >Tasa De Retención
                         <i
                             class="pi pi-info-circle pl-2 cursor-pointer"
-                            v-tooltip.top="'Indica cuantos miembros tienen un plan vigente'"
+                            v-tooltip.top="
+                                'Indica cuantos' +
+                                (isSuperAdmin() ? ' gimnasios ' : ' miembros ') +
+                                'tienen un plan vigente'
+                            "
                     /></span>
                     <ProgressSpinner
                         v-if="loading"
@@ -94,24 +104,31 @@
 import pb from '@/service/pocketbase';
 import { useIndexStore } from '@/storage';
 import formatCurrency from '@/utils/formatCurrency';
+import isSuperAdmin from '@/utils/isSuperAdmin';
 import { useToast } from 'primevue/usetoast';
 import { ref, watch } from 'vue';
 const toast = useToast();
 const stats = ref([]);
 const loading = ref(false);
 const store = useIndexStore();
+
 const getStats = async () => {
     try {
         loading.value = true;
-        const result = await pb
-            .collection('dashboard')
-            .getFullList({ filter: `id = '${store.currentSucursal.id}'` });
+        const result = isSuperAdmin()
+            ? await pb.collection('dashboard_superadmin').getFullList()
+            : await pb
+                  .collection('dashboard')
+                  .getFullList({ filter: `id = '${store.currentSucursal.id}'` });
+
         if (result.length === 0) {
             stats.value = {
                 total_recaudado_mensual: 0,
-                total_miembros_activos: 0,
                 tasa_retencion: 0
             };
+            isSuperAdmin()
+                ? (stats.value.total_gimnasios_activos = 0)
+                : (stats.value.total_miembros_activos = 0);
         } else {
             stats.value = result[0];
         }

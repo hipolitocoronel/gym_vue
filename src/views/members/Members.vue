@@ -41,7 +41,6 @@ import MemberDetails from '@/components/members/MemberDetails.vue';
 import MemberForm from '@/components/members/MemberForm.vue';
 import MemberList from '@/components/members/MemberList.vue';
 import pb from '@/service/pocketbase.js';
-import { useIndexStore } from '@/storage';
 import { hasPermission } from '@/utils/hasPermission';
 import { useDebounceFn } from '@vueuse/core';
 import { useConfirm } from 'primevue/useconfirm';
@@ -49,7 +48,6 @@ import { useToast } from 'primevue/usetoast';
 import { ref } from 'vue';
 const confirm = useConfirm();
 const toast = useToast();
-const store = useIndexStore();
 //Modal de creacion y edicion
 const showModal = ref(false);
 //Modal de detalles

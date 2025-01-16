@@ -6,10 +6,11 @@
                 label="Ver Más"
                 severity="secondary"
                 as="router-link"
-                to="/admin/pagos"
+                to="/admin/pagos-gimnasios"
                 size="small"
             />
         </div>
+
         <DataTable
             size="large"
             class="mb-4"
@@ -18,9 +19,9 @@
             @page="getPayments"
         >
             <template #empty> Sin registros. </template>
-            <Column header="Cliente">
+            <Column header="Gimnasio">
                 <template #body="{ data }">
-                    {{ data.expand.id_miembro.nombre }}
+                    {{ data.expand.gimnasio_id.nombre }}
                 </template>
             </Column>
             <Column header="Fecha De Pago"
@@ -29,27 +30,16 @@
                 </template>
             </Column>
             <Column header="Plan">
+                <template #body="{ data }"> {{ data.expand.servicio_id.nombre }} </template>
+            </Column>
+            <Column header="Monto Cobrado">
                 <template #body="{ data }">
-                    {{
-                        data.expand.id_plan_plazo.expand.id_plan.nombre +
-                        ' ' +
-                        data.expand.id_plan_plazo.duracion +
-                        (data.expand.id_plan_plazo.duracion > 1 ? ' meses' : ' mes')
-                    }}
+                    {{ formatCurrency(data.monto_cobrado) }}
                 </template>
             </Column>
-            <Column header="Monto">
+            <Column header="Monto Recibido">
                 <template #body="{ data }">
-                    {{ formatCurrency(data.monto_total) }}
-                </template>
-            </Column>
-            <Column header="Medio de pago">
-                <template #body="{ data }"
-                    ><Tag
-                        :severity="data.medio_pago == 'Efectivo' ? 'success' : 'primary'"
-                        :value="data.medio_pago"
-                    >
-                    </Tag>
+                    {{ formatCurrency(data.monto_recibido) }}
                 </template>
             </Column>
         </DataTable>
@@ -57,24 +47,20 @@
 </template>
 <script setup>
 import pb from '@/service/pocketbase.js';
-import { useIndexStore } from '@/storage';
 import formatCurrency from '@/utils/formatCurrency';
 import dayjs from 'dayjs/esm';
 import { useToast } from 'primevue/usetoast';
-import { ref, watch } from 'vue';
+import { onMounted, ref } from 'vue';
 const payments = ref([]);
 const loading = ref(false);
 const toast = useToast();
-const store = useIndexStore();
 
 const getPayments = async () => {
     try {
         loading.value = true;
-        const result = await pb.collection('pagos').getList(1, 5, {
-            sort: '-fecha_pago',
-            filter: `sucursal_id = '${store.currentSucursal.id}'`,
-            expand: 'id_plan_plazo, id_miembro, id_plan_plazo.id_plan',
-            fields: 'fecha_pago,monto_total,medio_pago, fecha_vencimiento, expand.id_plan_plazo.duracion, expand.id_plan_plazo.precio, expand.id_plan_plazo.expand.id_plan.nombre, expand.id_miembro.nombre, expand.id_miembro.dni'
+        const result = await pb.collection('servicios_pagos').getList(1, 5, {
+            sort: '-created',
+            expand: 'gimnasio_id, servicio_id'
         });
         payments.value = result.items;
     } catch (error) {
@@ -88,5 +74,5 @@ const getPayments = async () => {
         loading.value = false;
     }
 };
-watch(() => store.currentSucursal, getPayments, { immediate: true });
+onMounted(() => getPayments());
 </script>

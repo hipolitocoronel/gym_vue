@@ -17,6 +17,7 @@
 <script setup>
 import pb from '@/service/pocketbase';
 import { useIndexStore } from '@/storage';
+import isSuperAdmin from '@/utils/isSuperAdmin';
 import 'chartjs-adapter-date-fns';
 import { es } from 'date-fns/locale';
 import dayjs from 'dayjs/esm';
@@ -35,10 +36,13 @@ const setChartData = async (event) => {
         .subtract(event === 'Semanal' ? 7 : 1, event === 'Semanal' ? 'day' : 'month')
         .format(dateFormat);
 
-    const records = await pb.collection('ingresos_diarios').getFullList({
-        fields: 'total_monto, fecha_pago',
-        filter: `fecha_pago >= '${filterDate}' && id = '${store.currentSucursal.id}'`
-    });
+    const records = isSuperAdmin()
+        ? await pb
+              .collection('ingresos_diarios_superadmin')
+              .getFullList({ filter: `fecha_pago >= '${filterDate}'` })
+        : await pb.collection('ingresos_diarios').getFullList({
+              filter: `fecha_pago >= '${filterDate}' && id = '${store.currentSucursal.id}'`
+          });
     const dates = records.map((record) => dayjs(record.fecha_pago).format('YYYY-MM-DD'));
     const data = records.map((record) => record.total_monto);
     chartData.value = {

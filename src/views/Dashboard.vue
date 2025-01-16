@@ -1,8 +1,10 @@
 <script setup>
 import PopularMemberships from '@/components/dashboard/PopularMemberships.vue';
+import RecentPaymentsAdminWidget from '@/components/dashboard/RecentPaymentsAdminWidget.vue';
 import RecentPaymentsWidget from '@/components/dashboard/RecentPaymentsWidget.vue';
 import RevenueStreamWidget from '@/components/dashboard/RevenueStreamWidget.vue';
 import StatsWidget from '@/components/dashboard/StatsWidget.vue';
+import isSuperAdmin from '@/utils/isSuperAdmin';
 </script>
 
 <template>
@@ -15,7 +17,8 @@ import StatsWidget from '@/components/dashboard/StatsWidget.vue';
             <PopularMemberships />
         </div>
         <div class="col-span-12">
-            <RecentPaymentsWidget />
+            <RecentPaymentsAdminWidget v-if="isSuperAdmin()" />
+            <RecentPaymentsWidget v-else />
         </div>
     </div>
 </template>

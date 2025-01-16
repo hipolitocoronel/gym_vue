@@ -4,6 +4,7 @@ import logoWhite from '@/assets/img/logo-white.png';
 import { useLayout } from '@/layout/composables/layout';
 import pb from '@/service/pocketbase';
 import { useIndexStore } from '@/storage';
+import isSuperAdmin from '@/utils/isSuperAdmin';
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 
@@ -32,6 +33,7 @@ const logout = () => {
     store.setUserLogged(null);
     store.currentGym = null;
     router.push({ name: 'login' });
+    localStorage.removeItem('currentSucursalIndex');
 };
 </script>
 
@@ -47,7 +49,7 @@ const logout = () => {
                 <p class="font-extrabold">Gym<span class="font-bold text-primary">Admin</span></p>
             </router-link>
         </div>
-        <div class="flex items-center gap-2">
+        <div class="flex items-center gap-2" v-if="!isSuperAdmin()">
             <Avatar
                 shape="circle"
                 :label="store.currentGym?.nombre?.substring(0, 1)"
@@ -88,7 +90,7 @@ const logout = () => {
         </div>
 
         <div class="layout-topbar-actions">
-            <div v-if="store.currentGym?.expand?.servicio_id?.precio == 0">
+            <div v-if="store.currentGym?.expand?.servicio_id?.precio == 0 && !isSuperAdmin()">
                 <Button
                     size="small"
                     severity="contrast"

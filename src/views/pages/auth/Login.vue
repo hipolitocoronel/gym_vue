@@ -84,7 +84,7 @@ const googleLogin = async () => {
 
 <template>
     <FloatingConfigurator />
-    <TopbarWidget />
+    <TopbarWidget class="hidden lg:flex" />
     <div
         class="bg-surface-50 dark:bg-surface-950 flex items-center justify-center min-h-screen min-w-[100vw] overflow-hidden"
     >
@@ -145,7 +145,6 @@ const googleLogin = async () => {
                                 type="text"
                                 placeholder="Correo electrónico"
                                 class="w-full md:w-[30rem] mb-2"
-                                v-model="email"
                             />
 
                             <Message
@@ -168,7 +167,6 @@ const googleLogin = async () => {
                             <Password
                                 name="password"
                                 id="password"
-                                v-model="password"
                                 placeholder="Contraseña"
                                 :toggleMask="true"
                                 class="mb-2"

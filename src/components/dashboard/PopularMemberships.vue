@@ -1,6 +1,8 @@
 <template>
     <div class="card flex flex-col justify-center h-[367px]">
-        <h1 class="mb-2 text-xl font-semibold">Planes Populares</h1>
+        <h1 class="mb-2 text-xl font-semibold">
+            {{ isSuperAdmin() ? 'Resumen de Servicios' : 'Planes Populares' }}
+        </h1>
         <Chart type="doughnut" :data="chartData" :options="chartOptions" class="mx-auto max-w-80" />
     </div>
 </template>
@@ -8,6 +10,7 @@
 <script setup>
 import pb from '@/service/pocketbase';
 import { useIndexStore } from '@/storage';
+import isSuperAdmin from '@/utils/isSuperAdmin';
 import { onMounted, ref, watch } from 'vue';
 const store = useIndexStore();
 onMounted(async () => {
@@ -17,14 +20,21 @@ const chartData = ref();
 const chartOptions = ref();
 const setChartData = async () => {
     const documentStyle = getComputedStyle(document.body);
-    const records = await pb.collection('planes_populares').getList(1, 3, {
-        fields: 'nombre, total_miembros',
-        filter: 'id = "' + store.currentSucursal.id + '"'
-    });
+    let data, planNames;
 
-    const planNames = records.items.map((record) => record.nombre);
-
-    const data = records.items.map((record) => record.total_miembros);
+    const records = isSuperAdmin()
+        ? await pb.collection('resumen_servicios').getFullList()
+        : await pb.collection('planes_populares').getList(1, 3, {
+              fields: 'nombre, total_miembros',
+              filter: 'id = "' + store.currentSucursal.id + '"'
+          });
+    if (isSuperAdmin()) {
+        planNames = records.map((record) => record.servicio);
+        data = records.map((record) => record.total_gimnasios);
+    } else {
+        planNames = records.items.map((record) => record.nombre);
+        data = records.items.map((record) => record.total_miembros);
+    }
     chartData.value = {
         labels: planNames,
         datasets: [
@@ -57,7 +67,7 @@ const setChartOptions = () => {
             tooltip: {
                 callbacks: {
                     label: function (tooltipItem) {
-                        return `${tooltipItem.label}: ${tooltipItem.formattedValue} miembros`;
+                        return `${tooltipItem.label}: ${tooltipItem.formattedValue} ${isSuperAdmin() ? 'gimnasios' : 'miembros'}`;
                     }
                 }
             },
