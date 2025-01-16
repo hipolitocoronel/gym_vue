@@ -7,14 +7,16 @@ import { useRegisterStore } from '@/storage/register.js';
 
 import { useLayout } from '@/layout/composables/layout';
 import pb from '@/service/pocketbase';
+import axios from 'axios';
 import { useToast } from 'primevue/usetoast';
 import { onMounted, onUnmounted, ref } from 'vue';
-import { useRouter } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 
 const store = useRegisterStore();
 const { isDarkTheme } = useLayout();
 const activeStep = ref(1);
 const router = useRouter();
+const route = useRoute();
 
 const personalForm = ref(null);
 const gymForm = ref(null);
@@ -63,27 +65,80 @@ const createAccount = () => {
     pb.collection('gimnasios')
         .create(store.formData[2])
         .then(async (newGym) => {
+            const batch = pb.createBatch();
+
             for (const sucursal of store.formData[3]) {
                 const payload = { ...sucursal, gimnasio_id: newGym.id };
-                await pb.collection('sucursales').create(payload);
+
+                batch.collection('sucursales').create(payload);
             }
 
+            const result = await batch.send();
+            const sucursal = result[0].body;
+
+            const rol = await getRolAdmin();
             pb.collection('users')
-                .create({ ...store.formData[1], gimnasio_id: newGym.id })
-                .then(() => {
-                    router.push({ name: 'login' });
-                    toast.add({
-                        severity: 'success',
-                        life: 3000,
-                        summary: 'Registro exitoso!',
-                        detail: 'Ya podés ingresar.'
-                    });
+                .create({ ...store.formData[1], sucursal_id: [sucursal.id], role: rol.id })
+                .then(async () => {
+                    const servicio = await getServicio();
+                    if (servicio) {
+                        await pb.collection('gimnasios').update(newGym.id, {
+                            servicio_id: servicio.id
+                        });
+
+                        if (servicio.precio > 0) {
+                            const payload = {
+                                gimnasio_id: newGym.id,
+                                servicio_id: servicio.id
+                            };
+
+                            goToMercadopago(payload);
+                        } else {
+                            router.push({ name: 'login' });
+                            toast.add({
+                                severity: 'success',
+                                life: 3000,
+                                summary: 'Registro exitoso!',
+                                detail: 'Ya podés ingresar.'
+                            });
+                        }
+                    }
                 });
         })
         .catch(() => {
             window.location.reload();
             toast.add({ severity: 'error', summary: 'Favor inténtelo nuevamente' });
         });
+};
+
+const getServicio = async () => {
+    try {
+        if (!route.query?.service) {
+            return await pb.collection('servicios').getFirstListItem('precio=0');
+        }
+        return await pb.collection('servicios').getOne(route.query.service);
+    } catch (error) {
+        console.error('Error al obtener el servicio:', error);
+        return null;
+    }
+};
+
+const getRolAdmin = async () => {
+    try {
+        return await pb.collection('roles').getFirstListItem('nombre="Admin"');
+    } catch (error) {
+        console.error('Error al obtener el rol de administrador:', error);
+        throw error;
+    }
+};
+
+const goToMercadopago = (payload) => {
+    const baseUrl = import.meta.env.VITE_MP_BACKEND_URL;
+
+    axios
+        .post(`${baseUrl}/api/products`, payload)
+        .then((res) => (window.location.href = res.data.init_point))
+        .catch((e) => console.error(e));
 };
 
 onMounted(() =>
