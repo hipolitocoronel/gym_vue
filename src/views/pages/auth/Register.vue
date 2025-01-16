@@ -7,7 +7,7 @@ import { zodResolver } from '@primevue/forms/resolvers/zod';
 import axios from 'axios';
 import { useToast } from 'primevue/usetoast';
 import { ref } from 'vue';
-import { useRouter } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 
 import { z } from 'zod';
 
@@ -15,6 +15,7 @@ const store = useRegisterStore();
 const loading = ref(false);
 const toast = useToast();
 const router = useRouter();
+const route = useRoute();
 
 const initialValues = ref({
     email: '',
@@ -32,12 +33,12 @@ const onFormSubmit = async (e) => {
     if (e.valid) {
         // guardando informacion de usuario
         const { email, password } = e.values;
-        console.log(e.values);
+
         store.updateField(1, 'email', email);
         store.updateField(1, 'password', password);
 
         // redireccion
-        router.push({ name: 'completar-registro' });
+        router.push({ name: 'completar-registro', query: route.query });
     }
 };
 
@@ -56,9 +57,11 @@ const googleCallback = (res) => {
             store.updateField(1, 'email', email);
 
             // redireccion
-            router.push({ name: 'completar-registro' });
+            router.push({ name: 'completar-registro', query: route.query });
         });
 };
+
+console.log(route.query);
 </script>
 
 <template>
@@ -68,7 +71,7 @@ const googleCallback = (res) => {
         class="bg-surface-50 dark:bg-surface-950 flex items-center justify-center min-h-screen min-w-[100vw] overflow-hidden"
     >
         <div
-            class="flex flex-col items-center justify-center animate-blurred-fade-in animate-delay-300"
+            class="flex flex-col items-center justify-center flex-1 px-2 animate-blurred-fade-in animate-delay-300 max-w-[600px]"
         >
             <div
                 style="
@@ -80,9 +83,10 @@ const googleCallback = (res) => {
                         rgba(33, 150, 243, 0) 30%
                     );
                 "
+                class="w-full"
             >
                 <div
-                    class="w-full px-20 pt-16 pb-12 bg-surface-0 dark:bg-surface-900"
+                    class="pb-10 px-7 pt-14 sm:pt-16 sm:pb-12 sm:px-20 bg-surface-0 dark:bg-surface-900"
                     style="border-radius: 53px"
                 >
                     <div class="mb-8 text-center">
@@ -120,7 +124,8 @@ const googleCallback = (res) => {
                                 id="email"
                                 type="text"
                                 placeholder="Correo electrónico"
-                                class="w-full md:w-[30rem] mb-2"
+                                class="w-full mb-2"
+                                v-model="email"
                             />
 
                             <Message
