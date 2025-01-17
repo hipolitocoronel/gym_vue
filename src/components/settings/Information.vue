@@ -18,7 +18,6 @@ const initialValues = computed(() => {
     src.value = store.srcLogoGym;
     return {
         nombre: store.currentGym?.nombre || '',
-        direccion: store.currentGym?.direccion || '',
         correo: store.currentGym?.correo || '',
         telefono: store.currentGym?.telefono || null,
         horario_apertura: store.currentGym?.horario_apertura
@@ -35,7 +34,7 @@ const resolver = zodResolver(
     z
         .object({
             nombre: z.string().min(3, { message: 'Mínimo 4 caracteres.' }),
-            direccion: z.string().min(3, { message: 'Mínimo 6 caracteres.' }),
+
             correo: z
                 .string()
                 .email({ message: 'Correo electrónico inválido' })
@@ -124,25 +123,6 @@ const onFormSubmit = async (e) => {
                 <label for="nombre">Nombre del Gimnasio <span class="text-red-400">*</span></label>
                 <InputText name="nombre" id="password" placeholder="Nombre" class="mb-2">
                 </InputText>
-            </div>
-
-            <div class="flex flex-col flex-1 gap-1 mb-4" v-auto-animate>
-                <label for="direccion">Dirección <span class="text-red-400">*</span></label>
-                <InputText
-                    name="direccion"
-                    id="direccion"
-                    placeholder="Ej: Sarmiento 127"
-                    class="mb-2"
-                />
-
-                <Message
-                    v-if="$form.direccion?.invalid"
-                    severity="error"
-                    size="small"
-                    variant="simple"
-                >
-                    {{ $form.direccion.error.message }}
-                </Message>
             </div>
 
             <div class="flex flex-col flex-1 gap-1 mb-4" v-auto-animate>

@@ -83,6 +83,10 @@
                             severity="secondary"
                             variant="outlined"
                             rounded
+                            @click="
+                                visible = true;
+                                gymData = data;
+                            "
                             v-tooltip.top="'Ver Gimnasio'"
                             size="large"
                         />
@@ -90,9 +94,11 @@
                 </template>
             </Column>
         </DataTable>
+        <GymDetails :visible @closeModal="visible = false" :gymData />
     </div>
 </template>
 <script setup>
+import GymDetails from '@/components/superadmin/GymDetails.vue';
 import pb from '@/service/pocketbase';
 import getTagColor from '@/utils/getTagColor';
 import { useDebounceFn } from '@vueuse/core';
@@ -107,8 +113,9 @@ const rowsPerPage = ref(10); // tamaño de la tabla
 const toast = useToast();
 const searchInput = ref('');
 const backend = import.meta.env.VITE_BACKEND_URL;
-
-onMounted(() => getGyms({ first: first.value, rows: rowsPerPage.value }));
+//Indica visibilidad del detalle del gimnasio
+const visible = ref(false);
+const gymData = ref({});
 
 const searchGyms = useDebounceFn(() => {
     getGyms({ first: first.value, rows: rowsPerPage.value, search: searchInput.value });
@@ -155,4 +162,5 @@ const getGyms = async (event) => {
         loading.value = false;
     }
 };
+onMounted(() => getGyms({ first: first.value, rows: rowsPerPage.value }));
 </script>

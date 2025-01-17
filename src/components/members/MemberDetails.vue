@@ -56,17 +56,14 @@
                                     (memberData.expand.id_plan_plazo.duracion > 1 ? 'meses' : 'mes')
                                 }}
                             </p>
-                            <p
-                                class="col-span-1 font-bold text-[15px]"
-                                v-if="storage?.currentGym?.gestionar_horarios"
-                            >
+                            <p class="main-info" v-if="storage?.currentGym?.gestionar_horarios">
                                 {{
                                     memberData.horario
                                         ? dayjs(memberData.horario).format('HH:mm')
                                         : 'Libre'
                                 }}
                             </p>
-                            <p class="col-span-1 font-bold text-[15px]" v-else>-</p>
+                            <p class="main-info" v-else>-</p>
                         </div>
                         <div class="grid grid-cols-2">
                             <p class="sub-header">FECHA DE PAGO</p>
