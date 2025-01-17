@@ -30,7 +30,11 @@
         </Column>
         <Column field="expand.servicio_id.nombre" header="Servicio">
             <template #body="{ data }">
-                <Tag :value="data.expand.servicio_id.nombre" severity="info" />
+                <span
+                    :class="getTagColor(data.expand.servicio_id.color)"
+                    class="text-sm font-semibold pt-[4px] pb-[5px] px-2 rounded-md"
+                    >{{ data.expand.servicio_id.nombre }}</span
+                >
             </template>
         </Column>
 
@@ -44,6 +48,7 @@
 import pb from '@/service/pocketbase.js';
 import formatCurrency from '@/utils/formatCurrency';
 import getPaymentStatus from '@/utils/getPaymentStatus';
+import getTagColor from '@/utils/getTagColor';
 import dayjs from 'dayjs/esm';
 import { useToast } from 'primevue/usetoast';
 import { defineExpose, defineProps, nextTick, onMounted, ref } from 'vue';
@@ -121,7 +126,7 @@ const getPayments = async (event) => {
             .collection('servicios_pagos')
             .getList(currentPage, rowsPerPage.value, {
                 sort: '-created',
-                fields: '*, expand.gimnasio_id.nombre, expand.gimnasio_id.logo, expand.gimnasio_id.id, expand.gimnasio_id.collectionId ,  expand.servicio_id.nombre',
+                fields: '*, expand.gimnasio_id.nombre, expand.gimnasio_id.logo, expand.gimnasio_id.id, expand.gimnasio_id.collectionId ,  expand.servicio_id.nombre, expand.servicio_id.color',
                 filter: `(created > '${props.startDate}' && created < '${props.endDate}')  ${filters.value ? '&& ' + filters.value : ''}`,
                 expand: 'gimnasio_id, servicio_id'
             });

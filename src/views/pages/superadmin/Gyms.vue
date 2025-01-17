@@ -50,7 +50,12 @@
             <Column field="correo" header="Correo"> </Column>
             <Column header="Servicio">
                 <template #body="{ data }">
-                    <Tag :value="data.servicio" v-if="data.servicio" severity="info" />
+                    <span
+                        v-if="data.servicio"
+                        :class="getTagColor(data.color_servicio)"
+                        class="text-sm font-semibold pt-[4px] pb-[5px] px-2 rounded-md"
+                        >{{ data.servicio }}</span
+                    >
                     <!--Siempre va a tener un servicio asociado pero se agrega por las dudas-->
                     <Tag value="No posee" v-else severity="danger" />
                 </template>
@@ -89,6 +94,7 @@
 </template>
 <script setup>
 import pb from '@/service/pocketbase';
+import getTagColor from '@/utils/getTagColor';
 import { useDebounceFn } from '@vueuse/core';
 import dayjs from 'dayjs/esm';
 import { useToast } from 'primevue/usetoast';
