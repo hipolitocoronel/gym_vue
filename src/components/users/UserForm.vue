@@ -27,10 +27,16 @@ const initialValues = computed(() => {
         password: isEditMode.value ? 'password' : '',
         passwordConfirm: isEditMode.value ? 'password' : '',
         role: props.data?.role ?? '',
-        sucursal_id: props.data?.sucursal_id ?? []
+        sucursal_id: props.data?.sucursal_id
+            ? props.data?.sucursal_id.filter((id) =>
+                  store.sucursales.find((sucursal) => sucursal.id === id)
+              )
+            : []
     };
 });
-
+const disabledMultiSelect = computed(() =>
+    isEditMode.value && store.sucursales.length == 1 ? true : false
+);
 const isEditMode = computed(() => (props.data?.id ? true : false));
 
 const resolver = zodResolver(
@@ -189,6 +195,7 @@ const onFormSubmit = async (e) => {
                     :options="store.sucursales"
                     filter
                     fluid
+                    :disabled="disabledMultiSelect"
                     empty-filter-message="No se encontraron sucursales"
                     option-value="id"
                     optionLabel="direccion"
@@ -226,7 +233,6 @@ const onFormSubmit = async (e) => {
                     <Password
                         name="password"
                         id="password"
-                        v-model="password"
                         placeholder="* * * * * * * * *"
                         :toggleMask="true"
                         class="mb-2"
@@ -250,7 +256,6 @@ const onFormSubmit = async (e) => {
                     <Password
                         name="passwordConfirm"
                         id="passwordConfirm"
-                        v-model="passwordConfirm"
                         placeholder="* * * * * * * * *"
                         :toggleMask="true"
                         class="mb-2"
