@@ -27,6 +27,7 @@ const initialValues = computed(() => {
         password: isEditMode.value ? 'password' : '',
         passwordConfirm: isEditMode.value ? 'password' : '',
         role: props.data?.role ?? '',
+        // Listo solo las sucursales que tenga el usuario logueado
         sucursal_id: props.data?.sucursal_id
             ? props.data?.sucursal_id.filter((id) =>
                   store.sucursales.find((sucursal) => sucursal.id === id)
@@ -71,15 +72,11 @@ const getRoles = async () => {
             sort: '-created',
             filter: `(id_gimnasio = null || id_gimnasio = '${store?.currentGym?.id}') && deleted = null`
         });
-        roles.value = result;
+        roles.value = result.filter(
+            (role) => store.userLogged.expand.role.expand.permisos.length >= role.permisos.length
+        );
     } catch (error) {
-        console.log(error);
-        toast.add({
-            severity: 'error',
-            summary: 'Operación fallida',
-            detail: 'No se pudo obtener los roles',
-            life: 3000
-        });
+        showToast('error', 'Operación fallida', 'No se pudo obtener los roles');
     } finally {
         loading.value = false;
     }
@@ -87,42 +84,52 @@ const getRoles = async () => {
 onMounted(() => {
     getRoles();
 });
+const showToast = (severity, summary, detail) => {
+    toast.add({
+        severity: severity,
+        summary: summary,
+        detail: detail,
+        life: 3000
+    });
+};
+
 const onFormSubmit = async (e) => {
-    if (e.valid) {
-        try {
-            loading.value = true;
+    if (!e.valid) return;
+    try {
+        loading.value = true;
 
-            let payload = { ...e.values };
-            if (isEditMode.value) {
-                delete payload.password;
-                delete payload.passwordConfirm;
-
-                await pb.collection('users').update(props.data.id, payload);
-            } else {
-                payload.emailVisibility = true;
-                await pb.collection('users').create(payload);
+        let payload = { ...e.values };
+        if (isEditMode.value) {
+            delete payload.password;
+            delete payload.passwordConfirm;
+            if (
+                !payload.sucursal_id.includes(store.currentSucursal.id) &&
+                store.userLogged.id == props.data.id
+            ) {
+                showToast('error', 'Operación fallida', 'No puedes eliminar tu propia sucursal');
+                return;
             }
 
-            toast.add({
-                severity: 'success',
-                summary: 'Operación exitosa!',
-                detail: 'Usuario guardado correctamente!',
-                life: 3000
-            });
-
-            emit('closeModal');
-            emit('reloadData');
-        } catch (error) {
-            console.log(error);
-            toast.add({
-                severity: 'error',
-                summary: 'Operación fallida!',
-                detail: 'Favor, inténtelo nuevamente',
-                life: 3000
-            });
-        } finally {
-            loading.value = false;
+            // Obtengo solo las sucursales que no tenga el usuario logueado
+            const sucursales = props.data?.sucursal_id.filter(
+                (id) => !store.userLogged.sucursal_id.includes(id)
+            );
+            // Uno las sucursales que no tenia con las que se modifico
+            payload.sucursal_id = [...sucursales, ...payload.sucursal_id];
+            await pb.collection('users').update(props.data.id, payload);
+        } else {
+            payload.emailVisibility = true;
+            await pb.collection('users').create(payload);
         }
+
+        showToast('success', 'Operación exitosa', 'Usuario guardado correctamente');
+
+        emit('closeModal');
+        emit('reloadData');
+    } catch (error) {
+        showToast('error', 'Operación fallida', 'Intentelo nuevamente');
+    } finally {
+        loading.value = false;
     }
 };
 </script>
