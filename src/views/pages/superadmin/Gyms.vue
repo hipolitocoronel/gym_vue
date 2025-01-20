@@ -50,7 +50,12 @@
             <Column field="correo" header="Correo"> </Column>
             <Column header="Servicio">
                 <template #body="{ data }">
-                    <Tag :value="data.servicio" v-if="data.servicio" severity="info" />
+                    <span
+                        v-if="data.servicio"
+                        :class="getTagColor(data.color_servicio)"
+                        class="text-sm font-semibold pt-[4px] pb-[5px] px-2 rounded-md"
+                        >{{ data.servicio }}</span
+                    >
                     <!--Siempre va a tener un servicio asociado pero se agrega por las dudas-->
                     <Tag value="No posee" v-else severity="danger" />
                 </template>
@@ -78,6 +83,10 @@
                             severity="secondary"
                             variant="outlined"
                             rounded
+                            @click="
+                                visible = true;
+                                gymData = data;
+                            "
                             v-tooltip.top="'Ver Gimnasio'"
                             size="large"
                         />
@@ -85,10 +94,13 @@
                 </template>
             </Column>
         </DataTable>
+        <GymDetails :visible @closeModal="visible = false" :gymData />
     </div>
 </template>
 <script setup>
+import GymDetails from '@/components/superadmin/GymDetails.vue';
 import pb from '@/service/pocketbase';
+import getTagColor from '@/utils/getTagColor';
 import { useDebounceFn } from '@vueuse/core';
 import dayjs from 'dayjs/esm';
 import { useToast } from 'primevue/usetoast';
@@ -101,8 +113,9 @@ const rowsPerPage = ref(10); // tamaño de la tabla
 const toast = useToast();
 const searchInput = ref('');
 const backend = import.meta.env.VITE_BACKEND_URL;
-
-onMounted(() => getGyms({ first: first.value, rows: rowsPerPage.value }));
+//Indica visibilidad del detalle del gimnasio
+const visible = ref(false);
+const gymData = ref({});
 
 const searchGyms = useDebounceFn(() => {
     getGyms({ first: first.value, rows: rowsPerPage.value, search: searchInput.value });
@@ -149,4 +162,5 @@ const getGyms = async (event) => {
         loading.value = false;
     }
 };
+onMounted(() => getGyms({ first: first.value, rows: rowsPerPage.value }));
 </script>

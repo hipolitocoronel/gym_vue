@@ -1,5 +1,6 @@
 import pb from '@/service/pocketbase';
 import { useIndexStore } from '@/storage';
+import { useRouter } from 'vue-router';
 export default async function loadInitialData() {
     const store = useIndexStore();
     try {
@@ -30,12 +31,19 @@ export default async function loadInitialData() {
     }
 }
 const getUserLogged = async () => {
-    const store = useIndexStore();
-    const user = await pb.collection('users').getOne(pb.authStore.record.id, {
-        expand: 'role, role.permisos, sucursal_id',
-        fields: '*, expand.role.expand.permisos.permiso, expand.role.nombre, expand.role.id, expand.sucursal_id'
-    });
+    const router = useRouter();
+    try {
+        const store = useIndexStore();
+        const user = await pb.collection('users').getOne(pb.authStore.record.id, {
+            expand: 'role, role.permisos, sucursal_id',
+            fields: '*, expand.role.expand.permisos.permiso, expand.role.nombre, expand.role.id, expand.sucursal_id'
+        });
 
-    // guardando informacion de usuario
-    store.setUserLogged(user);
+        // guardando informacion de usuario
+        store.setUserLogged(user);
+    } catch (error) {
+        pb.authStore.clear();
+        store.setUserLogged(null);
+        router.push({ name: 'login' });
+    }
 };

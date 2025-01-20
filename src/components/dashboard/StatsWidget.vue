@@ -111,7 +111,6 @@ const toast = useToast();
 const stats = ref([]);
 const loading = ref(false);
 const store = useIndexStore();
-
 const getStats = async () => {
     try {
         loading.value = true;
@@ -121,17 +120,15 @@ const getStats = async () => {
                   .collection('dashboard')
                   .getFullList({ filter: `id = '${store.currentSucursal.id}'` });
 
-        if (result.length === 0) {
-            stats.value = {
-                total_recaudado_mensual: 0,
-                tasa_retencion: 0
-            };
-            isSuperAdmin()
-                ? (stats.value.total_gimnasios_activos = 0)
-                : (stats.value.total_miembros_activos = 0);
-        } else {
-            stats.value = result[0];
-        }
+        stats.value = result.length
+            ? result[0]
+            : {
+                  total_recaudado_mensual: 0,
+                  tasa_retencion: 0,
+                  ...(isSuperAdmin()
+                      ? { total_gimnasios_activos: 0 }
+                      : { total_miembros_activos: 0 })
+              };
     } catch (error) {
         toast.add({
             severity: 'error',

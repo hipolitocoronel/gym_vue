@@ -53,7 +53,7 @@
                         </div>
                     </template>
                     <template #footer>
-                        <div class="p-2 mt-2 text-center">
+                        <div class="p-2 mt-2 text-center" v-if="hasPermission('members.create')">
                             <Button
                                 label="Agregar Nuevo Miembro"
                                 @click="showMemberForm = true"
@@ -222,6 +222,7 @@ import pb from '@/service/pocketbase.js';
 import { useIndexStore } from '@/storage';
 import formatCurrency from '@/utils/formatCurrency';
 import getMembershipStatus from '@/utils/getMembershipStatus';
+import { hasPermission } from '@/utils/hasPermission';
 import { Form } from '@primevue/forms';
 import { zodResolver } from '@primevue/forms/resolvers/zod';
 import { useDebounceFn } from '@vueuse/core';

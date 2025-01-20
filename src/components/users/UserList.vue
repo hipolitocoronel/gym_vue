@@ -27,7 +27,8 @@ const getUsers = async (event) => {
         const result = await pb.collection('users').getList(currentPage, rowsPerPage.value, {
             sort: '-created',
             filter: `(name~'${event.query ?? ''}' || email~'${event.query ?? ''}' || phone~'${event.query ?? ''}') && sucursal_id~'${store.currentSucursal.id}' `,
-            expand: 'role'
+            expand: 'role',
+            fields: 'id,name, email, phone, sucursal_id, role, expand.role.id, expand.role.nombre,  expand.role.permisos'
         });
         totalRecords.value = result.totalItems;
         users.value = result.items;
@@ -66,10 +67,12 @@ defineExpose({ getUsers });
         <Column field="email" header="Correo"></Column>
         <Column field="expand.role.nombre" header="Rol"></Column>
         <Column field="phone" header="Teléfono">
+            <Column field="phone" header="Teléfono"></Column>
             <template #body="slotProps">
                 {{ slotProps.data.phone ? slotProps.data.phone : '-' }}
             </template>
         </Column>
+
         <Column header="Acciones" class="xl:max-w-24">
             <template #body="{ data }">
                 <div class="flex gap-2">
@@ -79,8 +82,17 @@ defineExpose({ getUsers });
                         severity="secondary"
                         variant="outlined"
                         rounded
+                        :disabled="
+                            store.userLogged.expand.role.expand.permisos.length <
+                            data.expand.role.permisos.length
+                        "
                         v-if="hasPermission('users.update')"
-                        v-tooltip.top="'Editar usuario'"
+                        v-tooltip.top="
+                            store.userLogged.expand.role.expand.permisos.length <
+                            data.expand.role.permisos.length
+                                ? 'No tienes permiso para editar este usuario'
+                                : 'Editar usuario'
+                        "
                     />
                     <Button
                         icon="pi pi-trash"

@@ -51,7 +51,10 @@
                         </div>
                         <div class="grid grid-cols-2">
                             <p class="sub-header">MONTO COBRADO</p>
-                            <p class="sub-header">MONTO RECIBIDO</p>
+                            <p class="sub-header">
+                                MONTO
+                                {{ paymentData.estado == 'aprobado' ? 'RECIBIDO' : 'A RECIBIR' }}
+                            </p>
                             <p class="main-info">
                                 {{ formatCurrency(paymentData.monto_recibido) }}
                             </p>
