@@ -1,3 +1,4 @@
+import pb from '@/service/pocketbase';
 import { defineStore } from 'pinia';
 
 export const useIndexStore = defineStore('index', {
@@ -7,7 +8,8 @@ export const useIndexStore = defineStore('index', {
             currentGym: null,
             sucursales: [{ direccion: '' }],
             currentSucursal: null,
-            activeConfigTab: 'tu-informacion'
+            activeConfigTab: 'tu-informacion',
+            statusService: null
         };
     },
     getters: {
@@ -21,6 +23,9 @@ export const useIndexStore = defineStore('index', {
             const { collectionId, id, logo } = state.currentGym;
 
             return `${backend}/api/files/${collectionId}/${id}/${logo}`;
+        },
+        servicio: (state) => {
+            return state.currentGym?.expand?.servicio_id;
         }
     },
     actions: {
@@ -29,6 +34,34 @@ export const useIndexStore = defineStore('index', {
         },
         setCurrentGym(gym) {
             this.currentGym = gym;
+
+            if (gym.expand.servicio_id.precio > 0) {
+                pb.collection('servicios_pagos')
+                    .getList(1, 1, {
+                        sort: '-created',
+                        filter: `gimnasio_id = "${gym.id}" && servicio_id = "${gym.expand.servicio_id.id}"`
+                    })
+                    .then((resp) => {
+                        const ultimoPago = resp.items[0];
+
+                        if (ultimoPago.estado === 'pagado') {
+                            this.statusService = {
+                                status: true,
+                                message: 'Servicio gratuito'
+                            };
+                        } else {
+                            this.statusService = {
+                                status: false,
+                                message: 'Servicio vencido'
+                            };
+                        }
+                    });
+            } else {
+                this.statusService = {
+                    status: true,
+                    message: 'Servicio gratuito'
+                };
+            }
         },
         setSucursales(sucursales) {
             this.sucursales = sucursales;

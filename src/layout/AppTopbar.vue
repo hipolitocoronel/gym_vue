@@ -5,7 +5,7 @@ import { useLayout } from '@/layout/composables/layout';
 import pb from '@/service/pocketbase';
 import { useIndexStore } from '@/storage';
 import isSuperAdmin from '@/utils/isSuperAdmin';
-import { ref } from 'vue';
+import { computed, ref } from 'vue';
 import { useRouter } from 'vue-router';
 
 const store = useIndexStore();
@@ -35,6 +35,14 @@ const logout = () => {
     router.push({ name: 'login' });
     localStorage.removeItem('currentSucursalIndex');
 };
+
+const puedeAgregarSucursal = computed(() => {
+    const limiteSucursales = store.servicio?.limite_sucursales || 1;
+
+    if (limiteSucursales == 0) return true;
+    if (limiteSucursales > store.sucursales.length) return true;
+    return false;
+});
 </script>
 
 <template>
@@ -83,8 +91,12 @@ const logout = () => {
                 </Button>
 
                 <div
-                    class="w-4 h-4 ml-1 bg-red-400 rounded-full cursor-pointer circle pulse"
-                    v-tooltip.bottom="'Estás al día'"
+                    class="w-4 h-4 ml-1 rounded-full cursor-pointer circle pulse"
+                    :class="{
+                        'bg-green-400': store.statusService.status,
+                        'bg-red-400': !store.statusService.status
+                    }"
+                    v-tooltip.bottom="store.statusService.message"
                 ></div>
             </div>
         </div>
@@ -97,8 +109,8 @@ const logout = () => {
                     as="router-link"
                     class="!font-bold !rounded-xl !px-4"
                     to="cambiar-plan"
-                    >Explorar premium</Button
-                >
+                    >Explorar premium
+                </Button>
             </div>
 
             <div class="layout-config-menu">
@@ -127,7 +139,14 @@ const logout = () => {
                         <div>
                             <span class="block mb-2 font-medium" @click="toggle"> Acciones </span>
 
-                            <Button fluid severity="secondary" @click="logout()">
+                            <div class="flex justify-between py-2 mx-1 text-muted-color">
+                                Plan actual:
+                                <span class="justify-end font-bold text-black dark:text-white">
+                                    {{ store.servicio?.nombre }}
+                                </span>
+                            </div>
+
+                            <Button fluid severity="secondary" @click="logout()" class="mt-3">
                                 <i class="mr-2 pi pi-sign-out"></i>
                                 Cerrar sesión
                             </Button>
@@ -157,6 +176,13 @@ const logout = () => {
                     </div>
                 </Button>
             </div>
+            <Button
+                severity="secondary"
+                class="mt-3"
+                label="Agregar sucursal"
+                icon="pi pi-plus"
+                v-if="puedeAgregarSucursal"
+            ></Button>
         </div>
     </Popover>
 </template>
