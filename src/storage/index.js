@@ -8,7 +8,7 @@ export const useIndexStore = defineStore('index', {
             currentGym: null,
             sucursales: [{ direccion: '' }],
             currentSucursal: null,
-            activeConfigTab: 'tu-informacion',
+            activeConfigTab: 'tu-gimnasio',
             statusService: null
         };
     },

@@ -146,6 +146,15 @@ const puedeAgregarSucursal = computed(() => {
                                 </span>
                             </div>
 
+                            <router-link to="/admin/configuracion" @click="toggle">
+                                <div
+                                    class="px-2 py-3 my-1 transition-all rounded-md h hover:bg-surface-800"
+                                >
+                                    <i class="mr-2 pi pi-fw pi-cog"></i>
+                                    Configuración
+                                </div>
+                            </router-link>
+
                             <Button fluid severity="secondary" @click="logout()" class="mt-3">
                                 <i class="mr-2 pi pi-sign-out"></i>
                                 Cerrar sesión

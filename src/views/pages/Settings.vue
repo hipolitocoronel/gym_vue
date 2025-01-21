@@ -1,18 +1,22 @@
 <script setup>
 import Infomation from '@/components/settings/Information.vue';
 import Role from '@/components/settings/Role.vue';
+import Sucursales from '@/components/settings/Sucursales.vue';
 import { useIndexStore } from '@/storage';
 import { computed, onMounted, ref } from 'vue';
 const store = useIndexStore();
 const value = ref('');
 
 const options = ref([
-    { label: 'Tu información', value: 'tu-informacion' },
+    { label: 'Tu gimnasio', value: 'tu-gimnasio' },
+    { label: 'Sucursales', value: 'sucursales' },
+    { label: 'Planes', value: 'planes' },
     { label: 'Roles', value: 'roles' }
 ]);
 
 const tabs = {
-    'tu-informacion': Infomation,
+    'tu-gimnasio': Infomation,
+    sucursales: Sucursales,
     roles: Role
 };
 
