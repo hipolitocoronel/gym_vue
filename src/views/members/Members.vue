@@ -17,7 +17,11 @@
                 severity="contrast"
                 @click="showModal = true"
                 label="Agregar Miembro"
+                :disabled="!canAddMembers"
                 icon="pi pi-user-plus"
+                v-tooltip.top="
+                    canAddMembers ? 'Agregar Miembro' : 'Tu gimnasio no puede agregar miembros'
+                "
                 v-if="hasPermission('members.create')"
             />
         </div>
@@ -33,6 +37,7 @@
             @closeModal="closeModal"
             @newChanges="updateTable"
         />
+
         <MemberDetails :memberData :visible="showModalDetails" @closeModal="closeModal" />
     </div>
 </template>
@@ -41,13 +46,15 @@ import MemberDetails from '@/components/members/MemberDetails.vue';
 import MemberForm from '@/components/members/MemberForm.vue';
 import MemberList from '@/components/members/MemberList.vue';
 import pb from '@/service/pocketbase.js';
+import { useIndexStore } from '@/storage';
 import { hasPermission } from '@/utils/hasPermission';
 import { useDebounceFn } from '@vueuse/core';
 import { useConfirm } from 'primevue/useconfirm';
 import { useToast } from 'primevue/usetoast';
-import { ref } from 'vue';
+import { onMounted, ref } from 'vue';
 const confirm = useConfirm();
 const toast = useToast();
+const store = useIndexStore();
 //Modal de creacion y edicion
 const showModal = ref(false);
 //Modal de detalles
@@ -55,6 +62,7 @@ const showModalDetails = ref(false);
 const memberData = ref([]);
 const memberList = ref(null);
 const searchInput = ref('');
+const canAddMembers = ref();
 const closeModal = () => {
     showModal.value = false;
     showModalDetails.value = false;
@@ -84,7 +92,10 @@ const updateTable = (isEditMode) => {
 const searchMembers = useDebounceFn(() => {
     memberList.value.getMembers({ first: 0, rows: null, search: searchInput.value });
 }, 400);
-
+const checkCanAdd = async () => {
+    const result = await pb.collection('gimnasios_caracteristicas').getOne(store.currentGym.id);
+    return result.total_miembros <= store.currentGym.expand.servicio_id.limite_miembros;
+};
 //Modal de eliminacion de miembro
 const deleteMember = (member) => {
     confirm.require({
@@ -123,4 +134,8 @@ const deleteMember = (member) => {
         }
     });
 };
+
+onMounted(async () => {
+    canAddMembers.value = await checkCanAdd();
+});
 </script>
