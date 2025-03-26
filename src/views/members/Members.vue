@@ -78,8 +78,13 @@ const watchMember = (member) => {
     memberData.value = member;
     showModalDetails.value = true;
 };
+const checkCanAdd = async () => {
+    const result = await pb.collection('gimnasios_caracteristicas').getOne(store.currentGym.id);
+    return result.total_miembros <= store.currentGym.expand.servicio_id.limite_miembros;
+};
 //Actualizar la tabla despues de agregar o editar un miembrp
-const updateTable = (isEditMode) => {
+const updateTable = async (isEditMode) => {
+    canAddMembers.value = await checkCanAdd();
     searchInput.value = '';
     memberList.value.getMembers({ first: 0, rows: null });
     toast.add({
@@ -92,10 +97,6 @@ const updateTable = (isEditMode) => {
 const searchMembers = useDebounceFn(() => {
     memberList.value.getMembers({ first: 0, rows: null, search: searchInput.value });
 }, 400);
-const checkCanAdd = async () => {
-    const result = await pb.collection('gimnasios_caracteristicas').getOne(store.currentGym.id);
-    return result.total_miembros <= store.currentGym.expand.servicio_id.limite_miembros;
-};
 //Modal de eliminacion de miembro
 const deleteMember = (member) => {
     confirm.require({
@@ -117,6 +118,7 @@ const deleteMember = (member) => {
                 await pb.collection('miembros').update(member.id, member);
                 searchInput.value = '';
                 memberList.value.getMembers({ first: 0, rows: null });
+                canAddMembers.value = await checkCanAdd();
                 toast.add({
                     severity: 'success',
                     summary: 'Confirmado',

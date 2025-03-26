@@ -1,6 +1,6 @@
 <template>
     <Dialog
-        v-model:visible="props.visible"
+        v-model:visible="visible"
         modal
         @update:visible="closeModal"
         :header="isEditMode ? 'Editar Miembro' : 'Agregar Miembro'"
@@ -151,6 +151,10 @@ const store = useIndexStore();
 const emit = defineEmits(['closeModal', 'newChanges']);
 const errorDni = ref(false);
 const loading = ref(false);
+const visible = computed({
+    get: () => props.visible,
+    set: (value) => emit('closeModal', value)
+});
 const props = defineProps({
     visible: Boolean,
     memberData: {

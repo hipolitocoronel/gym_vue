@@ -67,6 +67,11 @@ const model = computed(() => {
                         visible: hasPermission('members.index')
                     },
                     {
+                        label: 'Entrenamientos',
+                        icon: 'fas fa-dumbbell',
+                        to: '/admin/entrenamientos'
+                    },
+                    {
                         label: 'Reportes',
                         icon: 'pi pi-fw pi-chart-bar',
                         to: '/admin/reportes',

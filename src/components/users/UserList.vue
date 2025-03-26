@@ -73,7 +73,7 @@ defineExpose({ getUsers });
             </template>
         </Column>
 
-        <Column header="Acciones" class="xl:max-w-24">
+        <Column header="Acciones" class="w-28">
             <template #body="{ data }">
                 <div class="flex gap-2">
                     <Button

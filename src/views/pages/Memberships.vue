@@ -28,7 +28,6 @@
 <script setup>
 import MembershipList from '@/components/memberships/MembershipList.vue';
 import pb from '@/service/pocketbase.js';
-import { useIndexStore } from '@/storage';
 import { hasPermission } from '@/utils/hasPermission';
 import { useDebounceFn } from '@vueuse/core';
 import { useConfirm } from 'primevue/useconfirm';
@@ -38,7 +37,6 @@ const confirm = useConfirm();
 const toast = useToast();
 const searchInput = ref('');
 const membershipList = ref(null);
-const store = useIndexStore();
 
 const searchMemberships = useDebounceFn(() => {
     membershipList.value.getMemberships({ first: 0, rows: null, search: searchInput.value });

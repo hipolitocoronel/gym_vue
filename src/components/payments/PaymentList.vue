@@ -47,7 +47,7 @@
                 </Tag>
             </template>
         </Column>
-        <Column header="Acciones" class="xl:max-w-16">
+        <Column header="Acciones" class="w-20">
             <template #body="{ data }">
                 <div class="flex gap-2 justify-center">
                     <Button

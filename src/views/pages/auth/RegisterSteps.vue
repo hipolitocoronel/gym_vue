@@ -62,7 +62,7 @@ const stepsManager = async () => {
 
 const createAccount = () => {
     loading.value = true;
-    const sucursalesID = [];
+    let sucursalesID = [];
     pb.collection('gimnasios')
         .create(store.formData[2])
         .then(async (newGym) => {
@@ -75,11 +75,13 @@ const createAccount = () => {
             }
 
             const result = await batch.send();
-            const sucursal = result[0].body;
+            result.forEach((r) => {
+                sucursalesID.push(r.body.id);
+            });
 
             const rol = await getRolAdmin();
             pb.collection('users')
-                .create({ ...store.formData[1], sucursal_id: [sucursal.id], role: rol.id })
+                .create({ ...store.formData[1], sucursal_id: sucursalesID, role: rol.id })
                 .then(async () => {
                     const servicio = await getServicio();
                     if (servicio) {

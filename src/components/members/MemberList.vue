@@ -35,7 +35,7 @@
                 />
             </template>
         </Column>
-        <Column class="xl:max-w-28">
+        <Column class="w-32">
             <template #header> <p class="mx-auto font-semibold">Acciones</p> </template>
             <template #body="{ data }">
                 <div class="flex gap-2 justify-center">

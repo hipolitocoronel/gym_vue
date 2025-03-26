@@ -10,6 +10,10 @@ import { z } from 'zod';
 const emit = defineEmits(['closeModal', 'reloadData']);
 const toast = useToast();
 const roles = ref([]);
+const visible = computed({
+    get: () => props.visible,
+    set: (value) => emit('closeModal', value)
+});
 const store = useIndexStore();
 const props = defineProps({
     visible: Boolean,
@@ -136,7 +140,7 @@ const onFormSubmit = async (e) => {
 
 <template>
     <Dialog
-        v-model:visible="props.visible"
+        v-model:visible="visible"
         modal
         @update:visible="emit('closeModal')"
         :header="isEditMode ? 'Editar usuario' : 'Nuevo usuario'"
