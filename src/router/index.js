@@ -39,8 +39,13 @@ const router = createRouter({
                             component: () => import('@/views/pages/Workouts.vue')
                         },
                         {
-                            path: ':id',
-                            name: 'entrenamiento',
+                            path: 'agregar-entrenamiento',
+                            name: 'agregar-entrenamiento',
+                            component: () => import('@/views/pages/WorkoutForm.vue')
+                        },
+                        {
+                            path: 'editar-entrenamiento/:id',
+                            name: 'editar-entrenamiento',
                             component: () => import('@/views/pages/WorkoutForm.vue')
                         }
                     ]

@@ -12,12 +12,12 @@
                 severity="contrast"
                 label="Agregar Plan de Entrenamiento"
                 icon="pi pi-plus"
-                @click="addWorkout"
-                :loading="loadingWorkout"
+                as="router-link"
+                to="entrenamientos/agregar-entrenamiento"
             />
         </div>
 
-        <DataTable :value="products" size="large">
+        <DataTable :value="workouts" size="large" :loading>
             <Column field="nombre" header="Programa"></Column>
             <Column header="Rutinas">
                 <template #body="{ data }">
@@ -38,6 +38,8 @@
                             severity="secondary"
                             variant="outlined"
                             rounded
+                            as="router-link"
+                            :to="`/admin/entrenamientos/editar-entrenamiento/${data.id}`"
                             v-tooltip.top="'Editar Plan de Entrenamiento'"
                             size="large"
                         />
@@ -57,21 +59,17 @@
 </template>
 <script setup>
 import pb from '@/service/pocketbase';
-import { ref } from 'vue';
-import { useRouter } from 'vue-router';
-const loadingWorkout = ref(false);
-const router = useRouter();
-const addWorkout = async () => {
+import { onMounted, ref } from 'vue';
+const loading = ref(false);
+const workouts = ref([]);
+onMounted(async () => {
     try {
-        loadingWorkout.value = true;
-        const result = await pb.collection('planes_entrenamientos').create({});
-        loadingWorkout.value = false;
-        router.push({ name: 'entrenamiento', params: { id: result.id } });
+        loading.value = true;
+        workouts.value = await pb.collection('planes_entrenamientos').getFullList();
     } catch (error) {
         console.log(error);
+    } finally {
+        loading.value = false;
     }
-};
-const products = ref([
-    { nombre: 'Torso Pierna', rutinas: ['Torso A', 'Pierna A', 'Torso B', 'Pierna B'] }
-]);
+});
 </script>

@@ -317,59 +317,71 @@
         </svg>
     </div>
 </template>
+
 <script setup>
 import { defineProps, ref, watch } from 'vue';
+
 const props = defineProps({
-    routine: Object
+    routine: { type: Object, required: false },
+    muscles: { type: Object, required: false }
 });
 const musclesOpacity = ref({});
+const muscleToPascalCase = (muscle) => muscle.replaceAll(' ', '_');
 
-const muscleToPascalCase = (muscle) => {
-    return muscle.replaceAll(' ', '_');
-};
-
-watch(props.routine, () => {
-    const activeMusclesToOpacity = new Map();
-
-    if (props.routine.length > 0) {
-        props.routine.forEach((exercise) => {
-            const primaryMuscle = exercise.expand.musculo_principal.nombre;
-            const secondaryMuscles = exercise.expand.musculos_secundarios
-                ? exercise.expand.musculos_secundarios.map((muscle) => muscle.nombre)
-                : [];
-
-            if (
-                !activeMusclesToOpacity.has(primaryMuscle) ||
-                activeMusclesToOpacity.get(primaryMuscle) < 0.6
-            ) {
-                activeMusclesToOpacity.set(primaryMuscle, 0.6);
+watch(
+    [() => props.muscles, () => props.routine],
+    () => {
+        const activeMusclesToOpacity = new Map();
+        props?.muscles?.forEach(async (muscle) => {
+            if (muscle.series > 0) {
+                document
+                    .querySelectorAll(`.${muscleToPascalCase(muscle.nombre)}`)
+                    .forEach((path) => {
+                        path.style.opacity = muscle.series >= 12 ? 0.6 : 0.3;
+                    });
             }
-
-            secondaryMuscles.forEach((muscle) => {
-                if (
-                    !activeMusclesToOpacity.has(muscle) ||
-                    activeMusclesToOpacity.get(muscle) < 0.3
-                ) {
-                    activeMusclesToOpacity.set(muscle, 0.3);
-                }
-            });
         });
-    }
+        if (!props.routine) return;
+        if (props.routine.length > 0) {
+            props.routine.forEach((exercise) => {
+                const primaryMuscle = exercise.value.expand.musculo_principal.nombre;
+                const secondaryMuscles = exercise.value.expand.musculos_secundarios
+                    ? exercise.value.expand.musculos_secundarios.map((muscle) => muscle.nombre)
+                    : [];
 
-    const previousMuscles = Object.keys(musclesOpacity.value);
+                if (
+                    !activeMusclesToOpacity.has(primaryMuscle) ||
+                    activeMusclesToOpacity.get(primaryMuscle) < 0.6
+                ) {
+                    activeMusclesToOpacity.set(primaryMuscle, 0.6);
+                }
 
-    previousMuscles.forEach((muscle) => {
-        musclesOpacity.value[muscle] = 0;
-        document
-            .querySelectorAll(`.${muscleToPascalCase(muscle)}`)
-            .forEach((path) => (path.style.opacity = 0));
-    });
+                secondaryMuscles.forEach((muscle) => {
+                    if (
+                        !activeMusclesToOpacity.has(muscle) ||
+                        activeMusclesToOpacity.get(muscle) < 0.3
+                    ) {
+                        activeMusclesToOpacity.set(muscle, 0.3);
+                    }
+                });
+            });
+        }
+        const previousMuscles = Object.keys(musclesOpacity.value);
 
-    activeMusclesToOpacity.forEach((opacity, muscle) => {
-        musclesOpacity.value[muscle] = opacity;
-        document
-            .querySelectorAll(`.${muscleToPascalCase(muscle)}`)
-            .forEach((path) => (path.style.opacity = opacity));
-    });
-});
+        previousMuscles.forEach((muscle) => {
+            musclesOpacity.value[muscle] = 0;
+            document
+                .querySelectorAll(`.${muscleToPascalCase(muscle)}`)
+                .forEach((path) => (path.style.opacity = 0));
+        });
+
+        activeMusclesToOpacity.forEach((opacity, muscle) => {
+            musclesOpacity.value[muscle] = opacity;
+            document
+                .querySelectorAll(`.${muscleToPascalCase(muscle)}`)
+                .forEach((path) => (path.style.opacity = opacity));
+        });
+    },
+    { deep: true }
+);
 </script>

@@ -101,7 +101,7 @@ defineExpose({ getUsers });
                         variant="outlined"
                         rounded
                         v-tooltip.top="'Eliminar usuario'"
-                        v-if="hasPermission('users.delete')"
+                        v-if="hasPermission('users.delete') && data.id !== store.userLogged.id"
                     />
                 </div>
             </template>

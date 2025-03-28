@@ -79,7 +79,13 @@
                                     fluid
                                     autocomplete="off"
                                     v-model="plazos[index].duracion"
-                                    @update:modelValue="validateField('duracion', index)"
+                                    @update:modelValue="
+                                        validatePlazoField(
+                                            'duracion',
+                                            index,
+                                            plazos[index].duracion
+                                        )
+                                    "
                                 />
                                 <Message
                                     v-if="errorPlazos[index]?.duracion"
@@ -101,7 +107,9 @@
                                     autocomplete="off"
                                     placeholder="Ingrese el precio"
                                     fluid
-                                    @update:modelValue="validateField('precio', index)"
+                                    @update:modelValue="
+                                        validatePlazoField('precio', index, plazos[index].precio)
+                                    "
                                 />
 
                                 <Message
@@ -124,7 +132,7 @@
                             />
                         </div>
                         <Message
-                            v-if="errorPlan"
+                            v-if="plazos.length >= 4"
                             class="-mt-1"
                             severity="error"
                             size="small"
@@ -138,13 +146,12 @@
                         label="Agregar Otra Duración"
                         severity="secondary"
                         icon="pi pi-plus"
-                        v-if="!errorPlan"
+                        v-if="!(plazos.length >= 4)"
                         :disabled="loading"
                         @click="addNewVariant"
                     ></Button>
                 </div>
             </div>
-
             <div class="flex gap-4 justify-end mt-6">
                 <Button
                     as="router-link"
@@ -243,8 +250,6 @@ const { value: plazos } = useField('plazos', [], {
 });
 //Indica si hubo un error al obtener los datos del plan
 const errorFetch = ref(false);
-//Indica si se supero el limite de planes
-const errorPlan = ref(false);
 //Almacena si hay errores en los plazos
 const errorPlazos = ref([]);
 // Validates a single field in a plazo
@@ -267,9 +272,6 @@ const addNewVariant = () => {
     } else {
         plazos.value.push({ duracion: null, precio: null });
     }
-    if (plazos.value.length === 4) {
-        errorPlan.value = true;
-    }
 };
 const removedVariants = [];
 const removeVariant = async (index) => {
@@ -278,9 +280,6 @@ const removeVariant = async (index) => {
     }
     plazos.value.splice(index, 1);
     errorPlazos.value.splice(index, 1);
-    if (plazos.value.length < 4) {
-        errorPlan.value = false;
-    }
 };
 //Valida que la duraciones y precios sean correctos
 const validateForm = () => {
