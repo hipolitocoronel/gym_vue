@@ -209,7 +209,10 @@ const fetchData = async () => {
     try {
         loadingRoutines.value = true;
         idWorkout.value = route.params?.id;
-        await pb.collection('planes_entrenamientos').getOne(route.params?.id);
+        const workout = await pb.collection('planes_entrenamientos').getOne(idWorkout.value);
+        initialValues.value.descripcion = workout.descripcion;
+        initialValues.value.duracion_semanas = workout.duracion_semanas;
+        initialValues.value.nombre = workout.nombre;
         routines.value = await pb.collection('rutinas').getFullList({
             filter: `plan_entrenamiento_id="${route.params.id}"`,
             fields: 'nombre, id'
