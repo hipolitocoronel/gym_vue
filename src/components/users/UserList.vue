@@ -73,7 +73,7 @@ defineExpose({ getUsers });
             </template>
         </Column>
 
-        <Column header="Acciones" class="xl:max-w-24">
+        <Column header="Acciones" class="w-28">
             <template #body="{ data }">
                 <div class="flex gap-2">
                     <Button
@@ -101,7 +101,7 @@ defineExpose({ getUsers });
                         variant="outlined"
                         rounded
                         v-tooltip.top="'Eliminar usuario'"
-                        v-if="hasPermission('users.delete')"
+                        v-if="hasPermission('users.delete') && data.id !== store.userLogged.id"
                     />
                 </div>
             </template>

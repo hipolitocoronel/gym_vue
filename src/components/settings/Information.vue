@@ -84,7 +84,7 @@ const onFormSubmit = async (e) => {
 
             const gymUpdated = await pb
                 .collection('gimnasios')
-                .update(store.currentGym.id, payload);
+                .update(store.currentGym.id, payload, { expand: 'servicio_id' });
 
             // guardando informacion del gimnasio
             store.setCurrentGym(gymUpdated);

@@ -31,6 +31,41 @@ const router = createRouter({
                     }
                 },
                 {
+                    path: 'entrenamientos',
+                    children: [
+                        {
+                            path: '',
+                            name: 'entrenamientos',
+                            component: () => import('@/views/pages/Workouts.vue')
+                        },
+                        {
+                            path: 'agregar-entrenamiento',
+                            name: 'agregar-entrenamiento',
+                            component: () => import('@/views/pages/WorkoutForm.vue')
+                        },
+                        {
+                            path: 'editar-entrenamiento/:id',
+                            name: 'editar-entrenamiento',
+                            component: () => import('@/views/pages/WorkoutForm.vue')
+                        }
+                    ]
+                },
+                {
+                    path: 'rutinas',
+                    children: [
+                        {
+                            path: 'agregar-rutina',
+                            name: 'agregar-rutina',
+                            component: () => import('@/views/pages/RoutineForm.vue')
+                        }
+                    ]
+                },
+                {
+                    path: 'entrenamientos',
+                    name: 'entrenamientos',
+                    component: () => import('@/views/pages/Workouts.vue')
+                },
+                {
                     path: 'usuarios',
                     name: 'usuarios',
                     component: () => import('@/views/pages/Users.vue'),

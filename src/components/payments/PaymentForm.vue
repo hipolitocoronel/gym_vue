@@ -1,6 +1,6 @@
 <template>
     <Dialog
-        v-model:visible="props.visible"
+        v-model:visible="visible"
         modal
         v-if="!showMemberForm"
         @update:visible="closeModal"
@@ -16,8 +16,8 @@
                 'paymentMethodSelected',
                 'planSelected',
                 'plazoSelected',
-                'schedule',
-                $form?.memberSelected?.value ? '' : 'memberSelected'
+                'memberSelected',
+                'schedule'
             ]"
             @submit="onFormSubmit"
             class="flex justify-center flex-col gap-4"
@@ -160,7 +160,7 @@
                 </div>
 
                 <div
-                    class="flex flex-col gap-1 grow"
+                    class="flex-col gap-1 grow flex"
                     v-auto-animate
                     v-if="
                         plazos.length > 0 &&
@@ -237,6 +237,10 @@ const loading = ref(false);
 const props = defineProps({
     visible: Boolean
 });
+const visible = computed({
+    get: () => props.visible,
+    set: (value) => emit('closeModal', value)
+});
 //Indica si ya se cargaron todos los datos a los select
 const loadingData = ref(false);
 //Indica si se esta cargando los miembro filtrados
@@ -260,73 +264,85 @@ const plans = ref([]);
 const plazos = ref([]);
 //Validaciones del formulario
 const resolver = zodResolver(
-    z.object({
-        memberSelected: z.object(
-            {
-                id: z.string()
-            },
-            {
-                invalid_type_error: 'El miembro es obligatorio'
-            }
-        ),
+    z
+        .object({
+            memberSelected: z.object(
+                {
+                    id: z.string()
+                },
+                {
+                    invalid_type_error: 'El miembro es obligatorio'
+                }
+            ),
 
-        paymentMethodSelected: z.object(
-            {
-                nombre: z.string()
-            },
-            {
-                invalid_type_error: 'El medio de pago es obligatorio'
-            }
-        ),
+            paymentMethodSelected: z.object(
+                {
+                    nombre: z.string()
+                },
+                {
+                    invalid_type_error: 'El medio de pago es obligatorio'
+                }
+            ),
 
-        planSelected: z.object(
-            {
-                id: z.string(),
-                horario: z.string()
-            },
-            {
-                invalid_type_error: 'El plan es obligatorio'
-            }
-        ),
+            planSelected: z.object(
+                {
+                    id: z.string(),
+                    horario: z.string()
+                },
+                {
+                    invalid_type_error: 'El plan es obligatorio'
+                }
+            ),
 
-        plazoSelected: z.object(
-            {
-                id: z.string(),
-                precio: z.number(),
-                duracion: z.number()
-            },
-            {
-                invalid_type_error: 'El plazo es obligatorio'
+            plazoSelected: z.object(
+                {
+                    id: z.string(),
+                    precio: z.number(),
+                    duracion: z.number()
+                },
+                {
+                    invalid_type_error: 'El plazo es obligatorio'
+                }
+            ),
+            schedule: z.date().nullable().optional()
+        })
+        .superRefine((values, ctx) => {
+            const { schedule, planSelected } = values;
+
+            if (planSelected?.horario === 'fijo' && store.currentGym?.gestionar_horarios) {
+                const horarioCierre = dayjs(store.currentGym.horario_cierre).format('HH:mm');
+                const horarioApertura = dayjs(store.currentGym.horario_apertura).format('HH:mm');
+                const horarioSeleccionado = dayjs(schedule).format('HH:mm');
+
+                if (horarioSeleccionado >= horarioCierre) {
+                    ctx.addIssue({
+                        path: ['schedule'],
+                        code: z.ZodIssueCode.custom,
+                        message: 'Debe ser anterior al horario de cierre'
+                    });
+                }
+
+                if (horarioSeleccionado < horarioApertura) {
+                    ctx.addIssue({
+                        path: ['schedule'],
+                        code: z.ZodIssueCode.custom,
+                        message: 'Debe ser posterior al horario de apertura'
+                    });
+                }
             }
-        ),
-        schedule: z
-            .date()
-            .optional()
-            .refine(
-                (date) =>
-                    dayjs(date).format('HH:mm') <=
-                    dayjs(store.currentGym.horario_cierre).format('HH:mm'),
-                'Debe ser anterior al horario de cierre'
-            )
-            .refine(
-                (date) =>
-                    dayjs(date).format('HH:mm') >
-                    dayjs(store.currentGym.horario_apertura).subtract(1, 'minute').format('HH:mm'),
-                'Debe ser posterior al horario de apertura'
-            )
-    })
+        })
 );
 //Modal para agregar miembro
 const showMemberForm = ref(false);
 const updateMemberSelected = (_, member) => {
     initialValues.value.memberSelected = member;
 };
-//Obtiene los plazos asociados al plam seleccionado
+//Obtiene los plazos asociados al plan seleccionado
 const onPlanChange = async (plan, form) => {
     plazos.value = await pb.collection('planes_plazos').getFullList({
-        filter: `id_plan='${plan.id}' && deleted = null`
+        filter: `id_plan='${plan.id}' && deleted = null`,
+        fields: 'id,nombre,precio,duracion'
     });
-
     form.plazoSelected ? (form.plazoSelected.value = null) : '';
 };
 //Obtiene los miembros filtrados

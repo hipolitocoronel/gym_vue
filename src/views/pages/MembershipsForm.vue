@@ -1,6 +1,16 @@
 <template>
     <div>
-        <h1 class="text-3xl font-bold">{{ isEditMode ? 'Editar Plan' : 'Agregar Plan' }}</h1>
+        <div class="flex justify-between items-center">
+            <h1 class="text-3xl font-bold">{{ isEditMode ? 'Editar Plan' : 'Agregar Plan' }}</h1>
+            <div class="flex items-center gap-2" v-if="loadingPlan">
+                <ProgressSpinner
+                    style="width: 20px; height: 20px"
+                    strokeWidth="4"
+                    fill="transparent"
+                />
+                <span class="text-muted-color font-medium">Cargando información</span>
+            </div>
+        </div>
 
         <form @submit="onFormSubmit" v-auto-animate>
             <div class="flex gap-8 mt-4">
@@ -69,7 +79,13 @@
                                     fluid
                                     autocomplete="off"
                                     v-model="plazos[index].duracion"
-                                    @update:modelValue="validateField('duracion', index)"
+                                    @update:modelValue="
+                                        validatePlazoField(
+                                            'duracion',
+                                            index,
+                                            plazos[index].duracion
+                                        )
+                                    "
                                 />
                                 <Message
                                     v-if="errorPlazos[index]?.duracion"
@@ -91,7 +107,9 @@
                                     autocomplete="off"
                                     placeholder="Ingrese el precio"
                                     fluid
-                                    @update:modelValue="validateField('precio', index)"
+                                    @update:modelValue="
+                                        validatePlazoField('precio', index, plazos[index].precio)
+                                    "
                                 />
 
                                 <Message
@@ -114,7 +132,7 @@
                             />
                         </div>
                         <Message
-                            v-if="errorPlan"
+                            v-if="plazos.length >= 4"
                             class="-mt-1"
                             severity="error"
                             size="small"
@@ -128,13 +146,12 @@
                         label="Agregar Otra Duración"
                         severity="secondary"
                         icon="pi pi-plus"
-                        v-if="!errorPlan"
+                        v-if="!(plazos.length >= 4)"
                         :disabled="loading"
                         @click="addNewVariant"
                     ></Button>
                 </div>
             </div>
-
             <div class="flex gap-4 justify-end mt-6">
                 <Button
                     as="router-link"
@@ -165,8 +182,8 @@ import { z } from 'zod';
 const toast = useToast();
 const route = useRoute();
 const router = useRouter();
-const schedule = ref('flexible');
 const loading = ref(false);
+const loadingPlan = ref(false);
 const store = useIndexStore();
 const isEditMode = computed(() => {
     return route.params?.id ? true : false;
@@ -190,6 +207,7 @@ const validationSchema = toTypedSchema(
 const fetchData = async () => {
     if (isEditMode.value) {
         try {
+            loadingPlan.value = true;
             const plan = await pb.collection('planes').getOne(route.params.id);
             const plazosData = await pb
                 .collection('planes_plazos')
@@ -211,6 +229,8 @@ const fetchData = async () => {
                 detail: 'No se pudo obtener el plan',
                 life: 3000
             });
+        } finally {
+            loadingPlan.value = false;
         }
     }
 };
@@ -230,29 +250,20 @@ const { value: plazos } = useField('plazos', [], {
 });
 //Indica si hubo un error al obtener los datos del plan
 const errorFetch = ref(false);
-//Indica si se supero el limite de planes
-const errorPlan = ref(false);
 //Almacena si hay errores en los plazos
 const errorPlazos = ref([]);
-//Valida si el campo es correcto
-const validateField = (field, index) => {
-    if (field === 'duracion') {
-        errorPlazos.value[index] = {
-            ...errorPlazos.value[index],
-            duracion:
-                plazos.value[index].duracion <= 0 || plazos.value[index].duracion === null
-                    ? 'La duración es obligatoria'
-                    : null
-        };
-    } else {
-        errorPlazos.value[index] = {
-            ...errorPlazos.value[index],
-            precio:
-                plazos.value[index].precio <= 0 || plazos.value[index].precio === null
-                    ? 'El precio es obligatorio'
-                    : null
-        };
-    }
+// Validates a single field in a plazo
+const validatePlazoField = (field, index, value) => {
+    const gender = field === 'duracion';
+    const errorMessage =
+        value === null || value <= 0
+            ? `${gender ? 'La' : 'El'} ${field} es obligatori${gender ? 'a' : 'o'}`
+            : null;
+
+    errorPlazos.value[index] = {
+        ...errorPlazos.value[index],
+        [field]: errorMessage
+    };
 };
 //Agrega la nueva duracion
 const addNewVariant = () => {
@@ -261,11 +272,7 @@ const addNewVariant = () => {
     } else {
         plazos.value.push({ duracion: null, precio: null });
     }
-    if (plazos.value.length === 4) {
-        errorPlan.value = true;
-    }
 };
-//Quita la duracion
 const removedVariants = [];
 const removeVariant = async (index) => {
     if (isEditMode.value && plazos.value[index].id !== undefined) {
@@ -273,15 +280,12 @@ const removeVariant = async (index) => {
     }
     plazos.value.splice(index, 1);
     errorPlazos.value.splice(index, 1);
-    if (plazos.value.length < 4) {
-        errorPlan.value = false;
-    }
 };
 //Valida que la duraciones y precios sean correctos
 const validateForm = () => {
     plazos.value.forEach((_, index) => {
-        validateField('duracion', index);
-        validateField('precio', index);
+        validatePlazoField('duracion', index, plazos.value[index].duracion);
+        validatePlazoField('precio', index, plazos.value[index].precio);
     });
 };
 //Solo envia el formulario si no hay errores
@@ -296,38 +300,42 @@ const onFormSubmit = handleSubmit(async (values) => {
         loading.value = true;
         if (isEditMode.value) {
             await pb.collection('planes').update(route.params.id, payload);
+            const batch = pb.createBatch();
             let newPlazos = plazos.value.filter((plazo) => plazo.id === undefined);
             let oldPlazos = plazos.value.filter((plazo) => plazo.id !== undefined);
             if (removedVariants.length > 0) {
                 removedVariants.forEach(async (plazo) => {
                     plazo.deleted = new Date();
-                    await pb.collection('planes_plazos').update(plazo.id, plazo);
+                    batch.collection('planes_plazos').update(plazo.id, plazo);
                 });
             }
             //actualiza los plazos existentes
             for (const plazo of oldPlazos) {
-                await pb.collection('planes_plazos').update(plazo.id, {
+                batch.collection('planes_plazos').update(plazo.id, {
                     duracion: plazo.duracion,
                     precio: plazo.precio
                 });
             }
             //agrega los nuevos plazos
             for (const plazo of newPlazos) {
-                await pb.collection('planes_plazos').create({
+                batch.collection('planes_plazos').create({
                     duracion: plazo.duracion,
                     precio: plazo.precio,
                     id_plan: route.params.id
                 });
             }
+            await batch.send();
         } else {
             const planAdded = await pb.collection('planes').create(payload);
+            const batch = pb.createBatch();
             for (const plazo of plazos.value) {
-                await pb.collection('planes_plazos').create({
+                batch.collection('planes_plazos').create({
                     duracion: plazo.duracion,
                     precio: plazo.precio,
                     id_plan: planAdded.id
                 });
             }
+            await batch.send();
         }
         toast.add({
             severity: 'success',

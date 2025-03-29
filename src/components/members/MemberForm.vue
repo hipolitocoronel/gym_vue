@@ -1,6 +1,6 @@
 <template>
     <Dialog
-        v-model:visible="props.visible"
+        v-model:visible="visible"
         modal
         @update:visible="closeModal"
         :header="isEditMode ? 'Editar Miembro' : 'Agregar Miembro'"
@@ -149,6 +149,12 @@ import { z } from 'zod';
 const toast = useToast();
 const store = useIndexStore();
 const emit = defineEmits(['closeModal', 'newChanges']);
+const errorDni = ref(false);
+const loading = ref(false);
+const visible = computed({
+    get: () => props.visible,
+    set: (value) => emit('closeModal', value)
+});
 const props = defineProps({
     visible: Boolean,
     memberData: {
@@ -156,8 +162,6 @@ const props = defineProps({
         default: []
     }
 });
-const errorDni = ref(false);
-const loading = ref(false);
 
 const resolver = zodResolver(
     z.object({
@@ -196,49 +200,41 @@ const initialValues = computed(() => {
 });
 
 const closeModal = () => {
-    errorDni.value = false;
     emit('closeModal');
 };
+const checkCanAdd = async () => {
+    const result = await pb.collection('gimnasios_caracteristicas').getOne(store.currentGym.id);
+    return result.total_miembros <= store.currentGym.expand.servicio_id.limite_miembros;
+};
 const onFormSubmit = async (e) => {
-    if (e.valid) {
+    if (!(await checkCanAdd())) {
+        toast.add({
+            severity: 'error',
+            summary: 'Operación fallida',
+            detail: 'Alcanzaste el límite de miembros',
+            life: 3000
+        });
+        return;
+    }
+    if (!e.valid) return;
+    try {
         const payload = { ...e.values, sucursal_id: store.currentSucursal.id };
-        try {
-            let member;
-            loading.value = true;
-            isEditMode.value
-                ? (member = await pb.collection('miembros').update(payload.id, payload))
-                : (member = await pb.collection('miembros').create(payload));
-            closeModal();
-            emit('newChanges', isEditMode.value, member);
-        } catch (error) {
-            if (error.response?.data?.dni?.code === 'validation_not_unique') {
-                const member = await pb
-                    .collection('miembros')
-                    .getFirstListItem(`dni="${payload.dni}"`);
-                if (!member.deleted) {
-                    errorDni.value = true;
-                } else {
-                    member.deleted = null;
-                    await pb.collection('miembros').update(member.id, member);
-                    closeModal();
-                    emit('newChanges', isEditMode.value);
-                }
-            } else {
-                toast.add({
-                    severity: 'error',
-                    summary: 'Operación fallida',
-                    detail: 'Intentelo nuevamente',
-                    life: 3000
-                });
-            }
-        } finally {
-            loading.value = false;
-            if (errorDni.value) {
-                setTimeout(() => {
-                    errorDni.value = false;
-                }, 3000);
-            }
-        }
+        let member;
+        loading.value = true;
+        isEditMode.value
+            ? (member = await pb.collection('miembros').update(payload.id, payload))
+            : (member = await pb.collection('miembros').create(payload));
+        closeModal();
+        emit('newChanges', isEditMode.value, member);
+    } catch (error) {
+        toast.add({
+            severity: 'error',
+            summary: 'Operación fallida',
+            detail: 'Intentelo nuevamente',
+            life: 3000
+        });
+    } finally {
+        loading.value = false;
     }
 };
 </script>

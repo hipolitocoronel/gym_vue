@@ -30,7 +30,7 @@
                 </div>
             </template>
         </Column>
-        <Column header="Acciones" class="max-w-1/10">
+        <Column header="Acciones" class="w-28">
             <template #body="{ data }">
                 <div class="flex gap-2">
                     <Button
