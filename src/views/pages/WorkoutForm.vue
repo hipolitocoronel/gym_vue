@@ -124,7 +124,17 @@
                 </DataTable>
             </div>
         </div>
-        <div class="!w-[400px]">
+        <div class="!w-[400px] relative">
+            <div
+                class="!w-[400px] z-50 h-[85vh] absolute bg-black/50 flex justify-center items-center"
+                v-if="loadingRoutines"
+            >
+                <ProgressSpinner
+                    style="width: 50px; height: 50px"
+                    strokeWidth="4"
+                    fill="transparent"
+                />
+            </div>
             <div
                 class="card !w-[400px] h-[85vh] fixed overflow-y-scroll overflow-x-hidden card-resumen"
             >
@@ -132,7 +142,7 @@
                 <Divider class="!mt-6 !mb-6 !w-[400px] !-ml-8" />
                 <div class="flex justify-between">
                     <p class="text-muted-color font-medium">Cantidad de Ejercicios</p>
-                    <span class="font-semibold">{{ totalExercises }}</span>
+                    <span class="font-semibold">{{ totalExercises || 0 }}</span>
                 </div>
                 <Divider />
                 <div class="flex justify-between mb-12">
