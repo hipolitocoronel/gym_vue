@@ -176,7 +176,7 @@ const loadingRoutines = ref(false);
 const toast = useToast();
 const route = useRoute();
 const totalExercises = computed(() =>
-    routines.value.reduce((a, b) => a + b?.ejercicios?.length, 0)
+    routines.value.reduce((acc, r) => acc + r?.ejercicios?.length, 0)
 );
 const totalSeries = computed(() => muscles.value.reduce((a, b) => a + b.series, 0));
 const isEditMode = computed(() => !!(idWorkout.value || route.params?.id));

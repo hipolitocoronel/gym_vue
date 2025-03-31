@@ -269,13 +269,11 @@ const selectedMuscle = ref(null);
 const idWorkout = ref(null);
 const loadingExercises = ref(false);
 const isEditMode = computed(() => (route.params?.id ? true : false));
-const restTimes = [
-    'Apagado',
-    ...Array.from({ length: 21 }, (_, index) => {
-        const duration = index * 15;
-        return dayjs().minute(0).second(duration).format('mm:ss');
-    })
-];
+const restTimes = Array.from({ length: 21 }, (_, index) => {
+    if (index === 0) return 'Apagado';
+    const duration = index * 15;
+    return dayjs().minute(0).second(duration).format('mm:ss');
+});
 const getExerciseImage = (exercise) => {
     return `${backend}/api/files/${exercise.collectionId}/${exercise.id}/${exercise.miniatura}`;
 };
