@@ -21,12 +21,7 @@
             <Column field="nombre" header="Programa"></Column>
             <Column header="Rutinas">
                 <template #body="{ data }">
-                    <Tag
-                        v-for="rutina in data.rutinas"
-                        :key="rutina"
-                        :value="rutina"
-                        class="mr-2"
-                    />
+                    <Tag v-for="rutina in data.rutinas" :value="rutina.nombre" class="mr-2" />
                 </template>
             </Column>
             <Column class="w-28">
@@ -48,6 +43,7 @@
                             severity="danger"
                             variant="outlined"
                             rounded
+                            @click="deleteWorkout(data)"
                             v-tooltip.top="'Eliminar Plan de Entrenamiento'"
                             size="large"
                         />
@@ -59,17 +55,86 @@
 </template>
 <script setup>
 import pb from '@/service/pocketbase';
+import { useConfirm, useToast } from 'primevue';
 import { onMounted, ref } from 'vue';
+const confirm = useConfirm();
+const toast = useToast();
 const loading = ref(false);
 const workouts = ref([]);
-onMounted(async () => {
+
+const deleteWorkout = (workout) => {
+    confirm.require({
+        message: `Seguro que quieres eliminar el plan ${workout.nombre}?`,
+        header: 'Confirmar Eliminación',
+        icon: 'pi pi-info-circle',
+        rejectProps: {
+            label: 'Cancelar',
+            severity: 'secondary',
+            outlined: true
+        },
+        acceptProps: {
+            label: 'Eliminar',
+            severity: 'danger'
+        },
+        accept: async () => {
+            try {
+                await pb.collection('planes_entrenamientos').delete(workout.id);
+                if (workout.rutinas.length > 0) {
+                    const routinesIds = workout.rutinas.map((r) => r.id);
+                    const batch = pb.createBatch();
+                    const series = await pb.collection('rutina_ejercicios').getFullList({
+                        filter: `rutina_id ~ "${routinesIds.join(',')}"`,
+                        fields: 'id'
+                    });
+                    for (const routine of workout.rutinas) {
+                        batch.collection('rutinas').delete(routine.id);
+                    }
+                    for (const serie of series) {
+                        batch.collection('rutina_ejercicios').delete(serie.id);
+                    }
+                    await batch.send();
+                }
+                toast.add({
+                    severity: 'success',
+                    summary: 'Confirmado',
+                    detail: 'Plan de entrenamiento eliminado',
+                    life: 3000
+                });
+                fetchWorkouts();
+            } catch (error) {
+                console.log(error);
+                toast.add({
+                    severity: 'error',
+                    summary: 'Operación fallida',
+                    detail: 'Intentelo nuevamente',
+                    life: 3000
+                });
+            }
+        }
+    });
+};
+const fetchWorkouts = async () => {
     try {
         loading.value = true;
-        workouts.value = await pb.collection('planes_entrenamientos').getFullList();
+        workouts.value = await pb.collection('planes_entrenamientos').getFullList({
+            fields: 'id, nombre'
+        });
+        for (const workout of workouts.value) {
+            workout.rutinas = await pb.collection('rutinas').getFullList({
+                filter: `plan_entrenamiento_id = "${workout.id}"`,
+                fields: 'id, nombre'
+            });
+        }
     } catch (error) {
-        console.log(error);
+        toast.add({
+            severity: 'error',
+            summary: 'Operación fallida',
+            detail: 'No se pudo obtener los planes de entrenamiento',
+            life: 3000
+        });
     } finally {
         loading.value = false;
     }
-});
+};
+onMounted(async () => fetchWorkouts());
 </script>

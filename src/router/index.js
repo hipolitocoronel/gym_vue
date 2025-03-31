@@ -57,13 +57,13 @@ const router = createRouter({
                             path: 'agregar-rutina',
                             name: 'agregar-rutina',
                             component: () => import('@/views/pages/RoutineForm.vue')
+                        },
+                        {
+                            path: 'editar-rutina/:id',
+                            name: 'editar-rutina',
+                            component: () => import('@/views/pages/RoutineForm.vue')
                         }
                     ]
-                },
-                {
-                    path: 'entrenamientos',
-                    name: 'entrenamientos',
-                    component: () => import('@/views/pages/Workouts.vue')
                 },
                 {
                     path: 'usuarios',
@@ -226,15 +226,6 @@ const router = createRouter({
 });
 router.beforeEach(async (to, from, next) => {
     const store = useIndexStore();
-
-    // Si el usuario no está autenticado y la ruta requiere autenticación
-    if (to.meta.requiresAuth && !pb.authStore.isValid) {
-        if (to.name !== 'login') {
-            return next({ name: 'login' });
-        }
-        return;
-    }
-
     // Cargar datos iniciales si el usuario esta autenticado
     if (pb.authStore.isValid && !store.currentGym) {
         const isDataLoaded = await loadInitialData();
