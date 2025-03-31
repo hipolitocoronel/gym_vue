@@ -206,7 +206,7 @@ const onFormSubmit = handleSubmit(async (values) => {
     try {
         loading.value = true;
         const result = isEditMode.value
-            ? await pb.collection('planes_entrenamientos').update(idWorkout.value, { ...values })
+            ? await pb.collection('planes_entrenamientos').update(idWorkout.value, values)
             : await pb
                   .collection('planes_entrenamientos')
                   .create({ ...values, sucursal_id: store?.currentSucursal.id });

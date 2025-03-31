@@ -27,6 +27,7 @@ const changeSucursal = (sucursal, index) => {
     store.setCurrentSucursal(sucursal);
     localStorage.setItem('currentSucursalIndex', index.toString());
     router.push({ name: 'dashboard' });
+    menuSucursales.value.hide();
 };
 const logout = () => {
     pb.authStore.clear();

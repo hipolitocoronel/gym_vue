@@ -89,7 +89,11 @@
                                     <Select
                                         :options="restTimes"
                                         v-model="ejerciciosRutina[index].value.descanso"
-                                        default-value="Apagado"
+                                        :default-value="
+                                            ejerciciosRutina[index].value.descanso
+                                                ? ejerciciosRutina[index].value.descanso
+                                                : 'Apagado'
+                                        "
                                         placeholder="Selecciona el tiempo de descanso"
                                         fluid
                                     />
@@ -135,7 +139,14 @@
                     </Draggable>
                 </Container>
             </div>
-            <div class="flex justify-end">
+            <div class="flex justify-end gap-4 mt-2">
+                <Button
+                    :disabled="loading"
+                    label="Cancelar"
+                    as="router-link"
+                    :to="`/admin/entrenamientos/editar-entrenamiento/${idWorkout}`"
+                    severity="secondary"
+                />
                 <Button type="submit" :loading label="Guardar" />
             </div>
         </form>
