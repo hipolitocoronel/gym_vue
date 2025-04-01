@@ -345,8 +345,8 @@ watch(
         if (props.routine.length > 0) {
             props.routine.forEach((exercise) => {
                 const primaryMuscle = exercise.value.expand.musculo_principal.nombre;
-                const secondaryMuscles = exercise.value.expand.musculos_secundarios
-                    ? exercise.value.expand.musculos_secundarios.map((muscle) => muscle.nombre)
+                const secondaryMuscles = exercise.value.expand?.musculos_secundarios
+                    ? exercise.value.expand?.musculos_secundarios.map((muscle) => muscle.nombre)
                     : [];
 
                 if (

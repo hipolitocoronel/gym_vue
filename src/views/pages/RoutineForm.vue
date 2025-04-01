@@ -202,7 +202,10 @@
                         fill="transparent"
                         v-if="loadingExercises"
                     />
-                    <ul class="mt-8 max-h-[48vh] grow overflow-y-auto mb-6" v-else>
+                    <ul
+                        class="mt-8 max-h-[48vh] grow overflow-y-auto mb-6 informacion card-resumen"
+                        v-else
+                    >
                         <li
                             v-for="exercise in exercises"
                             class="mb-5 flex gap-4 items-center"

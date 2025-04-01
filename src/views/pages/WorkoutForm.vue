@@ -350,7 +350,7 @@ const deleteRoutine = async (data) => {
 watch(() => route.params?.id, fetchData, { immediate: true });
 </script>
 
-<style scoped>
+<style>
 .card-resumen::-webkit-scrollbar {
     width: 9px;
 }
