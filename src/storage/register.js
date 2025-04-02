@@ -2,13 +2,10 @@ import { defineStore } from 'pinia';
 
 const defaultForm = {
     1: {
-        name: '',
-        email: '',
-        phone: null,
-        password: '',
-        role: '1zrdxpzbsx25ndb',
-        passwordConfirm: '',
-        emailVisibility: true
+        nombre: '',
+        correo: '',
+        telefono: null,
+        contrasenia: ''
     },
     // gym form
     2: {
@@ -16,7 +13,7 @@ const defaultForm = {
         correo: '',
         telefono: null,
         logo: null,
-        src: null
+        logo_base64: null
     },
     3: [{ nombre: '', direccion: '' }]
 };

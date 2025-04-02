@@ -12,23 +12,23 @@ const form = ref(null);
 const resolver = zodResolver(
     z
         .object({
-            name: z
+            nombre: z
                 .string()
                 .nonempty({ message: 'El nombre es obligatorio.' })
                 .min(5, { message: 'Debe tener al menos 5 caracteres' })
                 .max(50, { message: 'No debe exceder 50 caracteres' }),
-            email: z.string().email({ message: 'Correo electrónico inválido' }),
-            phone: z.coerce
+            correo: z.string().email({ message: 'Correo electrónico inválido' }),
+            telefono: z.coerce
                 .number()
                 .min(1, { message: 'El teléfono es obligatorio.' })
                 .max(999999999999, { message: 'No debe exceder 12 caracteres' }),
-            password: z
+            contrasenia: z
                 .string()
                 .min(3, { message: 'Mínimo 3 caracteres.' })
                 .max(20, { message: 'No debe exceder 20 caracteres.' }),
             passwordConfirm: z.string().min(3, { message: 'Mínimo 3 caracteres.' })
         })
-        .refine((data) => data.password === data.passwordConfirm, {
+        .refine((data) => data.contrasenia === data.passwordConfirm, {
             message: 'Las contraseñas no coinciden.',
             path: ['passwordConfirm']
         })
@@ -54,59 +54,59 @@ defineExpose({ validate });
         class="flex flex-col justify-center gap-5"
     >
         <div class="flex flex-col gap-1" v-auto-animate>
-            <label for="name">Nombre <span class="text-red-400">*</span></label>
+            <label for="nombre">Nombre <span class="text-red-400">*</span></label>
             <InputText
-                id="name"
-                name="name"
+                id="nombre"
+                name="nombre"
                 placeholder="Ej: Juan Perez"
                 fluid
                 autocomplete="off"
             />
 
-            <Message v-if="$form.name?.invalid" severity="error" size="small" variant="simple">
-                {{ $form.name.error.message }}
+            <Message v-if="$form.nombre?.invalid" severity="error" size="small" variant="simple">
+                {{ $form.nombre.error.message }}
             </Message>
         </div>
 
         <div class="flex flex-col gap-1" v-auto-animate>
-            <label for="email">Correo electrónico <span class="text-red-400">*</span></label>
+            <label for="correo">Correo electrónico <span class="text-red-400">*</span></label>
             <InputText
-                id="email"
-                name="email"
+                id="correo"
+                name="correo"
                 placeholder="ejemplo@ejemplo.com"
                 fluid
-                type="email"
+                type="correo"
                 autocomplete="off"
             />
 
-            <Message v-if="$form.email?.invalid" severity="error" size="small" variant="simple">
-                {{ $form.email.error.message }}
+            <Message v-if="$form.correo?.invalid" severity="error" size="small" variant="simple">
+                {{ $form.correo.error.message }}
             </Message>
         </div>
 
         <div class="flex flex-col gap-1" v-auto-animate>
-            <label for="phone">Teléfono <span class="text-red-400">*</span></label>
+            <label for="telefono">Teléfono <span class="text-red-400">*</span></label>
             <InputText
                 id="telefono"
                 type="number"
-                name="phone"
+                name="telefono"
                 fluid
                 placeholder="Ingrese su número telefónico"
                 autocomplete="off"
             />
 
-            <Message v-if="$form.phone?.invalid" severity="error" size="small" variant="simple">
-                {{ $form.phone.error.message }}
+            <Message v-if="$form.telefono?.invalid" severity="error" size="small" variant="simple">
+                {{ $form.telefono.error.message }}
             </Message>
         </div>
 
         <div class="flex gap-4">
             <div class="flex flex-col flex-1 gap-1" v-auto-animate>
-                <label for="password">Contraseña <span class="text-red-400">*</span></label>
+                <label for="contrasenia">Contraseña <span class="text-red-400">*</span></label>
                 <Password
-                    name="password"
-                    id="password"
-                    v-model="password"
+                    name="contrasenia"
+                    id="contrasenia"
+                    v-model="contrasenia"
                     placeholder="Ingrese una contraseña"
                     :toggleMask="true"
                     class="mb-2"
@@ -116,12 +116,12 @@ defineExpose({ validate });
                 </Password>
 
                 <Message
-                    v-if="$form.password?.invalid"
+                    v-if="$form.contrasenia?.invalid"
                     severity="error"
                     size="small"
                     variant="simple"
                 >
-                    {{ $form.password.error.message }}
+                    {{ $form.contrasenia.error.message }}
                 </Message>
             </div>
 

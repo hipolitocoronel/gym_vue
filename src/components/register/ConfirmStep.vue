@@ -15,18 +15,18 @@ const { formData } = useRegisterStore();
             <AccordionContent>
                 <div class="mb-3">
                     <label class="text-xs text-muted-color">NOMBRE</label>
-                    <p class="font-bold">{{ formData[1].name }}</p>
+                    <p class="font-bold">{{ formData[1].nombre }}</p>
                 </div>
 
                 <div class="flex justify-between gap-4 mb-3">
                     <div class="flex-1">
                         <label class="text-xs text-muted-color">CORREO ELECTRÓNICO</label>
-                        <p class="font-bold">{{ formData[1].email }}</p>
+                        <p class="font-bold">{{ formData[1].correo }}</p>
                     </div>
 
                     <div class="flex-1">
                         <label class="text-xs text-muted-color">TELÉFONO</label>
-                        <p class="font-bold">{{ formData[1].phone }}</p>
+                        <p class="font-bold">{{ formData[1].telefono }}</p>
                     </div>
                 </div>
 
@@ -49,11 +49,15 @@ const { formData } = useRegisterStore();
                     <div class="overflow-hidden border rounded-full w-36 h-36">
                         <div
                             class="flex items-center justify-center h-full"
-                            v-if="!formData[2].src"
+                            v-if="!formData[2].logo_base64"
                         >
                             <i class="pi pi-images text-muted-color" style="font-size: 2.5rem"></i>
                         </div>
-                        <img :src="formData[2].src" class="object-cover w-full h-full" v-else />
+                        <img
+                            :src="formData[2].logo_base64"
+                            class="object-cover w-full h-full"
+                            v-else
+                        />
                     </div>
 
                     <div class="flex-1">
