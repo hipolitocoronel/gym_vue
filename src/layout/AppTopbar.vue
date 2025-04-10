@@ -5,14 +5,18 @@ import { useLayout } from '@/layout/composables/layout';
 import pb from '@/service/pocketbase';
 import { useIndexStore } from '@/storage';
 import isSuperAdmin from '@/utils/isSuperAdmin';
-import { computed, ref } from 'vue';
+import axios from 'axios';
+import { useToast } from 'primevue/usetoast';
+import { onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
 
 const store = useIndexStore();
 const loading = ref(false);
 const op = ref();
-const menuSucursales = ref();
 const router = useRouter();
+const toast = useToast();
+const modalServiceInfo = ref(false);
+const branchList = ref();
 
 const { toggleDarkMode, isDarkTheme } = useLayout();
 
@@ -21,13 +25,9 @@ const toggle = (event) => {
 };
 
 const toggleSucursales = (event) => {
-    menuSucursales.value.toggle(event);
+    branchList.value.menuSucursales.toggle(event);
 };
-const changeSucursal = (sucursal, index) => {
-    store.setCurrentSucursal(sucursal);
-    localStorage.setItem('currentSucursalIndex', index.toString());
-    router.push({ name: 'dashboard' });
-};
+
 const logout = () => {
     pb.authStore.clear();
     store.setUserLogged(null);
@@ -36,21 +36,30 @@ const logout = () => {
     localStorage.removeItem('currentSucursalIndex');
 };
 
-const puedeAgregarSucursal = computed(() => {
-    const limiteSucursales = store.servicio?.limite_sucursales || 1;
-
-    if (limiteSucursales == 0) return true;
-    if (limiteSucursales > store.sucursales.length) return true;
-    return false;
+onMounted(() => {
+    axios
+        .get(`${pb.baseURL}/api/servicio/estado/${store.currentGym.id}`)
+        .then((res) => {
+            store.setEstadoServicio(res?.data?.data);
+            modalServiceInfo.value = !store.servicioEstado?.puede_usar_servicio;
+        })
+        .catch(() => {
+            pb.authStore.clear();
+            store.setUserLogged(null);
+            router.push({ name: 'login' });
+            toast.add({
+                severity: 'error',
+                summary: 'Error',
+                detail: 'Error al obtener el estado del servicio, contacte al administrador',
+                life: 3000
+            });
+        });
 });
 </script>
 
 <template>
     <div class="layout-topbar">
         <div class="layout-topbar-logo-container">
-            <!-- <button class="layout-menu-button layout-topbar-action" @click="toggleMenu">
-                <i class="pi pi-bars"></i>
-            </button> -->
             <router-link to="/admin/dashboard" class="layout-topbar-logo" style="gap: 0.2rem">
                 <img :src="isDarkTheme ? logoWhite : logoBlack" alt="logo" width="35px" />
 
@@ -92,11 +101,13 @@ const puedeAgregarSucursal = computed(() => {
 
                 <div
                     class="w-4 h-4 ml-1 rounded-full cursor-pointer circle pulse"
+                    v-if="store.servicioEstado"
                     :class="{
-                        'bg-green-400': store.statusService.status,
-                        'bg-red-400': !store.statusService.status
+                        'bg-green-400': store.servicioEstado.puede_usar_servicio,
+                        'bg-red-400': !store.servicioEstado.puede_usar_servicio
                     }"
-                    v-tooltip.bottom="store.statusService.message"
+                    v-tooltip.bottom="store.servicioEstado.mensaje"
+                    @click="modalServiceInfo = true"
                 ></div>
             </div>
         </div>
@@ -168,32 +179,13 @@ const puedeAgregarSucursal = computed(() => {
         </div>
     </div>
 
-    <Popover ref="menuSucursales">
-        <div class="flex flex-col gap-2 w-[22rem]">
-            <p class="p-1 mb-1 font-semibold">Listado de sucursales</p>
-            <div v-for="(sucursal, index) in store.sucursales">
-                <Button
-                    fluid
-                    @click="changeSucursal(sucursal, index)"
-                    severity="secondary"
-                    :variant="store.currentSucursal.id == sucursal.id ? 'secondary' : 'text'"
-                >
-                    <div class="flex w-full gap-3 text-start">
-                        <span class="flex-1">{{ sucursal.nombre }}</span>
+    <BranchList ref="branchList" />
 
-                        <span class="flex-1 text-end"> {{ sucursal.direccion }}</span>
-                    </div>
-                </Button>
-            </div>
-            <Button
-                severity="secondary"
-                class="mt-3"
-                label="Agregar sucursal"
-                icon="pi pi-plus"
-                v-if="puedeAgregarSucursal"
-            ></Button>
-        </div>
-    </Popover>
+    <ServiceInfo
+        :estadoServicio="store.servicioEstado"
+        :visible="modalServiceInfo"
+        @closeModal="modalServiceInfo = false"
+    />
 </template>
 
 <style>
