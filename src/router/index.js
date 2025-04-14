@@ -14,6 +14,21 @@ const router = createRouter({
             component: () => import('@/views/pages/Landing.vue')
         },
         {
+            path: '/acceso-miembros',
+            name: 'login-miembros',
+            component: () => import('@/views/pages/auth/LoginMembers.vue')
+        },
+        {
+            path: '/miembros',
+            children: [
+                {
+                    path: '',
+                    name: 'dashboard-miembros',
+                    component: () => import('@/views/pages/DashboardMembers.vue')
+                }
+            ]
+        },
+        {
             path: '/admin',
             component: AppLayout,
             children: [
