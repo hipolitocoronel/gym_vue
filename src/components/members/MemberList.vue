@@ -6,7 +6,7 @@
         :lazy="true"
         :totalRecords="totalRecords"
         :first="first"
-        :loading="loading"
+        :loading
         @page="getMembers"
         paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
         :rowsPerPageOptions="[10, 30, 50]"

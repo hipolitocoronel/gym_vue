@@ -11,7 +11,7 @@
                     class="!text-white text-6xl"
                     size="large"
                 />
-                <h1 class="text-3xl font-bold">Agregar Rutina</h1>
+                <h1 class="text-3xl font-bold">{{ isEditMode ? 'Editar' : 'Agregar' }} Rutina</h1>
             </div>
             <div class="mt-8 space-y-4" v-auto-animate>
                 <div class="flex flex-col gap-1" v-auto-animate>
@@ -84,13 +84,16 @@
                                         </div>
                                     </Popover>
                                 </div>
-
                                 <div class="flex flex-col gap-1">
                                     <label>Tiempo de Descanso</label>
                                     <Select
                                         :options="restTimes"
-                                        v-model="ejerciciosRutina[index].value.duracion"
-                                        default-value="Apagado"
+                                        v-model="ejerciciosRutina[index].value.descanso"
+                                        :default-value="
+                                            ejerciciosRutina[index].value.descanso
+                                                ? ejerciciosRutina[index].value.descanso
+                                                : 'Apagado'
+                                        "
                                         placeholder="Selecciona el tiempo de descanso"
                                         fluid
                                     />
@@ -136,7 +139,14 @@
                     </Draggable>
                 </Container>
             </div>
-            <div class="flex justify-end">
+            <div class="flex justify-end gap-4 mt-2">
+                <Button
+                    :disabled="loading"
+                    label="Cancelar"
+                    as="router-link"
+                    :to="`/admin/entrenamientos/editar-entrenamiento/${idWorkout}`"
+                    severity="secondary"
+                />
                 <Button type="submit" :loading label="Guardar" />
             </div>
         </form>
@@ -192,7 +202,10 @@
                         fill="transparent"
                         v-if="loadingExercises"
                     />
-                    <ul class="mt-8 max-h-[48vh] grow overflow-y-auto mb-6" v-else>
+                    <ul
+                        class="mt-8 max-h-[48vh] grow overflow-y-auto mb-6 informacion card-resumen"
+                        v-else
+                    >
                         <li
                             v-for="exercise in exercises"
                             class="mb-5 flex gap-4 items-center"
@@ -240,11 +253,10 @@ import { useDebounceFn } from '@vueuse/core';
 import dayjs from 'dayjs/esm';
 import { Button, useToast } from 'primevue';
 import { useField, useFieldArray, useForm } from 'vee-validate';
-import { computed, onMounted, ref } from 'vue';
+import { computed, onMounted, ref, watch } from 'vue';
 import { Container, Draggable } from 'vue-dndrop';
 import { useRoute, useRouter } from 'vue-router';
 import z from 'zod';
-const restTimes = ref([]);
 const muscles = ref([]);
 const exercises = ref([]);
 const inputSearch = ref('');
@@ -256,15 +268,20 @@ const backend = import.meta.env.VITE_BACKEND_URL;
 const modalDetailsVisible = ref(false);
 const route = useRoute();
 const router = useRouter();
-const idWorkout = route.query?.workout;
 const selectedMuscle = ref(null);
+const idWorkout = ref(null);
 const loadingExercises = ref(false);
-
+const isEditMode = computed(() => (route.params?.id ? true : false));
+const restTimes = Array.from({ length: 21 }, (_, index) => {
+    if (index === 0) return 'Apagado';
+    const duration = index * 15;
+    return dayjs().minute(0).second(duration).format('mm:ss');
+});
 const getExerciseImage = (exercise) => {
     return `${backend}/api/files/${exercise.collectionId}/${exercise.id}/${exercise.miniatura}`;
 };
-
 const onDrop = async (item) => {
+    console.log(item);
     swap(item.removedIndex, item.addedIndex);
     await validateField('ejerciciosRutina');
 };
@@ -278,11 +295,15 @@ const togglePopover = (event, exerciseId) => {
 };
 const addExercise = async (exercise) => {
     if (!ejerciciosRutina.value.some((e) => e.value.id === exercise.id)) {
-        push({ ...exercise, series: null, repeticiones: null, duracion: '' });
+        push({ ...exercise, series: null, repeticiones: null, descanso: '' });
     }
 };
-
+const removedSeries = [];
 const removeExercise = (exerciseId) => {
+    const exercise = ejerciciosRutina.value.find((e) => e.value.id === exerciseId);
+    if (isEditMode.value && exercise.value.id_serie) {
+        removedSeries.push(exercise.value.id_serie);
+    }
     remove(ejerciciosRutina.value.findIndex((e) => e.value.id === exerciseId));
     delete popoverRefs.value[exerciseId];
 };
@@ -311,7 +332,9 @@ const validationSchema = toTypedSchema(
         ejerciciosRutina: z
             .array(
                 z.object({
+                    id_serie: z.string().optional(),
                     id: z.string(),
+                    descanso: z.string().optional(),
                     series: z.coerce.number().min(1, { message: 'Las series son obligatorias.' }),
                     repeticiones: z
                         .string({
@@ -364,6 +387,36 @@ const fetchExercises = async () => {
         loadingExercises.value = false;
     }
 };
+//Obtiene los datos si esta en modo edicion
+const fetchData = async () => {
+    idWorkout.value = route.query?.workout;
+    if (!isEditMode.value) return;
+    try {
+        loading.value = true;
+        const result = await pb.collection('rutina_ejercicios').getFullList({
+            filter: `rutina_id="${route.params.id}"`,
+            sort: 'orden',
+            fields: '*, expand.ejercicio_id.*, expand.rutina_id.*, expand.ejercicio_id.expand.musculo_principal.nombre, expand.ejercicio_id.expand.musculo_principal.id, expand.ejercicio_id.expand.musculos_secundarios.nombre, expand.ejercicio_id.expand.musculos_secundarios.id',
+            expand: 'ejercicio_id, rutina_id, ejercicio_id.musculo_principal, ejercicio_id.musculos_secundarios'
+        });
+        nombre.value = result[0].expand.rutina_id.nombre;
+        descripcion.value = result[0].expand.rutina_id.descripcion ?? null;
+        idWorkout.value = result[0].expand.rutina_id.plan_entrenamiento_id;
+        result.forEach((exercise) => {
+            push({
+                ...exercise.expand.ejercicio_id,
+                id_serie: exercise.id,
+                series: exercise.series,
+                repeticiones: exercise.repeticiones,
+                descanso: exercise.descanso
+            });
+        });
+    } catch (error) {
+        console.log(error);
+    } finally {
+        loading.value = false;
+    }
+};
 const onFormSubmit = handleSubmit(async (values) => {
     if (ejerciciosRutina.value.length === 0) {
         toast.add({
@@ -376,49 +429,66 @@ const onFormSubmit = handleSubmit(async (values) => {
     }
     try {
         loading.value = true;
-        const result = await pb
-            .collection('rutinas')
-            .create({ ...values, plan_entrenamiento_id: idWorkout });
+        const result = isEditMode.value
+            ? await pb.collection('rutinas').update(route.params?.id, values)
+            : await pb
+                  .collection('rutinas')
+                  .create({ ...values, plan_entrenamiento_id: idWorkout.value });
         const batch = pb.createBatch();
         values.ejerciciosRutina.forEach((exercise, index) => {
-            batch.collection('rutina_ejercicios').create({
+            const payload = {
                 rutina_id: result.id,
                 ejercicio_id: exercise.id,
                 series: exercise.series,
                 repeticiones: exercise.repeticiones,
                 orden: index + 1,
-                duracion: exercise.duracion === 'Apagado' ? null : exercise.duracion
-            });
+                descanso: exercise.descanso === 'Apagado' ? null : exercise.descanso
+            };
+            if (!isEditMode.value || !exercise.id_serie) {
+                batch.collection('rutina_ejercicios').create(payload);
+            } else {
+                batch.collection('rutina_ejercicios').update(exercise.id_serie, payload);
+            }
         });
+        removedSeries.forEach((serie) => {
+            batch.collection('rutina_ejercicios').delete(serie);
+        });
+
         await batch.send();
-        router.push({ name: 'editar-entrenamiento', params: { id: idWorkout } });
+        router.push({ name: 'editar-entrenamiento', params: { id: idWorkout.value } });
         toast.add({
             severity: 'success',
-            summary: 'Operación exitosa! ',
+            summary: 'Operación exitosa!',
             detail: 'Los cambios se guardaron correctamente.',
             life: 3000
         });
     } catch (error) {
-        console.log(error);
+        toast.add({
+            severity: 'error',
+            summary: 'Operación fallida',
+            detail: 'Intentelo nuevamente',
+            life: 3000
+        });
     } finally {
         loading.value = false;
     }
 });
+watch(() => route.params?.id, fetchData, { immediate: true });
 onMounted(async () => {
     try {
-        restTimes.value = [
-            'Apagado',
-            ...Array.from({ length: 21 }, (_, index) => {
-                const duration = index * 15;
-                return dayjs().minute(0).second(duration).format('mm:ss');
-            })
-        ];
         loadingMuscles.value = true;
-        const result = await pb.collection('musculos').getFullList({ sort: 'nombre' });
+        const result = await pb
+            .collection('musculos')
+            .getFullList({ sort: 'nombre', fields: 'id, nombre' });
         muscles.value = result;
-        fetchExercises();
+        await fetchExercises();
     } catch (error) {
-        console.log(error);
+        toast.add({
+            severity: 'error',
+            summary: 'Operación fallida',
+            detail: 'No se pudo obtener los músculos',
+            life: 3000
+        });
     } finally {
         loadingMuscles.value = false;
     }

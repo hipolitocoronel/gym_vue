@@ -163,7 +163,7 @@
                     type="submit"
                     @click="validateForm"
                     :loading
-                    :disabled="errorFetch"
+                    :disabled="errorFetch || loadingPlan"
                     :label="`${isEditMode ? 'Editar' : 'Guardar'} plan`"
                 ></Button>
             </div>
@@ -298,36 +298,25 @@ const onFormSubmit = handleSubmit(async (values) => {
     };
     try {
         loading.value = true;
+        const batch = pb.createBatch();
         if (isEditMode.value) {
             await pb.collection('planes').update(route.params.id, payload);
-            const batch = pb.createBatch();
-            let newPlazos = plazos.value.filter((plazo) => plazo.id === undefined);
-            let oldPlazos = plazos.value.filter((plazo) => plazo.id !== undefined);
-            if (removedVariants.length > 0) {
-                removedVariants.forEach(async (plazo) => {
-                    plazo.deleted = new Date();
-                    batch.collection('planes_plazos').update(plazo.id, plazo);
-                });
-            }
-            //actualiza los plazos existentes
-            for (const plazo of oldPlazos) {
-                batch.collection('planes_plazos').update(plazo.id, {
+            removedVariants.forEach(async (plazo) => {
+                plazo.deleted = new Date();
+                batch.collection('planes_plazos').update(plazo.id, plazo);
+            });
+            plazos.value.forEach((plazo) => {
+                const payload = {
+                    id_plan: route.params.id,
                     duracion: plazo.duracion,
                     precio: plazo.precio
-                });
-            }
-            //agrega los nuevos plazos
-            for (const plazo of newPlazos) {
-                batch.collection('planes_plazos').create({
-                    duracion: plazo.duracion,
-                    precio: plazo.precio,
-                    id_plan: route.params.id
-                });
-            }
-            await batch.send();
+                };
+                plazo.id === undefined
+                    ? batch.collection('planes_plazos').create(payload)
+                    : batch.collection('planes_plazos').update(plazo.id, payload);
+            });
         } else {
             const planAdded = await pb.collection('planes').create(payload);
-            const batch = pb.createBatch();
             for (const plazo of plazos.value) {
                 batch.collection('planes_plazos').create({
                     duracion: plazo.duracion,
@@ -335,8 +324,8 @@ const onFormSubmit = handleSubmit(async (values) => {
                     id_plan: planAdded.id
                 });
             }
-            await batch.send();
         }
+        await batch.send();
         toast.add({
             severity: 'success',
             summary: 'Confirmado',

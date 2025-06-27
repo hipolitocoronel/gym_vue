@@ -15,11 +15,14 @@
                             exerciseData.expand.musculo_principal.nombre
                         }}</span>
                     </p>
-                    <p class="text-gray-400 font-medium">
+                    <p
+                        class="text-gray-400 font-medium"
+                        v-if="exerciseData.expand?.musculos_secundarios"
+                    >
                         Músculos Secundarios:
                         <span class="text-white font-semibold">
                             {{
-                                exerciseData.expand.musculos_secundarios
+                                exerciseData.expand?.musculos_secundarios
                                     .map((musculo) => musculo.nombre)
                                     .join(', ')
                             }}
