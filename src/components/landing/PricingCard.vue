@@ -31,27 +31,69 @@
             </li>
         </ul>
         <Button
-            disabled
             label="Empezar Ahora"
             as="router-link"
             :to="'/auth/register?service=' + service.id"
             class="!border-none !py-3 !font-bold !bg-gray-700 !text-white hover:!bg-primary duration-300 transition-all hover:!text-black"
             :class="props.currentPlan ? 'invisible' : ''"
+            v-if="!props.gimnasioId"
+        ></Button>
+        <Button
+            label="Comenzar Ahora"
+            :loading="loading"
+            @click="goToMercadopago()"
+            class="!border-none !py-3 !font-bold !bg-gray-700 !text-white hover:!bg-primary duration-300 transition-all hover:!text-black"
+            :class="props.currentPlan ? 'invisible' : ''"
+            v-else
         ></Button>
     </div>
 </template>
 <script setup>
-import { computed, defineProps } from 'vue';
+import axios from 'axios';
+import { useToast } from 'primevue/usetoast';
+import { computed, defineProps, ref } from 'vue';
+
 const props = defineProps({
     service: Object,
-    currentPlan: Boolean
+    currentPlan: Boolean,
+    gimnasioId: String
 });
+
+const toast = useToast();
+const loading = ref(false);
+
 const parsedFeatures = computed(() => {
     return props.service.caracteristicas
         .split('</p>')
         .map((p) => p.replace('<p>', '').trim())
         .filter((p) => p.length > 0);
 });
+
+const goToMercadopago = () => {
+    const baseUrl = import.meta.env.VITE_MP_BACKEND_URL;
+    const payload = {
+        gimnasio_id: props.gimnasioId,
+        servicio_id: props.service.id
+    };
+
+    loading.value = true;
+    axios
+        .post(`${baseUrl}/api/products`, payload)
+        .then((res) => {
+            if (res?.data?.init_point) {
+                window.location.href = res.data.init_point;
+            } else {
+                toast.add({
+                    severity: 'success',
+                    summary: 'Operación exitosa',
+                    detail: res.data.message,
+                    life: 5000
+                });
+            }
+        })
+        .catch((e) => console.error(e))
+        .finally(() => (loading.value = false));
+};
 </script>
 <style scoped>
 .pricing-card {

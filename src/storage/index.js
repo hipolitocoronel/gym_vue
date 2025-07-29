@@ -7,7 +7,8 @@ export const useIndexStore = defineStore('index', {
             currentGym: null,
             sucursales: [{ direccion: '' }],
             currentSucursal: null,
-            activeConfigTab: 'tu-informacion'
+            activeConfigTab: 'tu-gimnasio',
+            estadoServicio: null
         };
     },
     getters: {
@@ -21,6 +22,12 @@ export const useIndexStore = defineStore('index', {
             const { collectionId, id, logo } = state.currentGym;
 
             return `${backend}/api/files/${collectionId}/${id}/${logo}`;
+        },
+        servicio: (state) => {
+            return state.currentGym?.expand?.servicio_id;
+        },
+        servicioEstado: (state) => {
+            return state.estadoServicio;
         }
     },
     actions: {
@@ -38,6 +45,9 @@ export const useIndexStore = defineStore('index', {
         },
         setActiveConfigTab(tab) {
             this.activeConfigTab = tab;
+        },
+        setEstadoServicio(estado) {
+            this.estadoServicio = estado;
         }
     }
 });

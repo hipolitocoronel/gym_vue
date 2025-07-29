@@ -5,7 +5,6 @@ import { useRegisterStore } from '@/storage/register.js';
 import { Form } from '@primevue/forms';
 import { zodResolver } from '@primevue/forms/resolvers/zod';
 import axios from 'axios';
-import { useToast } from 'primevue/usetoast';
 import { ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 
@@ -13,7 +12,6 @@ import { z } from 'zod';
 
 const store = useRegisterStore();
 const loading = ref(false);
-const toast = useToast();
 const router = useRouter();
 const route = useRoute();
 
@@ -34,8 +32,8 @@ const onFormSubmit = async (e) => {
         // guardando informacion de usuario
         const { email, password } = e.values;
 
-        store.updateField(1, 'email', email);
-        store.updateField(1, 'password', password);
+        store.updateField(1, 'correo', email);
+        store.updateField(1, 'contrasenia', password);
 
         // redireccion
         router.push({ name: 'completar-registro', query: route.query });

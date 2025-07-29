@@ -30,7 +30,7 @@ function onFileSelect(event) {
 
     reader.onload = async (e) => {
         src.value = e.target.result;
-        store.updateField(2, 'src', e.target.result);
+        store.updateField(2, 'logo_base64', e.target.result);
     };
 
     reader.readAsDataURL(file);
@@ -40,7 +40,7 @@ function onFileSelect(event) {
 const removeLogo = () => {
     src.value = null;
     store.updateField(2, 'logo', null);
-    store.updateField(2, 'src', null);
+    store.updateField(2, 'logo_base64', null);
 };
 
 const validate = async () => {
@@ -107,8 +107,7 @@ defineExpose({ validate });
         >
             <div class="flex flex-col flex-1 gap-1 mb-4" v-auto-animate>
                 <label for="nombre">Nombre <span class="text-red-400">*</span></label>
-                <InputText name="nombre" id="password" placeholder="Nombre" class="mb-2">
-                </InputText>
+                <InputText name="nombre" placeholder="Nombre" class="mb-2"> </InputText>
 
                 <Message
                     v-if="$form.nombre?.invalid"

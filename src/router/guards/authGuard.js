@@ -1,6 +1,7 @@
 import pb from '@/service/pocketbase';
 import { useIndexStore } from '@/storage';
 import { useRouter } from 'vue-router';
+
 export default async function loadInitialData() {
     const store = useIndexStore();
     try {

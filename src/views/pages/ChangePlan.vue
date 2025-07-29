@@ -23,7 +23,11 @@ const currentPlanId = computed(() => store.currentGym?.expand?.servicio_id?.id |
     <div class="card">
         <div class="flex flex-col gap-8 mt-8 lg:flex-row md:mt-0">
             <div class="p-0 mt-6 grow" v-for="service in services">
-                <PricingCard :service :currentPlan="service.id === currentPlanId" />
+                <PricingCard
+                    :service="service"
+                    :currentPlan="service.id === currentPlanId"
+                    :gimnasioId="store.currentGym?.id"
+                />
             </div>
         </div>
     </div>

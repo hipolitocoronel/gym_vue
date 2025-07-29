@@ -62,93 +62,52 @@ const stepsManager = async () => {
 
 const createAccount = () => {
     loading.value = true;
-    let sucursalesID = [];
-    pb.collection('gimnasios')
-        .create(store.formData[2])
-        .then(async (newGym) => {
-            const batch = pb.createBatch();
 
-            for (const sucursal of store.formData[3]) {
-                const payload = { ...sucursal, gimnasio_id: newGym.id };
+    let payload = {
+        user: store.formData[1],
+        gym: store.formData[2],
+        branches: store.formData[3]
+    };
 
-                batch.collection('sucursales').create(payload);
-            }
-
-            const result = await batch.send();
-            result.forEach((r) => {
-                sucursalesID.push(r.body.id);
-            });
-
-            const rol = await getRolAdmin();
-            pb.collection('users')
-                .create({ ...store.formData[1], sucursal_id: sucursalesID, role: rol.id })
-                .then(async () => {
-                    const servicio = await getServicio();
-                    if (servicio) {
-                        await pb.collection('gimnasios').update(newGym.id, {
-                            servicio_id: servicio.id
-                        });
-
-                        if (servicio.precio > 0) {
-                            const payload = {
-                                gimnasio_id: newGym.id,
-                                servicio_id: servicio.id
-                            };
-
-                            goToMercadopago(payload);
-                        } else {
-                            router.push({ name: 'login' });
-                            toast.add({
-                                severity: 'success',
-                                life: 3000,
-                                summary: 'Registro exitoso!',
-                                detail: 'Ya podés ingresar.'
-                            });
-                        }
-                    }
-                });
-        })
-        .catch(() => {
-            window.location.reload();
-            toast.add({ severity: 'error', summary: 'Favor inténtelo nuevamente' });
-        });
-};
-
-const getServicio = async () => {
-    try {
-        if (!route.query?.service) {
-            return await pb.collection('servicios').getFirstListItem('precio=0');
-        }
-        return await pb.collection('servicios').getOne(route.query.service);
-    } catch (error) {
-        console.error('Error al obtener el servicio:', error);
-        return null;
+    if (route.query?.service) {
+        payload.gym.servicio_id = route.query.service;
     }
-};
-
-const getRolAdmin = async () => {
-    try {
-        return await pb.collection('roles').getFirstListItem('nombre="Admin"');
-    } catch (error) {
-        console.error('Error al obtener el rol de administrador:', error);
-        throw error;
-    }
-};
-
-const goToMercadopago = (payload) => {
-    const baseUrl = import.meta.env.VITE_MP_BACKEND_URL;
 
     axios
-        .post(`${baseUrl}/api/products`, payload)
-        .then((res) => (window.location.href = res.data.init_point))
-        .catch((e) => console.error(e));
+        .post(`${pb.baseURL}/auth/register`, payload)
+        .then((res) => {
+            // redireccion a mercado pago
+            if (res?.data?.payment_url) {
+                window.location.href = res.data.payment_url;
+                return;
+            }
+
+            toast.add({
+                severity: 'success',
+                summary: 'Operación exitosa!',
+                detail: 'Su cuenta ha sido creada exitosamente.',
+                life: 3000
+            });
+
+            router.push({ name: 'login' });
+            loading.value = false;
+        })
+        .catch((e) => {
+            loading.value = false;
+            toast.add({
+                severity: 'error',
+                summary: 'Operación fallida',
+                detail: e.response.data.message,
+                life: 3000
+            });
+        });
 };
 
 onMounted(() =>
     setTimeout(() => {
         animation.value = false;
 
-        if (!store.formData[1].email) {
+        if (!store.formData[1].correo) {
             router.push({ name: 'register' });
         }
     }, 1400)
