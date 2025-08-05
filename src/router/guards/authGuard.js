@@ -1,5 +1,6 @@
 import pb from '@/service/pocketbase';
 import { useIndexStore } from '@/storage';
+import isSuperAdmin from '@/utils/isSuperAdmin';
 import { useRouter } from 'vue-router';
 export default async function loadInitialData() {
     const store = useIndexStore();
@@ -10,7 +11,7 @@ export default async function loadInitialData() {
         }
 
         // Si no hay gimnasio actual pero hay usuario logueado, cargamos los datos
-        if (!store.currentGym && store.userLogged) {
+        if (!store.currentGym && store.userLogged && !isSuperAdmin()) {
             const sucursales = store.userLogged.expand.sucursal_id;
             const gym = await pb
                 .collection('gimnasios')

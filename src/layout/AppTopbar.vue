@@ -60,7 +60,7 @@ const logout = () => {
 
             <div class="flex items-center">
                 <span class="ml-1 font-semibold">
-                    {{ store.currentGym?.nombre }}
+                    {{ store?.currentGym?.nombre }}
                 </span>
 
                 <span class="pl-4">|</span>
@@ -77,7 +77,7 @@ const logout = () => {
                         <span class="mr-2"> Sucursal: </span>
 
                         <span class="font-medium">
-                            {{ store.currentSucursal.direccion }}
+                            {{ store?.currentSucursal?.direccion }}
                         </span>
                     </div>
                     <i class="ml-1 pi {pi-fw} pi-arrows-v"></i>

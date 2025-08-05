@@ -112,6 +112,8 @@ const createAccount = () => {
             window.location.reload();
             toast.add({ severity: 'error', summary: 'Favor inténtelo nuevamente' });
         });
+
+    loading.value = false;
 };
 
 const getServicio = async () => {

@@ -1,20 +1,21 @@
 <template>
     <div>
-        <div class="flex justify-between items-center">
-            <h1 class="text-3xl font-bold">{{ isEditMode ? 'Editar Plan' : 'Agregar Plan' }}</h1>
-            <div class="flex items-center gap-2" v-if="loadingPlan">
-                <ProgressSpinner
-                    style="width: 20px; height: 20px"
-                    strokeWidth="4"
-                    fill="transparent"
-                />
-                <span class="text-muted-color font-medium">Cargando información</span>
+        <form @submit="onFormSubmit" class="card" v-auto-animate>
+            <div class="flex justify-between items-center mb-4">
+                <h1 class="text-3xl font-bold">
+                    {{ isEditMode ? 'Editar Plan' : 'Agregar Plan' }}
+                </h1>
+                <div class="flex items-center gap-2" v-if="loadingPlan">
+                    <ProgressSpinner
+                        style="width: 20px; height: 20px"
+                        strokeWidth="4"
+                        fill="transparent"
+                    />
+                    <span class="text-muted-color font-medium">Cargando información</span>
+                </div>
             </div>
-        </div>
-
-        <form @submit="onFormSubmit" v-auto-animate>
-            <div class="flex gap-8 mt-4">
-                <div class="card grow h-fit">
+            <div class="flex gap-8">
+                <div class="grow h-fit">
                     <h2 class="text-xl font-bold">Información General</h2>
                     <div class="flex flex-col gap-1 mt-2" v-auto-animate>
                         <label for="name">Nombre</label>
@@ -43,7 +44,7 @@
                             v-model="descripcion"
                             id="descripcion"
                             class="mb-1"
-                            rows="5"
+                            rows="6"
                         />
                     </div>
 
@@ -64,7 +65,7 @@
                         </RadioButtonGroup>
                     </div>
                 </div>
-                <div class="card h-fit w-[54%]">
+                <div class="h-fit">
                     <h2 class="text-xl font-bold">Plazos</h2>
 
                     <div v-auto-animate>
