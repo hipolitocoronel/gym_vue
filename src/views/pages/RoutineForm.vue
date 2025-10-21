@@ -152,8 +152,8 @@
                 <Button type="submit" :loading label="Guardar" />
             </div>
         </form>
-        <div class="w-2/5 max-w-lg">
-            <div class="fixed w-2/5 max-w-lg">
+        <div class="w-2/5 max-w-lg relative">
+            <div class="sticky top-20">
                 <div class="card flex gap-2 justify-between relative">
                     <div class="space-y-4 mb-5">
                         <h2 class="text-xl font-bold mb-3">Resumen</h2>
@@ -173,7 +173,7 @@
                         class="!max-w-32 absolute right-14 -top-14"
                     />
                 </div>
-                <div class="card !pb-1 h-fit max-w-full">
+                <div class="card !pb-1 max-w-full">
                     <Select
                         :options="muscles"
                         optionLabel="nombre"
@@ -205,7 +205,7 @@
                         v-if="loadingExercises"
                     />
                     <ul
-                        class="mt-8 max-h-[48vh] grow overflow-y-auto mb-6 informacion card-resumen"
+                        class="mt-8 max-h-[42vh] grow overflow-y-auto mb-6 informacion card-resumen"
                         v-else
                     >
                         <li

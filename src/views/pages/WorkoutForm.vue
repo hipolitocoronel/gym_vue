@@ -136,7 +136,7 @@
                 />
             </div>
             <div
-                class="card !w-[400px] h-[85vh] fixed overflow-y-scroll overflow-x-hidden card-resumen"
+                class="card !w-[400px] h-[85vh] sticky top-8 overflow-y-scroll overflow-x-hidden card-resumen"
             >
                 <h2 class="text-2xl font-bold">Resumen</h2>
                 <Divider class="!mt-6 !mb-6 !w-[400px] !-ml-8" />
