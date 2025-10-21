@@ -123,7 +123,7 @@ onMounted(async () => {
     try {
         loadingWorkouts.value = true;
         workouts.value = await pb.collection('planes_entrenamientos').getFullList({
-            filter: `sucursal_id ~ "${member.value.sucursales[1]}"`
+            filter: `sucursal_id ~ "${member.value.sucursales[0]}"`
         });
     } catch (error) {
         console.log(error);

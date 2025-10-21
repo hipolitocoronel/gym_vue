@@ -38,7 +38,7 @@ const logout = () => {
 
 onMounted(() => {
     axios
-        .get(`${pb.baseURL}/api/servicio/estado/${store.currentGym.id}`)
+        .get(`${pb.baseURL}api/servicio/estado/${store.currentGym.id}`)
         .then((res) => {
             store.setEstadoServicio(res?.data?.data);
             modalServiceInfo.value = !store.servicioEstado?.puede_usar_servicio;
