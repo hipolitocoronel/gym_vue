@@ -69,60 +69,8 @@ const createAccount = () => {
         branches: store.formData[3]
     };
 
-                batch.collection('sucursales').create(payload);
-            }
-
-            const result = await batch.send();
-            result.forEach((r) => {
-                sucursalesID.push(r.body.id);
-            });
-
-            const rol = await getRolAdmin();
-            pb.collection('users')
-                .create({ ...store.formData[1], sucursal_id: sucursalesID, role: rol.id })
-                .then(async () => {
-                    const servicio = await getServicio();
-                    if (servicio) {
-                        await pb.collection('gimnasios').update(newGym.id, {
-                            servicio_id: servicio.id
-                        });
-
-                        if (servicio.precio > 0) {
-                            const payload = {
-                                gimnasio_id: newGym.id,
-                                servicio_id: servicio.id
-                            };
-
-                            goToMercadopago(payload);
-                        } else {
-                            router.push({ name: 'login' });
-                            toast.add({
-                                severity: 'success',
-                                life: 3000,
-                                summary: 'Registro exitoso!',
-                                detail: 'Ya podés ingresar.'
-                            });
-                        }
-                    }
-                });
-        })
-        .catch(() => {
-            window.location.reload();
-            toast.add({ severity: 'error', summary: 'Favor inténtelo nuevamente' });
-        });
-
-    loading.value = false;
-};
-
-const getServicio = async () => {
-    try {
-        if (!route.query?.service) {
-            return await pb.collection('servicios').getFirstListItem('precio=0');
-        }
-        return await pb.collection('servicios').getOne(route.query.service);
-    } catch (error) {
-        console.error('Error al obtener el servicio:', error);
-        return null;
+    if (route.query?.service) {
+        payload.gym.servicio_id = route.query.service;
     }
 
     axios

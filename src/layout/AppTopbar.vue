@@ -125,6 +125,13 @@ onMounted(() => {
             </div>
 
             <div class="layout-config-menu">
+                <button
+                    type="button"
+                    class="layout-topbar-action"
+                    v-tooltip.top="'Ver Notificaciones'"
+                >
+                    <i class="pi pi-bell"></i>
+                </button>
                 <button type="button" class="layout-topbar-action" @click="toggleDarkMode">
                     <i :class="['pi', { 'pi-moon': isDarkTheme, 'pi-sun': !isDarkTheme }]"></i>
                 </button>

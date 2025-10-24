@@ -427,7 +427,7 @@ onMounted(async () => {
             filter: `deleted = null && sucursal_id = '${store.currentSucursal.id}' `,
             sort: '-created'
         });
-        loadMembers();
+        await loadMembers();
     } catch (error) {
         toast.add({
             severity: 'error',

@@ -1,109 +1,110 @@
 <template>
-    <Dialog
+    <Drawer
         v-model:visible="props.visible"
         modal
         @update:visible="$emit('closeModal')"
         header="Detalle Del Miembro"
-        :style="{ width: '36rem' }"
+        position="right"
+        :style="{ width: '79rem' }"
     >
-        <div class="flex flex-col gap-4">
-            <div>
-                <p class="text-gray-700 dark:text-gray-300 text-lg">Información Personal</p>
-                <div class="mt-3 grid grid-cols-2">
-                    <p class="sub-header">DNI</p>
-                    <p class="sub-header">NOMBRE</p>
-                    <p class="main-info">
-                        {{ memberData.dni }}
-                    </p>
-                    <p class="main-info">
-                        {{ memberData.nombre }}
-                    </p>
-                </div>
-                <div class="mt-3 grid grid-cols-2">
-                    <p class="sub-header">SEXO</p>
-                    <p class="sub-header">DIRECCIÓN</p>
-                    <p class="main-info">
-                        {{ memberData.sexo }}
-                    </p>
-                    <p class="main-info">
-                        {{ memberData.direccion ? memberData.direccion : '-' }}
-                    </p>
-                </div>
-                <div class="mt-3 grid grid-cols-2">
-                    <p class="sub-header">TELÉFONO</p>
-                    <p class="sub-header">FECHA DE INSCRIPCIÓN</p>
-                    <p class="main-info">
-                        {{ memberData.telefono }}
-                    </p>
-                    <p class="main-info">
-                        {{ dayjs(memberData.created).format('DD/MM/YYYY') }}
-                    </p>
-                </div>
-            </div>
-            <div class="flex flex-col gap-4 mt-3" v-if="memberData.fecha_pago">
-                <div>
-                    <p class="text-gray-700 dark:text-gray-300 text-lg">Detalles del Plan</p>
-                    <div class="my-3 flex gap-3 flex-col">
-                        <div class="grid grid-cols-2">
-                            <p class="sub-header">PLAN</p>
-                            <p class="sub-header">HORARIO DE ASISTENCIA</p>
-                            <p class="main-info">
-                                {{
-                                    memberData.expand.id_plan_plazo.expand.id_plan.nombre +
-                                    ' ' +
-                                    memberData.expand.id_plan_plazo.duracion +
-                                    ' ' +
-                                    (memberData.expand.id_plan_plazo.duracion > 1 ? 'meses' : 'mes')
-                                }}
-                            </p>
-                            <p class="main-info" v-if="storage?.currentGym?.gestionar_horarios">
-                                {{
-                                    memberData.horario
-                                        ? dayjs(memberData.horario).format('HH:mm')
-                                        : 'Libre'
-                                }}
-                            </p>
-                            <p class="main-info" v-else>-</p>
-                        </div>
-                        <div class="grid grid-cols-2">
-                            <p class="sub-header">FECHA DE PAGO</p>
-                            <p class="sub-header">VENCIMIENTO</p>
-                            <p class="main-info">
-                                {{ dayjs(memberData.fecha_pago).format('DD/MM/YYYY') }}
-                            </p>
-                            <p class="main-info">
-                                {{ dayjs(memberData.fecha_vencimiento).format('DD/MM/YYYY') }}
-                            </p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="flex justify-end">
-                <Button
-                    severity="secondary"
-                    class="w-32"
-                    label="Cerrar"
-                    @click="$emit('closeModal')"
+        <div class="grid grid-cols-7 items-center gap-8">
+            <div class="flex gap-4 items-center col-span-3">
+                <img
+                    src="https://static.vecteezy.com/system/resources/previews/005/267/443/non_2x/avatar-icon-white-color-illustration-image-flat-style-vector.jpg"
+                    :alt="`Foto de ${memberData?.nombre}`"
+                    class="w-32 h-32 rounded-lg"
                 />
+                <div class="flex flex-col">
+                    <p class="text-3xl font-semibold">{{ memberData?.nombre }}</p>
+                    <p>{{ memberData?.expand.id_plan_plazo.expand.id_plan.nombre }}</p>
+                    <p>
+                        Tel:
+                        <span>{{ memberData?.telefono }}</span>
+                    </p>
+                    <p v-if="memberData?.direccion">
+                        Direccion: <span>{{ memberData?.direccion }}</span>
+                    </p>
+                </div>
+            </div>
+            <div class="space-y-3 col-span-2">
+                <p class="rounded-md p-3 max-w-[270px] bg-primary-50/20">
+                    Última Visita:
+                    <span>{{ dayjs().format('D, MMMM YYYY') }}</span>
+                </p>
+                <p class="rounded-md p-3 max-w-[270px] bg-primary-50/20">
+                    Vigente Hasta:
+                    <span>{{ dayjs(memberData?.fecha_vencimiento).format('D, MMMM YYYY') }}</span>
+                </p>
+            </div>
+            <div class="space-y-3 col-span-2">
+                <p>
+                    Fecha de Inscripción:
+                    <span>{{ dayjs(memberData?.created).format('D, MMMM YYYY') }}</span>
+                </p>
+                <p class="flex items-center gap-3 p-2 w-fit rounded-md" :class="tagClasses">
+                    Estado de Membresía:
+                    <span
+                        class="rounded-full h-4 w-4 inline-block"
+                        :class="getMembershipStatus(memberData) ? 'bg-green-300' : 'bg-red-300'"
+                    ></span>
+                </p>
             </div>
         </div>
-    </Dialog>
+        <div class="mt-8">
+            <SelectButton
+                v-model="selectedTab"
+                :options="options"
+                optionLabel="label"
+                optionValue="value"
+                :allow-empty="false"
+            />
+        </div>
+        <div class="mt-8">
+            <component :is="currentTab" :memberData="memberData" />
+        </div>
+    </Drawer>
 </template>
 <script setup>
 import { useIndexStore } from '@/storage';
+import getMembershipStatus from '@/utils/getMembershipStatus';
 import dayjs from 'dayjs/esm';
-import { defineProps } from 'vue';
+import 'dayjs/esm/locale/es';
+import { computed, defineProps, ref } from 'vue';
+import MemberAttendances from './MemberAttendances.vue';
+import MembersMemberships from './MembersMemberships.vue';
+import MembersPayments from './MembersPayments.vue';
 const storage = useIndexStore();
 const props = defineProps({
     visible: Boolean,
     memberData: Object
 });
+const selectedTab = ref('membership');
+const options = ref([
+    { label: 'Membresia', value: 'membership' },
+    { label: 'Historial de Pagos', value: 'payments' },
+    { label: 'Asistencias', value: 'attendances' }
+]);
+const tabs = {
+    payments: MembersPayments,
+    membership: MembersMemberships,
+    attendances: MemberAttendances
+};
+const tagClasses = computed(() =>
+    getMembershipStatus(props.memberData)
+        ? 'bg-green-950 !text-green-200'
+        : 'bg-red-950 !text-red-200'
+);
+const currentTab = computed(() => tabs[selectedTab.value]);
+dayjs.locale('es');
 </script>
-<style scope>
+<style scoped>
 .sub-header {
     @apply text-gray-400 col-span-1 font-light !text-sm;
 }
 .main-info {
     @apply col-span-1 font-bold text-[15px];
+}
+span {
+    @apply text-primary-200 font-semibold;
 }
 </style>

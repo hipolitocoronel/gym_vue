@@ -134,6 +134,7 @@ const showToast = (severity, summary, detail) => {
         life: 3000
     });
 };
+
 const actions = ref([
     {
         label: 'Ver',
@@ -188,6 +189,7 @@ onMounted(async () => {
         const result = await pb
             .collection('permisos')
             .getFullList({ fields: 'id, permiso, expand.id_modulo.nombre', expand: 'id_modulo' });
+        result.sort((a, b) => a.expand.id_modulo.nombre.localeCompare(b.expand.id_modulo.nombre));
         permissions.value = result;
     } catch (error) {
         showToast('error', 'Operación fallida', 'No se pudo obtener los permisos');

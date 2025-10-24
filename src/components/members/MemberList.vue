@@ -7,6 +7,8 @@
         :totalRecords="totalRecords"
         :first="first"
         :loading
+        class="cursor-pointer members-table"
+        @row-click="$emit('watchMember', $event.data)"
         @page="getMembers"
         paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
         :rowsPerPageOptions="[10, 30, 50]"
@@ -124,3 +126,11 @@ const getMembers = async (event) => {
 
 defineExpose({ getMembers });
 </script>
+<style>
+.members-table tr:hover td:nth-child(2) {
+    color: var(--primary-color);
+}
+.members-table td {
+    transition: all 0.2s ease;
+}
+</style>
