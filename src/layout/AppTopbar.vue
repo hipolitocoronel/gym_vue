@@ -37,6 +37,10 @@ const logout = () => {
 };
 
 onMounted(() => {
+    //fetchEstadoServicio();
+});
+
+const fetchEstadoServicio = () => {
     axios
         .get(`${pb.baseURL}/api/servicio/estado/${store.currentGym.id}`)
         .then((res) => {
@@ -54,7 +58,7 @@ onMounted(() => {
                 life: 3000
             });
         });
-});
+};
 </script>
 
 <template>
