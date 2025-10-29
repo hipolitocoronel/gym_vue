@@ -78,7 +78,9 @@
                                                 <Button
                                                     class="!bg-transparent !border-none !text-white hover:!bg-black/60"
                                                     label="Ver Detalles"
-                                                    @click="watchDetails($event, exercise.value)"
+                                                    @click="
+                                                        showExerciseInfo($event, exercise.value)
+                                                    "
                                                 />
                                             </div>
                                         </div>
@@ -308,7 +310,7 @@ const removeExercise = (exerciseId) => {
     delete popoverRefs.value[exerciseId];
 };
 
-const watchDetails = (event, exercise) => {
+const showExerciseInfo = (event, exercise) => {
     exerciseData.value = exercise;
     popoverRefs.value[exercise.id]?.toggle(event);
     modalDetailsVisible.value = true;
