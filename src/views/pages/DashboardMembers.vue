@@ -39,7 +39,7 @@
                 <div>
                     <div class="flex items-center gap-4 mb-4">
                         <img
-                            v-if="gym.gimnasio.logo"
+                            v-if="gym.gimnasio?.logo"
                             :src="getGymLogoUrl(gym.gimnasio)"
                             alt="Logo Gym"
                             class="w-20"
@@ -49,7 +49,7 @@
                             class="!w-20 !h-20"
                             :label="gym.gimnasio?.nombre?.substring(0, 1)"
                         />
-                        {{ gym.gimnasio.nombre }}
+                        {{ gym.gimnasio?.nombre }}
                     </div>
 
                     <p class="text-sm font-bold">
@@ -123,7 +123,7 @@ onMounted(async () => {
     try {
         loadingWorkouts.value = true;
         workouts.value = await pb.collection('planes_entrenamientos').getFullList({
-            filter: `sucursal_id ~ "${member.value.sucursales[1]}"`
+            filter: `sucursal_id ~ "${member.value.sucursales[0]}"`
         });
     } catch (error) {
         console.log(error);

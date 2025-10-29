@@ -40,13 +40,17 @@
                 </div>
 
                 <Container @drop="onDrop" drag-handle-selector=".column-drag-handle">
-                    <Draggable v-for="(exercise, index) in ejerciciosRutina">
+                    <Draggable
+                        v-for="(exercise, index) in ejerciciosRutina"
+                        :key="exercise.value.id"
+                    >
                         <div class="draggable-item mb-4">
                             <span
                                 class="column-drag-handle cursor-pointer text-xl pl-2 p-1 border border-surface-500 rounded-ss-lg border-r-0 rounded-es-lg absolute -left-6 bg-white dark:bg-black border-b-0"
                                 v-tooltip.top="'Arrastra para reordenar'"
-                                >&#x2630;<span></span
-                            ></span>
+                            >
+                                <i class="pi pi-bars"></i> <span></span>
+                            </span>
                             <div
                                 class="bg-white dark:bg-black/90 flex flex-col gap-5 border p-5 border-surface-500 rounded-lg"
                             >
@@ -92,9 +96,7 @@
                                         :options="restTimes"
                                         v-model="ejerciciosRutina[index].value.descanso"
                                         :default-value="
-                                            ejerciciosRutina[index].value.descanso
-                                                ? ejerciciosRutina[index].value.descanso
-                                                : 'Apagado'
+                                            ejerciciosRutina[index].value.descanso ?? 'Apagado'
                                         "
                                         placeholder="Selecciona el tiempo de descanso"
                                         fluid
@@ -103,7 +105,8 @@
                                 <div class="flex gap-4">
                                     <div class="flex flex-col gap-1 grow" v-auto-animate>
                                         <label>Series</label>
-                                        <InputText
+                                        <InputNumber
+                                            :min="0"
                                             type="number"
                                             v-model="ejerciciosRutina[index].value.series"
                                             placeholder="Ingrese la cantidad de series"
@@ -121,7 +124,9 @@
 
                                     <div class="flex flex-col gap-1 grow" v-auto-animate>
                                         <label>Repeticiones</label>
-                                        <InputText
+                                        <InputNumber
+                                            type="number"
+                                            :min="0"
                                             v-model="ejerciciosRutina[index].value.repeticiones"
                                             placeholder="Ingrese la cantidad de repeticiones"
                                             fluid
@@ -140,6 +145,13 @@
                         </div>
                     </Draggable>
                 </Container>
+                <div
+                    v-if="ejerciciosRutina.length === 0"
+                    class="text-center p-4 border-2 border-dashed border-surface-600 rounded-lg text-muted-color !mb-10"
+                >
+                    <p>Aún no has agregado ejercicios.</p>
+                    <p>Usa la lista de la derecha para comenzar.</p>
+                </div>
             </div>
             <div class="flex justify-end gap-4 mt-2">
                 <Button
@@ -152,8 +164,8 @@
                 <Button type="submit" :loading label="Guardar" />
             </div>
         </form>
-        <div class="w-2/5 max-w-lg">
-            <div class="fixed w-2/5 max-w-lg">
+        <div class="w-2/5 max-w-lg relative">
+            <div class="sticky top-20">
                 <div class="card flex gap-2 justify-between relative">
                     <div class="space-y-4 mb-5">
                         <h2 class="text-xl font-bold mb-3">Resumen</h2>
@@ -173,7 +185,7 @@
                         class="!max-w-32 absolute right-14 -top-14"
                     />
                 </div>
-                <div class="card !pb-1 h-fit max-w-full">
+                <div class="card !pb-1 max-w-full">
                     <Select
                         :options="muscles"
                         optionLabel="nombre"
@@ -205,8 +217,8 @@
                         v-if="loadingExercises"
                     />
                     <ul
-                        class="mt-8 max-h-[48vh] grow overflow-y-auto mb-6 informacion card-resumen"
-                        v-else
+                        class="mt-8 max-h-[42vh] grow overflow-y-auto mb-6 informacion card-resumen"
+                        v-else-if="exercises.length > 0"
                     >
                         <li
                             v-for="exercise in exercises"
@@ -237,6 +249,13 @@
                             </div>
                         </li>
                     </ul>
+                    <div v-else class="text-center p-4 my-8 text-muted-color">
+                        <i class="pi pi-search" style="font-size: 2rem"></i>
+                        <p class="mt-2">No se encontraron ejercicios</p>
+                        <p class="text-sm">
+                            Intenta con otra búsqueda o limpia el filtro de músculo.
+                        </p>
+                    </div>
                 </div>
             </div>
         </div>
@@ -259,21 +278,34 @@ import { computed, onMounted, ref, watch } from 'vue';
 import { Container, Draggable } from 'vue-dndrop';
 import { useRoute, useRouter } from 'vue-router';
 import z from 'zod';
+const backend = import.meta.env.VITE_BACKEND_URL;
+const idWorkout = ref(null);
 const muscles = ref([]);
 const exercises = ref([]);
-const inputSearch = ref('');
 const loading = ref(false);
 const exerciseData = ref({});
+const popoverRefs = ref({});
+const modalDetailsVisible = ref(false);
+const removedSeries = [];
+const inputSearch = ref('');
 const toast = useToast();
 const loadingMuscles = ref(false);
-const backend = import.meta.env.VITE_BACKEND_URL;
-const modalDetailsVisible = ref(false);
+const selectedMuscle = ref(null);
+const loadingExercises = ref(false);
+
 const route = useRoute();
 const router = useRouter();
-const selectedMuscle = ref(null);
-const idWorkout = ref(null);
-const loadingExercises = ref(false);
-const isEditMode = computed(() => (route.params?.id ? true : false));
+
+const isEditMode = computed(() => !!route.params?.id);
+const totalSeries = computed(() => {
+    if (!ejerciciosRutina?.value) return 0;
+    return ejerciciosRutina.value.reduce((acc, e) => {
+        if (e.value.series) acc += parseInt(e.value.series);
+        return acc;
+    }, 0);
+});
+
+/* Hasta 5 minutos */
 const restTimes = Array.from({ length: 21 }, (_, index) => {
     if (index === 0) return 'Apagado';
     const duration = index * 15;
@@ -283,25 +315,39 @@ const getExerciseImage = (exercise) => {
     return `${backend}/api/files/${exercise.collectionId}/${exercise.id}/${exercise.miniatura}`;
 };
 const onDrop = async (item) => {
-    console.log(item);
     swap(item.removedIndex, item.addedIndex);
     await validateField('ejerciciosRutina');
 };
-
-const popoverRefs = ref([]);
 
 const togglePopover = (event, exerciseId) => {
     if (popoverRefs.value[exerciseId]) {
         popoverRefs.value[exerciseId].toggle(event);
     }
 };
+
 const addExercise = async (exercise) => {
     if (!ejerciciosRutina.value.some((e) => e.value.id === exercise.id)) {
-        push({ ...exercise, series: null, repeticiones: null, descanso: '' });
+        push({ ...exercise, series: null, repeticiones: null, descanso: 'Apagado' });
+        toast.add({
+            severity: 'success',
+            summary: 'Ejercicio Agregado',
+            detail: `${exercise.nombre} se agregó a la rutina.`,
+            life: 2000
+        });
+    } else {
+        toast.add({
+            severity: 'warn',
+            summary: 'Ejercicio Duplicado',
+            detail: `${exercise.nombre} ya está en la rutina.`,
+            life: 3000
+        });
     }
 };
-const removedSeries = [];
+
 const removeExercise = (exerciseId) => {
+    if (popoverRefs.value[exerciseId]) {
+        popoverRefs.value[exerciseId].hide();
+    }
     const exercise = ejerciciosRutina.value.find((e) => e.value.id === exerciseId);
     if (isEditMode.value && exercise.value.id_serie) {
         removedSeries.push(exercise.value.id_serie);
@@ -316,13 +362,6 @@ const showExerciseInfo = (event, exercise) => {
     modalDetailsVisible.value = true;
 };
 
-const totalSeries = computed(() => {
-    if (!ejerciciosRutina?.value) return 0;
-    return ejerciciosRutina.value.reduce((acc, e) => {
-        if (e.value.series) acc += parseInt(e.value.series);
-        return acc;
-    }, 0);
-});
 //Validaciones
 const validationSchema = toTypedSchema(
     z.object({
@@ -338,19 +377,16 @@ const validationSchema = toTypedSchema(
                     id: z.string(),
                     descanso: z.string().optional(),
                     series: z.coerce.number().min(1, { message: 'Las series son obligatorias.' }),
-                    repeticiones: z
-                        .string({
-                            required_error: 'Las repeticiones son obligatorias',
-                            invalid_type_error: 'Las repeticiones son obligatorias'
-                        })
-                        .nonempty('Las repeticiones son obligatorias')
+                    repeticiones: z.coerce
+                        .number()
+                        .min(1, { message: 'Las repeticiones son obligatorias.' })
                 })
             )
             .optional()
     })
 );
 
-const { errors, handleSubmit, validateField } = useForm({
+const { errors, handleSubmit, validateField, setValues } = useForm({
     validationSchema,
     initialValues: {
         nombre: '',
@@ -366,6 +402,7 @@ const { fields: ejerciciosRutina, push, remove, swap } = useFieldArray('ejercici
 const searchExercises = useDebounceFn(() => {
     fetchExercises();
 }, 400);
+
 const fetchExercises = async () => {
     try {
         loadingExercises.value = true;
@@ -384,6 +421,12 @@ const fetchExercises = async () => {
         });
         exercises.value = result;
     } catch (error) {
+        toast.add({
+            severity: 'error',
+            summary: 'Operación fallida',
+            detail: 'No se pudo obtener los ejercicios',
+            life: 3000
+        });
         console.log(error);
     } finally {
         loadingExercises.value = false;
@@ -391,34 +434,54 @@ const fetchExercises = async () => {
 };
 //Obtiene los datos si esta en modo edicion
 const fetchData = async () => {
-    idWorkout.value = route.query?.workout;
-    if (!isEditMode.value) return;
+    if (!isEditMode.value) {
+        idWorkout.value = route.query?.workout;
+        return;
+    }
     try {
         loading.value = true;
         const result = await pb.collection('rutina_ejercicios').getFullList({
             filter: `rutina_id="${route.params.id}"`,
             sort: 'orden',
-            fields: '*, expand.ejercicio_id.*, expand.rutina_id.*, expand.ejercicio_id.expand.musculo_principal.nombre, expand.ejercicio_id.expand.musculo_principal.id, expand.ejercicio_id.expand.musculos_secundarios.nombre, expand.ejercicio_id.expand.musculos_secundarios.id',
+            fields: `
+                *, 
+                expand.ejercicio_id.*,
+                expand.rutina_id.*, 
+                expand.ejercicio_id.expand.musculo_principal.nombre, 
+                expand.ejercicio_id.expand.musculo_principal.id, 
+                expand.ejercicio_id.expand.musculos_secundarios.nombre, 
+                expand.ejercicio_id.expand.musculos_secundarios.id
+            `,
             expand: 'ejercicio_id, rutina_id, ejercicio_id.musculo_principal, ejercicio_id.musculos_secundarios'
         });
-        nombre.value = result[0].expand.rutina_id.nombre;
-        descripcion.value = result[0].expand.rutina_id.descripcion ?? null;
-        idWorkout.value = result[0].expand.rutina_id.plan_entrenamiento_id;
+        const routineData = result[0].expand.rutina_id;
+        idWorkout.value = routineData.plan_entrenamiento_id;
+        setValues({
+            nombre: routineData.nombre,
+            descripcion: routineData.descripcion || ''
+        });
         result.forEach((exercise) => {
             push({
                 ...exercise.expand.ejercicio_id,
                 id_serie: exercise.id,
                 series: exercise.series,
                 repeticiones: exercise.repeticiones,
-                descanso: exercise.descanso
+                descanso: exercise.descanso || 'Apagado'
             });
         });
     } catch (error) {
+        toast.add({
+            severity: 'error',
+            summary: 'Operación fallida! ',
+            detail: 'No se pudo obtener la rutina.',
+            life: 3000
+        });
         console.log(error);
     } finally {
         loading.value = false;
     }
 };
+
 const onFormSubmit = handleSubmit(async (values) => {
     if (ejerciciosRutina.value.length === 0) {
         toast.add({
@@ -452,6 +515,7 @@ const onFormSubmit = handleSubmit(async (values) => {
                 batch.collection('rutina_ejercicios').update(exercise.id_serie, payload);
             }
         });
+
         removedSeries.forEach((serie) => {
             batch.collection('rutina_ejercicios').delete(serie);
         });

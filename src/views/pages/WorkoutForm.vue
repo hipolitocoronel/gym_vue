@@ -136,7 +136,7 @@
                 />
             </div>
             <div
-                class="card !w-[400px] h-[85vh] fixed overflow-y-scroll overflow-x-hidden card-resumen"
+                class="card !w-[400px] h-[85vh] sticky top-8 overflow-y-scroll overflow-x-hidden card-resumen"
             >
                 <h2 class="text-2xl font-bold">Resumen</h2>
                 <Divider class="!mt-6 !mb-6 !w-[400px] !-ml-8" />
@@ -174,22 +174,29 @@ import { useField, useForm } from 'vee-validate';
 import { computed, onMounted, ref, watch } from 'vue';
 import { useRoute } from 'vue-router';
 import { z } from 'zod';
-const loadingMuscles = ref(false);
 const store = useIndexStore();
+const confirm = useConfirm();
+const toast = useToast();
+const route = useRoute();
+
 const muscles = ref([]);
 const weeks = ref([]);
 const routines = ref([]);
 const idWorkout = ref(null);
+
 const loading = ref(false);
-const confirm = useConfirm();
+const loadingMuscles = ref(false);
 const loadingRoutines = ref(false);
-const toast = useToast();
-const route = useRoute();
-const totalExercises = computed(() =>
-    routines.value.reduce((acc, r) => acc + r?.ejercicios?.length, 0)
-);
-const totalSeries = computed(() => muscles.value.reduce((a, b) => a + b.series, 0));
+
 const isEditMode = computed(() => !!(idWorkout.value || route.params?.id));
+
+const totalExercises = computed(() =>
+    routines.value.reduce((acc, routine) => acc + (routine?.ejercicios?.length || 0), 0)
+);
+
+const totalSeries = computed(() =>
+    muscles.value.reduce((acc, muscle) => acc + (muscle.series || 0), 0)
+);
 
 const validationSchema = toTypedSchema(
     z.object({
@@ -202,16 +209,17 @@ const validationSchema = toTypedSchema(
         duracion_semanas: z.coerce
             .number({ invalid_type_error: 'La duracion es obligatoria.' })
             .min(1, { message: 'La duracion es obligatoria.' })
-            .max(99999999, { message: 'No debe exceder 8 caracteres' })
+            .max(52, { message: 'No debe exceder la duracion de 52 semanas' })
     })
 );
-const { handleSubmit, errors } = useForm({
+const { handleSubmit, errors, setValues } = useForm({
     validationSchema
 });
 
 const { value: nombre } = useField('nombre');
 const { value: descripcion } = useField('descripcion');
 const { value: duracion_semanas } = useField('duracion_semanas');
+
 const onFormSubmit = handleSubmit(async (values) => {
     try {
         loading.value = true;
@@ -240,27 +248,35 @@ const onFormSubmit = handleSubmit(async (values) => {
 });
 //Obtiene los datos del plan si esta en modo edicion
 const fetchData = async () => {
+    await fetchMuscles();
     if (!isEditMode.value) return;
     try {
         loadingRoutines.value = true;
         idWorkout.value = route.params?.id;
-        const workout = await pb.collection('planes_entrenamientos').getOne(idWorkout.value);
-        descripcion.value = workout.descripcion;
-        duracion_semanas.value = workout.duracion_semanas;
-        nombre.value = workout.nombre;
-        routines.value = await pb.collection('rutinas').getFullList({
-            filter: `plan_entrenamiento_id="${route.params.id}"`,
-            fields: 'nombre, id'
+        const workout = await pb.collection('planes_entrenamientos').getOne(idWorkout.value, {
+            fields: `
+                id,
+                nombre,
+                duracion_semanas,
+                expand.rutinas(plan_entrenamiento_id).nombre,
+                expand.rutinas(plan_entrenamiento_id).id,
+                expand.rutinas(plan_entrenamiento_id).expand.rutina_ejercicios(rutina_id).series,
+                expand.rutinas(plan_entrenamiento_id).expand.rutina_ejercicios(rutina_id).id,
+                expand.rutinas(plan_entrenamiento_id).expand.rutina_ejercicios(rutina_id).expand.ejercicio_id.musculo_principal,
+                expand.rutinas(plan_entrenamiento_id).expand.rutina_ejercicios(rutina_id).expand.ejercicio_id.nombre,
+            `,
+            expand: 'rutinas(plan_entrenamiento_id), rutinas(plan_entrenamiento_id).rutina_ejercicios(rutina_id), rutinas(plan_entrenamiento_id).rutina_ejercicios(rutina_id).ejercicio_id'
         });
-        for (const routine of routines.value) {
-            routine.ejercicios = await pb.collection('rutina_ejercicios').getFullList({
-                filter: `rutina_id="${routine.id}"`,
-                expand: 'ejercicio_id',
-                sort: 'orden',
-                fields: 'id, series, expand.ejercicio_id.nombre, expand.ejercicio_id.musculo_principal, expand.ejercicio_id.musculos_secundarios'
-            });
-        }
-        updateMuscleSeries();
+        setValues({
+            nombre: workout.nombre,
+            descripcion: workout.descripcion || '',
+            duracion_semanas: workout.duracion_semanas
+        });
+        routines.value = workout.expand['rutinas(plan_entrenamiento_id)'].map((r) => ({
+            id: r.id,
+            nombre: r.nombre,
+            ejercicios: r.expand['rutina_ejercicios(rutina_id)']
+        }));
     } catch (error) {
         toast.add({
             severity: 'error',
@@ -272,22 +288,21 @@ const fetchData = async () => {
         loadingRoutines.value = false;
     }
 };
-
+//Actualiza la cantidad de series de cada musculo
 const updateMuscleSeries = () => {
     muscles.value = muscles.value.map((muscle) => ({
         ...muscle,
         series: routines.value
             .flatMap((routine) => routine.ejercicios)
-            .filter((e) => e.expand.ejercicio_id.musculo_principal === muscle.id)
+            .filter((e) => {
+                return e.expand.ejercicio_id.musculo_principal === muscle.id;
+            })
             .reduce((acc, e) => acc + e.series, 0)
     }));
 };
-onMounted(async () => {
+const fetchMuscles = async () => {
     try {
         loadingMuscles.value = true;
-        for (let i = 1; i <= 52; i++) {
-            weeks.value.push({ label: `${i} Semana${i === 1 ? '' : 's'} `, value: i });
-        }
         const result = await pb
             .collection('musculos')
             .getFullList({ sort: 'nombre', fields: 'id, nombre' });
@@ -302,10 +317,15 @@ onMounted(async () => {
     } finally {
         loadingMuscles.value = false;
     }
+};
+
+onMounted(async () => {
+    for (let i = 1; i <= 52; i++) {
+        weeks.value.push({ label: `${i} Semana${i === 1 ? '' : 's'} `, value: i });
+    }
 });
 
 const deleteRoutine = async (data) => {
-    console.log(data);
     confirm.require({
         message: `Seguro que quieres eliminar la rutina ${data.nombre} ?`,
         header: 'Confirmar Eliminación',
@@ -320,13 +340,14 @@ const deleteRoutine = async (data) => {
             severity: 'danger'
         },
         accept: async () => {
+            console.log(data);
             try {
-                await pb.collection('rutinas').delete(data.id);
                 const batch = pb.createBatch();
                 for (const exercise of data.ejercicios) {
                     batch.collection('rutina_ejercicios').delete(exercise.id);
                 }
                 await batch.send();
+                await pb.collection('rutinas').delete(data.id);
                 routines.value = routines.value.filter((r) => r.id !== data.id);
                 toast.add({
                     severity: 'success',
@@ -334,7 +355,6 @@ const deleteRoutine = async (data) => {
                     detail: 'Rutina eliminada',
                     life: 3000
                 });
-                updateMuscleSeries();
             } catch (error) {
                 console.log(error);
                 toast.add({
@@ -348,6 +368,11 @@ const deleteRoutine = async (data) => {
     });
 };
 watch(() => route.params?.id, fetchData, { immediate: true });
+watch(
+    () => routines.value,
+    () => updateMuscleSeries(),
+    { deep: true }
+);
 </script>
 
 <style>

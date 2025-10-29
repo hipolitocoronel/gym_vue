@@ -61,11 +61,7 @@ const setChartData = async (event) => {
 
     chartOptions.value.scales.x.time.unit = event === 'Semanal' ? 'day' : 'week';
 };
-watch(
-    () => store.currentSucursal,
-    () => setChartData(period.value),
-    { immediate: true }
-);
+watch(() => store.currentSucursal, setChartData(period.value), { immediate: true });
 const setChartOptions = () => {
     const documentStyle = getComputedStyle(document.documentElement);
     const textColor = documentStyle.getPropertyValue('--p-text-color');

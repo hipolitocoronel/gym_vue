@@ -79,10 +79,12 @@ const watchMember = (member) => {
     showModalDetails.value = true;
 };
 const checkCanAdd = async () => {
-    const result = await pb.collection('gimnasios_caracteristicas').getOne(store.currentGym.id);
+    const result = await pb
+        .collection('gimnasios_caracteristicas')
+        .getOne(store.currentGym.id, { fields: 'total_miembros' });
     return result.total_miembros <= store.currentGym.expand.servicio_id.limite_miembros;
 };
-//Actualizar la tabla despues de agregar o editar un miembrp
+//Actualizar la tabla despues de agregar o editar un miembro
 const updateTable = async (isEditMode) => {
     canAddMembers.value = await checkCanAdd();
     searchInput.value = '';
@@ -116,9 +118,9 @@ const deleteMember = (member) => {
             try {
                 member.deleted = new Date();
                 await pb.collection('miembros').update(member.id, member);
+                canAddMembers.value = await checkCanAdd();
                 searchInput.value = '';
                 memberList.value.getMembers({ first: 0, rows: null });
-                canAddMembers.value = await checkCanAdd();
                 toast.add({
                     severity: 'success',
                     summary: 'Confirmado',

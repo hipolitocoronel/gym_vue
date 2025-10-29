@@ -17,7 +17,11 @@
         <Column field="nombre" header="Programa"></Column>
         <Column header="Rutinas">
             <template #body="{ data }">
-                <Tag v-for="rutina in data.rutinas" :value="rutina.nombre" class="mr-2" />
+                <Tag
+                    v-for="rutina in data.expand['rutinas(plan_entrenamiento_id)']"
+                    :value="rutina.nombre"
+                    class="mr-2"
+                />
             </template>
         </Column>
         <Column class="w-28">
@@ -74,15 +78,10 @@ const getWorkouts = async (event) => {
             .collection('planes_entrenamientos')
             .getList(currentPage, rowsPerPage.value, {
                 filter: `sucursal_id = "${store?.currentSucursal.id}" && (nombre~'${search ?? ''}')`,
-                fields: 'id, nombre'
+                fields: 'id, nombre, expand.rutinas(plan_entrenamiento_id).nombre',
+                expand: 'rutinas(plan_entrenamiento_id)'
             });
         workouts.value = result.items;
-        for (const workout of workouts.value) {
-            workout.rutinas = await pb.collection('rutinas').getFullList({
-                filter: `plan_entrenamiento_id = "${workout.id}"`,
-                fields: 'id, nombre'
-            });
-        }
         totalRecords.value = result.totalItems;
     } catch (error) {
         console.log(error);
@@ -121,11 +120,11 @@ const deleteWorkout = (workout) => {
                         filter: `rutina_id ~ "${routinesIds.join(',')}"`,
                         fields: 'id'
                     });
-                    for (const routine of workout.rutinas) {
-                        batch.collection('rutinas').delete(routine.id);
-                    }
                     for (const serie of series) {
                         batch.collection('rutina_ejercicios').delete(serie.id);
+                    }
+                    for (const routine of workout.rutinas) {
+                        batch.collection('rutinas').delete(routine.id);
                     }
                     await batch.send();
                 }

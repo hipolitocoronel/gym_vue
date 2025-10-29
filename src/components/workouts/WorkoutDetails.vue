@@ -1,5 +1,10 @@
 <template>
-    <Dialog v-model:visible="visible" modal :header="workoutData?.nombre" class="w-[25rem]">
+    <Dialog
+        v-model:visible="visible"
+        modal
+        :header="workoutData?.nombre"
+        class="w-screen h-[100vh] !max-h-[100vh] !border-none"
+    >
         <p>{{ workoutData.descripcion }}</p>
         <h2 class="text-xl font-bold">Rutinas</h2>
         <div class="space-y-2 mt-4">

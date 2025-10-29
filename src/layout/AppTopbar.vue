@@ -42,7 +42,7 @@ onMounted(() => {
 
 const fetchEstadoServicio = () => {
     axios
-        .get(`${pb.baseURL}/api/servicio/estado/${store.currentGym.id}`)
+        .get(`${pb.baseURL}api/servicio/estado/${store.currentGym.id}`)
         .then((res) => {
             store.setEstadoServicio(res?.data?.data);
             modalServiceInfo.value = !store.servicioEstado?.puede_usar_servicio;
@@ -80,7 +80,7 @@ const fetchEstadoServicio = () => {
 
             <div class="flex items-center">
                 <span class="ml-1 font-semibold">
-                    {{ store.currentGym?.nombre }}
+                    {{ store?.currentGym?.nombre }}
                 </span>
 
                 <span class="pl-4">|</span>
@@ -97,7 +97,7 @@ const fetchEstadoServicio = () => {
                         <span class="mr-2"> Sucursal: </span>
 
                         <span class="font-medium">
-                            {{ store.currentSucursal.direccion }}
+                            {{ store?.currentSucursal?.direccion }}
                         </span>
                     </div>
                     <i class="ml-1 pi {pi-fw} pi-arrows-v"></i>
@@ -129,6 +129,13 @@ const fetchEstadoServicio = () => {
             </div>
 
             <div class="layout-config-menu">
+                <button
+                    type="button"
+                    class="layout-topbar-action"
+                    v-tooltip.top="'Ver Notificaciones'"
+                >
+                    <i class="pi pi-bell"></i>
+                </button>
                 <button type="button" class="layout-topbar-action" @click="toggleDarkMode">
                     <i :class="['pi', { 'pi-moon': isDarkTheme, 'pi-sun': !isDarkTheme }]"></i>
                 </button>

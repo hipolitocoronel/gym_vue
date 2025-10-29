@@ -13,7 +13,7 @@
         currentPageReportTemplate="Mostrando {last} de {totalRecords} pagos"
     >
         <template #empty> Sin registros. </template>
-        <Column header="Cliente">
+        <Column header="Cliente" v-if="!props.memberId">
             <template #body="{ data }">
                 {{ data.expand.id_miembro.nombre }}
             </template>
@@ -71,6 +71,9 @@ import formatCurrency from '@/utils/formatCurrency';
 import dayjs from 'dayjs/esm';
 import { useToast } from 'primevue/usetoast';
 import { defineExpose, onMounted, ref } from 'vue';
+const props = defineProps({
+    memberId: String
+});
 const payments = ref([]);
 const first = ref(0);
 const loading = ref(false);
@@ -91,7 +94,7 @@ const getPayments = async (event) => {
             sort: '-fecha_pago',
             expand: 'id_plan_plazo, id_miembro, id_plan_plazo.id_plan',
             fields: 'fecha_pago,monto_total,medio_pago, fecha_vencimiento, expand.id_plan_plazo.duracion, expand.id_plan_plazo.precio, expand.id_plan_plazo.expand.id_plan.nombre, expand.id_miembro.nombre, expand.id_miembro.dni',
-            filter: `id_miembro.nombre ~ '${event.search ?? ''}' && sucursal_id = '${store.currentSucursal.id}' `
+            filter: `id_miembro.nombre ~ '${event.search ?? ''}' && sucursal_id = '${store.currentSucursal.id}' && id_miembro ~ '${props.memberId ?? ''}' `
         });
 
         totalRecords.value = result.totalItems;

@@ -33,6 +33,7 @@ const onFormSubmit = async (e) => {
                 fields: 'id,nombre,dni,fecha_vencimiento, sucursal_id, expand.sucursal_id.expand.gimnasio_id.id, expand.sucursal_id.expand.gimnasio_id.logo, expand.sucursal_id.expand.gimnasio_id.nombre, expand.sucursal_id.expand.gimnasio_id.collectionId',
                 expand: 'sucursal_id, sucursal_id.gimnasio_id'
             });
+            console.log(result);
             const member = {
                 nombre: result[0].nombre,
                 dni: result[0].dni,
@@ -40,13 +41,14 @@ const onFormSubmit = async (e) => {
                 gimnasios: result.map((item) => {
                     return {
                         fecha_vencimiento: item.fecha_vencimiento,
-                        gimnasio: item.expand.sucursal_id.expand.gimnasio_id
+                        gimnasio: item?.expand?.sucursal_id?.expand.gimnasio_id
                     };
                 })
             };
             localStorage.setItem('member', JSON.stringify(member));
             router.push({ name: 'dashboard-miembros' });
         } catch (error) {
+            console.log(error);
             toast.add({
                 severity: 'error',
                 summary: 'Operación fallida',

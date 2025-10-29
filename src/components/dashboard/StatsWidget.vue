@@ -120,7 +120,7 @@ const getStats = async () => {
                   .collection('dashboard')
                   .getFullList({ filter: `id = '${store.currentSucursal.id}'` });
 
-        stats.value = result.length
+        stats.value = !!result.length
             ? result[0]
             : {
                   total_recaudado_mensual: 0,
